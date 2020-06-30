@@ -45,11 +45,25 @@ def qtablewidget_clear(a_table: QtWidgets.QTableWidget):
         a_table.removeRow(row)
 
 
+def get_selected_row(a_qtablewidget: QtWidgets.QTableWidget):
+    rows = a_qtablewidget.selectionModel().selectedRows()
+    return None if not rows else rows[0].row()
+
+
 def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
     rows = a_table.selectionModel().selectedRows()
     if rows:
         for idx_model in reversed(rows):
             a_table.removeRow(idx_model.row())
+
+
+def wrap_in_layout(a_widget: QtWidgets.QWidget):
+    widget = QtWidgets.QWidget()
+    layout = QtWidgets.QHBoxLayout(widget)
+    layout.addWidget(a_widget)
+    layout.setAlignment(QtCore.Qt.AlignCenter)
+    layout.setContentsMargins(0, 0, 0, 0)
+    return widget
 
 
 class TableHeaderContextMenu:
