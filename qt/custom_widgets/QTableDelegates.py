@@ -28,7 +28,7 @@ class NonOverlappingPainter(QtWidgets.QStyledItemDelegate):
             super().paint(painter, option, index)
 
 
-class TransparentPainter(QtWidgets.QStyledItemDelegate):
+class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
     def __init__(self, a_parent=None, a_default_color="#f5f0f0"):
         super().__init__(a_parent)
         self.color_default = QtGui.QColor(a_default_color)
@@ -56,6 +56,22 @@ class TransparentPainter(QtWidgets.QStyledItemDelegate):
         c3.setGreen((c1.green() + c2.green()) / 2)
         c3.setBlue((c1.blue() + c2.blue()) / 2)
         return c3
+
+
+class TransparentPainterForWidget(TransparentPainterForView):
+    def __init__(self, a_parent=None, a_default_color="#f5f0f0"):
+        super().__init__(a_parent, a_default_color)
+        self.color_default = QtGui.QColor(a_default_color)
+
+    def background(self, option, index):
+        item = self.parent().itemFromIndex(index)
+        if item:
+            if item.background() != QtGui.QBrush():
+                return item.background().color()
+        if self.parent().alternatingRowColors():
+            if index.row() % 2 == 1:
+                return option.palette.color(QtGui.QPalette.AlternateBase)
+        return option.palette.color(QtGui.QPalette.Base)
 
 
 class TableEditDoubleClick(QtWidgets.QItemDelegate):
