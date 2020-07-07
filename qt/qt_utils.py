@@ -1,3 +1,4 @@
+from typing import Iterable, List, Tuple
 from math import isclose
 import logging
 
@@ -27,11 +28,18 @@ def get_wheel_steps(event: QtGui.QWheelEvent):
     return steps_num.y()
 
 
-def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data: tuple):
+def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data: Iterable):
     row_num = a_table.rowCount()
     a_table.insertRow(row_num)
     for col, data in enumerate(a_row_data):
         a_table.setItem(row_num, col, QtWidgets.QTableWidgetItem(str(data)))
+
+
+# def qtablewidget_get_data_row(a_table: QtWidgets.QTableWidget, a_row) -> List:
+#     col_count = a_table.columnCount()
+#     data_row = []
+#     for column in range(col_count):
+#         data =
 
 
 def qtablewidget_clear(a_table: QtWidgets.QTableWidget):
@@ -64,6 +72,10 @@ def wrap_in_layout(a_widget: QtWidgets.QWidget):
     layout.setAlignment(QtCore.Qt.AlignCenter)
     layout.setContentsMargins(0, 0, 0, 0)
     return widget
+
+
+def unwrap_from_layout(a_widget: QtWidgets.QWidget):
+    return a_widget.layout().itemAt(0).widget()
 
 
 class TableHeaderContextMenu:
