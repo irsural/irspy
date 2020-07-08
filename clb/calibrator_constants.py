@@ -109,6 +109,13 @@ is_voltage_signal = {
     SignalType.DCV: True
 }
 
+is_amperes_signal = {
+    SignalType.ACI: True,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: False
+}
+
 signal_type_to_min_step = {
     SignalType.ACI: 2e-6,
     SignalType.ACV: 2e-6,
