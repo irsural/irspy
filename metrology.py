@@ -24,6 +24,9 @@ class MovingAverage:
 
         self.__values.append(a_value)
 
+    def is_empty(self):
+        return not self.__values
+
     def get(self):
         if self.__values:
             return self.__sum / len(self.__values)

@@ -4,6 +4,7 @@ from enum import IntEnum
 from sys import exc_info
 import traceback
 import logging
+import base64
 import math
 import time
 import re
@@ -251,6 +252,14 @@ def get_array_min_diff(a_array: list):
         diff = unique_array[i + 1] - unique_array[i]
         min_diff = diff if diff < min_diff else min_diff
     return round(min_diff, 9)
+
+
+def bytes_to_base64(a_bytes):
+    return base64.b64encode(a_bytes).decode()
+
+
+def base64_to_bytes(a_string: str):
+    return base64.b64decode(a_string)
 
 
 class Timer:
