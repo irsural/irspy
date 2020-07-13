@@ -1,6 +1,10 @@
 from collections import deque
 
 
+class StabilityControl:
+    pass
+
+
 class MovingAverage:
     def __init__(self, a_window_size: int):
         assert a_window_size != 0, "Размер окна не может быть равен нулю"

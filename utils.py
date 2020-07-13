@@ -271,7 +271,7 @@ class Timer:
 
     def start(self, a_interval_s=None):
         self.__started = True
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
         if a_interval_s is not None:
             self.interval_s = a_interval_s
         self.stop_time = self.start_time + self.interval_s
@@ -284,7 +284,7 @@ class Timer:
     def check(self):
         if not self.__started:
             return False
-        return time.time() > self.stop_time
+        return time.perf_counter() > self.stop_time
 
     def started(self):
         return self.__started
