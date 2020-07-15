@@ -288,3 +288,11 @@ class Timer:
 
     def started(self):
         return self.__started
+
+    def time_passed(self):
+        if not self.__started:
+            return 0
+        elif time.perf_counter() > self.stop_time:
+            return self.interval_s
+        else:
+            return time.perf_counter() - self.start_time
