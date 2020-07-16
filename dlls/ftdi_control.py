@@ -1,4 +1,5 @@
 from enum import IntEnum
+from irspy.dlls import mxsrlib_dll
 import logging
 
 
@@ -22,8 +23,9 @@ class FtdiControl:
         _7 = 0b10000000
         ALL = 0b11111111
 
-    def __init__(self, a_mxsrclib):
-        self.mxsrclib_dll = a_mxsrclib
+    def __init__(self):
+        assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+        self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll
         self.reinit()
 
     def set_out_pins(self, a_channel: Channel, a_bus: Bus, a_pins: int):

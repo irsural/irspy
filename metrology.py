@@ -2,6 +2,8 @@ from collections import deque
 from array import array
 import ctypes
 
+from irspy.dlls import mxsrlib_dll
+
 
 class StabilityControl:
     pass
@@ -48,17 +50,9 @@ class MovingAverage:
 class ImpulseFilter:
     MIN_SIZE = 3
 
-    mxsrclib_dll = None
-
-    @staticmethod
-    def init_mxsrlib_dll(a_mxsrclib_dll: ctypes.CDLL):
-        ImpulseFilter.mxsrclib_dll = a_mxsrclib_dll
-
-    def __init__(self, a_mxsrclib_dll: ctypes.CDLL = None):
-        if ImpulseFilter.mxsrclib_dll is None or a_mxsrclib_dll is not None:
-            self.mxsrclib_dll = a_mxsrclib_dll
-
-        assert self.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована!"
+    def __init__(self):
+        assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+        self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll
 
     def clear(self):
         self.mxsrclib_dll.imp_filter_clear()
@@ -84,7 +78,7 @@ if __name__ == "__main__":
 
     mxsrclib_dll = mxsrlib_dll.set_up_mxsrclib_dll("dlls/mxsrclib_dll.dll")
 
-    impulse_filter = ImpulseFilter(mxsrclib_dll)
+    impulse_filter = ImpulseFilter()
     impulse_filter.clear()
 
     directory = "D:\\proj\\autocalibration\\autocalibration\\configurations"
