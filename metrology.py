@@ -46,8 +46,19 @@ class MovingAverage:
 
 
 class ImpulseFilter:
-    def __init__(self, a_mxsrclib_dll: ctypes.CDLL):
-        self.mxsrclib_dll = a_mxsrclib_dll
+    MIN_SIZE = 3
+
+    mxsrclib_dll = None
+
+    @staticmethod
+    def init_mxsrlib_dll(a_mxsrclib_dll: ctypes.CDLL):
+        ImpulseFilter.mxsrclib_dll = a_mxsrclib_dll
+
+    def __init__(self, a_mxsrclib_dll: ctypes.CDLL = None):
+        if ImpulseFilter.mxsrclib_dll is None or a_mxsrclib_dll is not None:
+            self.mxsrclib_dll = a_mxsrclib_dll
+
+        assert self.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована!"
 
     def clear(self):
         self.mxsrclib_dll.imp_filter_clear()

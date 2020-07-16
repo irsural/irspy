@@ -38,15 +38,23 @@ class FtdiControl:
     def reinit(self):
         self.mxsrclib_dll.reinit()
 
+        result = True
+
         self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL)
-        self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False)
+        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
+            result = False
 
         self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL)
-        self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False)
+        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
+            result = False
 
         self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.D,
                                        FtdiControl.Pin._4 | FtdiControl.Pin._5 | FtdiControl.Pin._6)
-        self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False)
+        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
+            result = False
 
         self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL & ~FtdiControl.Pin._0)
-        self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False)
+        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
+            result = False
+
+        return result

@@ -18,3 +18,17 @@ class FlagStabilityChecker:
         if self.flag_variable.get() != self.check_state:
             self.start()
         return self.hold_flag_timer.check()
+
+
+def guaranteed_buffered_variable_set(a_buffered_variable: BufferedVariable, value):
+    """
+    Проверяет, соответствует ли значение a_buffered_variable значению value.
+    Если не соответствует, то устанавливает a_buffered_variable = value
+    !! ВНИМАНИЕ !! Параметр a_buffer_delay_s у a_buffered_variable должен быть равен нулю !!!
+    :return: True, если значние a_buffered_variable = value, иначе False
+    """
+    if a_buffered_variable.get() == value:
+        return True
+    else:
+        a_buffered_variable.set(value)
+        return False

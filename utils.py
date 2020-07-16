@@ -296,3 +296,4 @@ class Timer:
             return self.interval_s
         else:
             return time.perf_counter() - self.start_time
+
