@@ -12,7 +12,7 @@ MIN_VOLTAGE = -630
 MIN_ALTERNATIVE = 0
 
 MAX_FREQUENCY = 2000
-MIN_FREQUENCY = 35
+MIN_FREQUENCY = 40
 
 FREQUENCY_MIN_STEP = 1
 
@@ -121,6 +121,20 @@ signal_type_to_min_step = {
     SignalType.ACV: 2e-6,
     SignalType.DCI: 2e-9,
     SignalType.DCV: 2e-7,
+}
+
+signal_type_to_current_enabled = {
+    SignalType.ACI: True,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: False
+}
+
+signal_type_to_dc_enabled = {
+    SignalType.ACI: False,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: True
 }
 
 error_code_to_message = {
