@@ -32,6 +32,22 @@ class NetworkVariables:
                                                           a_mode=BufferedVariable.Mode.RW,
                                                           a_buffer_delay_s=a_variables_read_delay)
 
+        self.signal_on = BufferedVariable(a_variable_info=VariableInfo(a_index=60, a_bit_index=0, a_type="bit"),
+                                          a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                          a_buffer_delay_s=a_variables_read_delay)
+
+        self.reference_amplitude = BufferedVariable(a_variable_info=VariableInfo(a_index=61, a_type="double"),
+                                                    a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                                    a_buffer_delay_s=a_variables_read_delay)
+
+        self.current_enabled = BufferedVariable(a_variable_info=VariableInfo(a_index=69, a_bit_index=0, a_type="bit"),
+                                                a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                                a_buffer_delay_s=a_variables_read_delay)
+
+        self.dc_enabled = BufferedVariable(a_variable_info=VariableInfo(a_index=69, a_bit_index=1, a_type="bit"),
+                                           a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                           a_buffer_delay_s=a_variables_read_delay)
+
         self.release_firmware = BufferedVariable(a_variable_info=VariableInfo(a_index=69, a_bit_index=5, a_type="bit"),
                                                  a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.R,
                                                  a_buffer_delay_s=a_variables_read_delay)
@@ -138,6 +154,10 @@ class NetworkVariables:
         self.fast_adc_slow = BufferedVariable(a_variable_info=VariableInfo(a_index=229, a_type="double"),
                                               a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.R,
                                               a_buffer_delay_s=a_variables_read_delay)
+
+        self.frequency = BufferedVariable(a_variable_info=VariableInfo(a_index=293, a_type="double"),
+                                          a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                          a_buffer_delay_s=a_variables_read_delay)
 
         self.aux_stabilizer_4v_dac_code_float = BufferedVariable(a_variable_info=VariableInfo(a_index=374,
                                                                                               a_type="float"),
@@ -777,7 +797,7 @@ class BufferedVariable:
                 f"(Индекс: {self.__variable_info.index}.{self.__variable_info.bit_index})"
 
             if self.__is_bit:
-                a_value = int(utils.bound(a_value, 0, 1))
+                a_value = utils.bound(int(a_value), 0, 1)
                 self.__calibrator.write_bit(self.__variable_info.index, self.__variable_info.bit_index, a_value)
             else:
                 if self.__variable_info.c_type != 'd' and self.__variable_info.c_type != 'f':
