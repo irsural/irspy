@@ -5,6 +5,19 @@ import ctypes
 from irspy.dlls import mxsrlib_dll
 
 
+def deviation_percents(a_value: float, a_reference: float):
+    assert a_reference != 0, "a_reference must not be zero"
+    return (a_reference - a_value) / abs(a_reference) * 100
+
+
+def student_t_inverse_distribution_2x(a_confidence_level, a_degrees_of_freedom):
+    assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+    assert a_degrees_of_freedom > 0, "Количество степеней свободы должно быть больше 0"
+    assert a_confidence_level in (0.95, 0.99, 0.999), "Допустимые уровни доверия: 0.95, 0.99, 0.999"
+
+    return mxsrlib_dll.mxsrclib_dll.student_t_inverse_distribution_2x(a_confidence_level, a_degrees_of_freedom)
+
+
 class StabilityControl:
     pass
 

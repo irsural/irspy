@@ -1,5 +1,6 @@
 from linecache import checkcache, getline
 from configparser import ConfigParser
+from sys import float_info
 from enum import IntEnum
 from sys import exc_info
 import traceback
@@ -51,7 +52,7 @@ __enum_to_units = {
 }
 
 
-def parse_input(a_input: str, a_reverse_check=False):
+def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     if not a_input:
         return 0.
     input_re = check_input_re.match(a_input)
@@ -60,7 +61,7 @@ def parse_input(a_input: str, a_reverse_check=False):
 
     number = float(input_re.group('number').replace(",", "."))
     factor = __units_to_factor[input_re.group("units").lower()]
-    result = round(number * factor, 9)
+    result = round(number * factor, a_precision)
 
     # print(f"S->V. Input: {a_input}. Parsed: {number} {input_re.group('units').lower()}. Result: {result}")
     if a_reverse_check:
@@ -107,17 +108,13 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
     return value_to_user
 
 
-def float_to_string(a_number: float):
-    return "{0:.9f}".format(a_number).rstrip('0').rstrip('.').replace(".", ",")
+def float_to_string(a_number: float, a_precision=9):
+    format_str = f"{{0:.{a_precision}f}}"
+    return format_str.format(a_number).rstrip('0').rstrip('.').replace(".", ",")
 
 
 def absolute_error(a_reference: float, a_value: float):
     return a_reference - a_value
-
-
-def relative_error(a_reference: float, a_value: float, a_normalize: float):
-    assert a_normalize != 0, "Normalize value must not be zero"
-    return (a_reference - a_value) / a_normalize * 100
 
 
 def variation(a_lval: float, a_rval: float):
@@ -130,6 +127,13 @@ def absolute_error_limit(a_normalize_value: float, a_error_percent: float):
 
 def bound(a_value, a_min, a_max):
     return max(min(a_value, a_max), a_min)
+
+
+def compare_float(a_first: float, a_second: float):
+    """
+    :return: True, если a_first == a_second, инача False
+    """
+    return math.isclose(a_first, a_second, rel_tol=float_info.epsilon)
 
 
 def relative_step_change(a_value: float, a_step: float, a_min_step: float, a_normalize_value=None):
