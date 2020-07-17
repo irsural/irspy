@@ -7,7 +7,7 @@ from irspy.dlls import mxsrlib_dll
 
 def deviation_percents(a_value: float, a_reference: float):
     assert a_reference != 0, "a_reference must not be zero"
-    return (a_reference - a_value) / abs(a_reference) * 100
+    return (a_value - a_reference) / abs(a_reference) * 100
 
 
 def student_t_inverse_distribution_2x(a_confidence_level, a_degrees_of_freedom):
