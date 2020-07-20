@@ -6,6 +6,7 @@ from irspy.dlls import mxsrlib_dll
 
 FtdiPin = namedtuple("FtdiPin", "channel bus pin")
 
+
 class FtdiControl:
     class Channel(IntEnum):
         A = 0
@@ -87,7 +88,7 @@ class FtdiControl:
 
     def write_changes(self) -> bool:
         pins_ok = []
-        for channel, bus, pins in self.pin_buffers.items():
+        for (channel, bus), pins in self.pin_buffers.items():
             result = self.__write_byte(channel, bus, pins)
             pins_ok.append(result)
 
