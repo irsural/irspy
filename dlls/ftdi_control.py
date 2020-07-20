@@ -1,7 +1,10 @@
+from collections import namedtuple
 from enum import IntEnum
-from irspy.dlls import mxsrlib_dll
 import logging
 
+from irspy.dlls import mxsrlib_dll
+
+FtdiPin = namedtuple("FtdiPin", "channel bus pin")
 
 class FtdiControl:
     class Channel(IntEnum):
@@ -26,6 +29,14 @@ class FtdiControl:
     def __init__(self):
         assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
         self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll
+
+        self.pin_buffers = {
+            (FtdiControl.Channel.A, FtdiControl.Bus.D): 0b00000000,
+            (FtdiControl.Channel.A, FtdiControl.Bus.C): 0b00000000,
+            (FtdiControl.Channel.B, FtdiControl.Bus.D): 0b00000000,
+            (FtdiControl.Channel.B, FtdiControl.Bus.C): 0b00000000,
+        }
+
         self.reinit()
 
     def set_out_pins(self, a_channel: Channel, a_bus: Bus, a_pins: int):
@@ -60,3 +71,24 @@ class FtdiControl:
             result = False
 
         return result
+
+    def is_connected(self) -> bool:
+        return True
+
+    def set_pin(self, a_ftdi_pin: FtdiPin, a_state: bool):
+        if a_state:
+            self.pin_buffers[(a_ftdi_pin.channel, a_ftdi_pin.bus)] |= a_ftdi_pin.pin
+        else:
+            self.pin_buffers[(a_ftdi_pin.channel, a_ftdi_pin.bus)] &= ~a_ftdi_pin.pin
+
+    def __write_byte(self, a_channel: Channel, a_bus: Bus, a_byte: int) -> bool:
+        # self.mxsrclib_dll.write_byte(a_channel, a_bus, a_byte)
+        return True
+
+    def write_changes(self) -> bool:
+        pins_ok = []
+        for channel, bus, pins in self.pin_buffers.items():
+            result = self.__write_byte(channel, bus, pins)
+            pins_ok.append(result)
+
+        return all(pins_ok)
