@@ -1,26 +1,24 @@
-from platform import system as cur_system
+from os.path import dirname
+from typing import Union
+from os import sep
 import logging
-import os.path
 import ctypes
 import enum
 
 import irspy.clb.calibrator_constants as clb
+from irspy.revisions import Revisions
 import irspy.utils as utils
-
-# if cur_system() == "Windows":
-#     dll_name = "clb_driver_dll.dll"
-#     debug_dll_path = ""
-# elif cur_system() == "Linux":
-#     dll_name = "libclb_driver_dll.so"
-#     debug_dll_path = "/home/astra/Загрузки/clb_driver_dll/build-clb_driver_dll-Desktop-Release/libclb_driver_dll.so"
-# else:
-#     dll_name = ""
-#     debug_dll_path = ""
 
 
 # noinspection DuplicatedCode
 def set_up_driver(a_full_path):
     clb_driver_lib = ctypes.CDLL(a_full_path)
+
+    clb_driver_lib.revision.restype = ctypes.c_int
+
+    assert clb_driver_lib.revision() == Revisions.clb_dll, f"Ревизия mxsrclib_dll не соответствует ожидаемой! " \
+                                                           f"Текущая версия {clb_driver_lib.revision()}. " \
+                                                           f"Ожидаемая: {Revisions.clb_dll}"
 
     # Возвращает список калибраторов, разделенных ';'
     clb_driver_lib.get_usb_devices.restype = ctypes.c_char_p
@@ -53,6 +51,10 @@ def set_up_driver(a_full_path):
     clb_driver_lib.fast_control_mode_enable.argtypes = [ctypes.c_int]
 
     return clb_driver_lib
+
+
+__path = dirname(__file__) + sep + "clb_driver_dll.dll"
+clb_dll: [Union, ctypes.CDLL] = set_up_driver(__path)
 
 
 class UsbDrv:
