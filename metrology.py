@@ -1,5 +1,6 @@
 from collections import deque
 from array import array
+from math import sqrt
 import ctypes
 
 from irspy.dlls import mxsrlib_dll
@@ -56,6 +57,54 @@ class MovingAverage:
     def get(self):
         if self.__samples:
             return self.__sum / len(self.__samples)
+        else:
+            return 0
+
+
+class MovingSKO:
+    def __init__(self, a_window_size: int = 0):
+        self.__window_size = a_window_size
+        self.__average = MovingAverage(self.__window_size)
+        self.__squares_sum = 0
+
+        if self.__window_size:
+            self.__squares = deque(maxlen=a_window_size)
+        else:
+            self.__squares = deque()
+
+    def reset(self, a_window_size=None):
+        if a_window_size:
+            self.__window_size = a_window_size
+
+        self.__average.reset()
+        self.__squares_sum = 0
+
+        if self.__window_size:
+            self.__squares = deque(maxlen=a_window_size)
+        else:
+            self.__squares = deque()
+
+    def add(self, a_value: float):
+        self.__average.add(a_value)
+
+        if self.__window_size > 0 and len(self.__squares) == self.__window_size:
+            popped_value = self.__squares[0]
+            self.__squares_sum -= popped_value
+
+        square = (a_value - self.__average.get()) ** 2
+        self.__squares_sum += square
+        self.__squares.append(square)
+
+    def is_empty(self):
+        return not self.__squares
+
+    def average(self):
+        return self.__average.get()
+
+    def get(self):
+        if self.__squares and self.__squares_sum >= 0:
+
+            return sqrt(self.__squares_sum / len(self.__squares))
         else:
             return 0
 

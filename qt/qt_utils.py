@@ -78,6 +78,16 @@ def unwrap_from_layout(a_widget: QtWidgets.QWidget):
     return a_widget.layout().itemAt(0).widget()
 
 
+def open_or_activate_dialog(a_dialog_object_name: str, a_dialog_parent, a_dialog: QtWidgets.QDialog, *args, **kwargs):
+    dialog: QtWidgets.QDialog = a_dialog_parent.findChild(QtWidgets.QDialog, a_dialog_object_name)
+    if dialog:
+        dialog.activateWindow()
+    else:
+        dialog = a_dialog(*args, **kwargs)
+        dialog.exec()
+    return dialog
+
+
 class TableHeaderContextMenu:
     def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView, a_hide_first_column: bool = False):
         table_header = a_table.horizontalHeader()
