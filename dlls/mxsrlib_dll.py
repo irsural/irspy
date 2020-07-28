@@ -1,4 +1,5 @@
 from typing import Union
+from array import array
 from os.path import dirname
 from os import sep
 import ctypes
@@ -26,6 +27,16 @@ def set_up_mxsrclib_dll(a_full_path):
     mx_dll.funnel_client_get_read_size.restype = ctypes.c_int
     mx_dll.funnel_client_get_write_size.restype = ctypes.c_int
 
+    mx_dll.correct_map_create.restype = ctypes.c_uint32
+    mx_dll.correct_map_destroy.restype = ctypes.c_uint32
+    mx_dll.correct_map_get_x_points_count.restype = ctypes.c_uint32
+    mx_dll.correct_map_get_y_points_count.restype = ctypes.c_uint32
+    mx_dll.correct_map_get_coef_points_count.restype = ctypes.c_uint32
+    mx_dll.correct_map_get_x_points.restype = ctypes.c_int
+    mx_dll.correct_map_get_y_points.restype = ctypes.c_int
+    mx_dll.correct_map_get_coefs_points.restype = ctypes.c_int
+    mx_dll.correct_map_connect.restype = ctypes.c_int
+
     return mx_dll
 
 
@@ -40,6 +51,10 @@ class FunnelClient:
         self.mxsrclib_dll = mxsrclib_dll
 
         self.__created = False
+
+    def __del__(self):
+        if self.__created:
+            self.destroy()
 
     def create(self, a_mxdata, a_funnel_start_index, a_offset, a_size):
         if self.__created:
@@ -90,3 +105,103 @@ class FunnelClient:
             return self.mxsrclib_dll.funnel_client_get_write_size()
         else:
             return 0
+
+
+class CorrectMap:
+    def __init__(self):
+        global mxsrclib_dll
+        assert mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+        self.mxsrclib_dll = mxsrclib_dll
+
+        self.__handle = 0
+
+        self.__x_points = None
+        self.__y_points = None
+        self.__coefs_points = None
+
+        self.__created = False
+
+    def __del__(self):
+        if self.__created:
+            self.destroy()
+
+    def create(self):
+        if self.__created:
+            self.destroy()
+        self.__handle = self.mxsrclib_dll.correct_map_create()
+        self.__created = True
+
+    def destroy(self):
+        self.mxsrclib_dll.correct_map_destroy(self.__handle)
+        self.__x_points = None
+        self.__y_points = None
+        self.__coefs_points = None
+        self.__created = False
+
+    def connect(self, a_mxdata_address: int):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        self.mxsrclib_dll.correct_map_connect(self.__handle, a_mxdata_address)
+
+    def set_x_points_count(self, a_count):
+        self.mxsrclib_dll.correct_map_set_x_points_count(a_count)
+
+    def set_y_points_count(self, a_count):
+        self.mxsrclib_dll.correct_map_set_y_points_count(a_count)
+
+    @property
+    def x_points(self):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        x_count = self.mxsrclib_dll.correct_map_get_x_points_count(self.__handle)
+        self.__x_points = (ctypes.c_double * x_count)()
+
+        self.mxsrclib_dll.correct_map_get_x_points(self.__handle, self.__x_points)
+        return list(self.__x_points)
+
+    @x_points.setter
+    def x_points(self, a_points: array):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        address, size = a_points.buffer_info()
+        pointer_to_double = ctypes.cast(address, ctypes.POINTER(ctypes.c_double))
+
+        self.mxsrclib_dll.correct_map_set_x_points(self.__handle, pointer_to_double, size)
+
+    @property
+    def y_points(self):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        y_count = self.mxsrclib_dll.correct_map_get_y_points_count(self.__handle)
+        self.__y_points = (ctypes.c_double * y_count)()
+
+        self.mxsrclib_dll.correct_map_get_y_points(self.__handle, self.__y_points)
+        return list(self.__y_points)
+
+    @y_points.setter
+    def y_points(self, a_points: array):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        address, size = a_points.buffer_info()
+        pointer_to_double = ctypes.cast(address, ctypes.POINTER(ctypes.c_double))
+
+        self.mxsrclib_dll.correct_map_set_y_points(self.__handle, pointer_to_double, size)
+
+    @property
+    def coef_points(self):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        coefs_count = self.mxsrclib_dll.correct_map_get_coef_points_count(self.__handle)
+        self.__coefs_points = (ctypes.c_double * coefs_count)()
+
+        self.mxsrclib_dll.correct_map_get_coefs_points(self.__handle, self.__coefs_points)
+        return list(self.__coefs_points)
+
+    @coef_points.setter
+    def coef_points(self, a_points: array):
+        assert self.__created, "CorrectMap не подклюена!"
+
+        address, size = a_points.buffer_info()
+        pointer_to_double = ctypes.cast(address, ctypes.POINTER(ctypes.c_double))
+
+        self.mxsrclib_dll.correct_map_set_coef_points(self.__handle, pointer_to_double, size)

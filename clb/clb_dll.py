@@ -50,6 +50,8 @@ def set_up_driver(a_full_path):
 
     clb_driver_lib.fast_control_mode_enable.argtypes = [ctypes.c_int]
 
+    clb_driver_lib.get_mxdata_address.restype = ctypes.c_size_t
+
     return clb_driver_lib
 
 
@@ -309,3 +311,6 @@ class ClbDrv:
 
     def write_bit(self, a_byte_index: int, a_bit_index: int, a_value: int):
         self.__clb_dll.write_bit(a_byte_index, a_bit_index, a_value)
+
+    def get_mxdata_address(self) -> int:
+        return self.__clb_dll.get_mxdata_address()
