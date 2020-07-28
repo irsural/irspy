@@ -50,6 +50,7 @@ class FunnelClient:
         assert mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
         self.mxsrclib_dll = mxsrclib_dll
 
+        self.__data_size = 0
         self.__created = False
 
     def __del__(self):
@@ -62,10 +63,12 @@ class FunnelClient:
 
         self.mxsrclib_dll.funnel_client_create(a_mxdata, a_funnel_start_index, a_offset, a_size)
 
+        self.__data_size = a_size
         self.__created = True
 
     def destroy(self):
         self.__created = False
+        self.__data_size = 0
         self.mxsrclib_dll.funnel_client_destroy()
 
     def connected(self) -> bool:
@@ -93,6 +96,9 @@ class FunnelClient:
             return self.mxsrclib_dll.is_read_complete()
         else:
             return False
+
+    def data_size(self):
+        return self.__data_size
 
     def get_read_size(self) -> int:
         if self.__created:
@@ -143,11 +149,17 @@ class CorrectMap:
 
         self.mxsrclib_dll.correct_map_connect(self.__handle, a_mxdata_address)
 
-    def set_x_points_count(self, a_count):
-        self.mxsrclib_dll.correct_map_set_x_points_count(a_count)
+    def get_x_points_count(self):
+        return self.mxsrclib_dll.correct_map_get_x_points_count(self.__handle)
 
-    def set_y_points_count(self, a_count):
-        self.mxsrclib_dll.correct_map_set_y_points_count(a_count)
+    def get_y_points_count(self):
+        return self.mxsrclib_dll.correct_map_get_y_points_count(self.__handle)
+
+    def set_x_points_count(self, a_points_count):
+        self.mxsrclib_dll.correct_map_set_x_points_count(self.__handle, a_points_count)
+
+    def set_y_points_count(self, a_points_count):
+        self.mxsrclib_dll.correct_map_set_y_points_count(self.__handle, a_points_count)
 
     @property
     def x_points(self):
