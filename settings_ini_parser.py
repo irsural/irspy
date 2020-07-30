@@ -1,5 +1,5 @@
+from typing import List, Union
 from enum import IntEnum
-from typing import List
 import configparser
 import base64
 import os
@@ -104,7 +104,7 @@ class Settings(metaclass=PropertyOwner):
         except configparser.ParsingError:
             raise BadIniException
 
-    def save_geometry(self, a_window_name: str, a_geometry: QtCore.QByteArray):
+    def save_geometry(self, a_window_name: str, a_geometry: Union[bytes, QtCore.QByteArray]):
         try:
             self.add_ini_section(Settings.GEOMETRY_SECTION)
             self.settings[self.GEOMETRY_SECTION][a_window_name] = self.__to_base64(a_geometry)
