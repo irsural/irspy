@@ -41,8 +41,10 @@ def set_up_mxsrclib_dll(a_full_path):
                                                 ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_wchar_p]
     mx_dll.connect_to_agilent_3458a.restype = ctypes.c_int
 
-    mx_dll.multimeter_get_measured_value.argtypes = [ctypes.c_size_t, ctypes.POINTER(ctypes.c_double)]
-    mx_dll.multimeter_get_measured_value.restype = ctypes.c_int
+    mx_dll.multimeter_start_measure.argtypes = [ctypes.c_size_t, ctypes.POINTER(ctypes.c_double)]
+    mx_dll.multimeter_start_measure.restype = ctypes.c_int
+
+    mx_dll.multimeter_get_status.restype = ctypes.c_int
 
     mx_dll.multimeter_set_range.argtypes = [ctypes.c_wchar_p]
     mx_dll.multimeter_set_range.restype = ctypes.c_wchar_p
