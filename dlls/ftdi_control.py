@@ -41,34 +41,34 @@ class FtdiControl:
         self.reinit()
 
     def set_out_pins(self, a_channel: Channel, a_bus: Bus, a_pins: int):
-        self.mxsrclib_dll.set_out_pins(a_channel, a_bus, int(a_pins))
+        self.mxsrclib_dll.ftdi_set_out_pins(a_channel, a_bus, int(a_pins))
 
     def write_gpio(self, a_channel: Channel, a_bus: Bus, a_pins: int, a_state: bool) -> bool:
-        return bool(self.mxsrclib_dll.write_gpio(a_channel, a_bus, int(a_pins), int(a_state)))
+        return bool(self.mxsrclib_dll.ftdi_write_gpio(a_channel, a_bus, int(a_pins), int(a_state)))
 
     def read_gpio(self, a_channel: Channel, a_bus: Bus, a_pins: int):
-        return self.mxsrclib_dll.read_gpio(a_channel, a_bus, int(a_pins))
+        return self.mxsrclib_dll.ftdi_read_gpio(a_channel, a_bus, int(a_pins))
 
     def reinit(self):
-        self.mxsrclib_dll.reinit()
+        self.mxsrclib_dll.ftdi_reinit()
 
         result = True
 
-        self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL)
-        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
+        self.mxsrclib_dll.ftdi_set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL)
+        if not self.mxsrclib_dll.ftdi_write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
             result = False
 
-        self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL)
-        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
+        self.mxsrclib_dll.ftdi_set_out_pins(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL)
+        if not self.mxsrclib_dll.ftdi_write_gpio(FtdiControl.Channel.A, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
             result = False
 
-        self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.D,
+        self.mxsrclib_dll.ftdi_set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.D,
                                        FtdiControl.Pin._4 | FtdiControl.Pin._5 | FtdiControl.Pin._6)
-        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
+        if not self.mxsrclib_dll.ftdi_write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.D, FtdiControl.Pin.ALL, False):
             result = False
 
-        self.mxsrclib_dll.set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL & ~FtdiControl.Pin._0)
-        if not self.mxsrclib_dll.write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
+        self.mxsrclib_dll.ftdi_set_out_pins(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL & ~FtdiControl.Pin._0)
+        if not self.mxsrclib_dll.ftdi_write_gpio(FtdiControl.Channel.B, FtdiControl.Bus.C, FtdiControl.Pin.ALL, False):
             result = False
 
         return result
@@ -83,7 +83,7 @@ class FtdiControl:
             self.pin_buffers[(a_ftdi_pin.channel, a_ftdi_pin.bus)] &= ~a_ftdi_pin.pin
 
     def __write_byte(self, a_channel: Channel, a_bus: Bus, a_byte: int) -> bool:
-        # self.mxsrclib_dll.write_byte(a_channel, a_bus, a_byte)
+        # self.mxsrclib_dll.ftdi_write_byte(a_channel, a_bus, a_byte)
         return True
 
     def write_changes(self) -> bool:

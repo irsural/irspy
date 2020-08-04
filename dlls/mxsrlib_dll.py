@@ -14,7 +14,7 @@ def set_up_mxsrclib_dll(a_full_path):
                                                        f"Текущая версия {mx_dll.revision()}. " \
                                                        f"Ожидаемая: {Revisions.mxsrlib_dll}"
 
-    mx_dll.set_out_pins.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint8]
+    mx_dll.ftdi_set_out_pins.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint8]
 
     mx_dll.imp_filter_get.restype = ctypes.c_double
 
@@ -36,6 +36,16 @@ def set_up_mxsrclib_dll(a_full_path):
     mx_dll.correct_map_get_y_points.restype = ctypes.c_int
     mx_dll.correct_map_get_coefs_points.restype = ctypes.c_int
     mx_dll.correct_map_connect.restype = ctypes.c_int
+
+    mx_dll.connect_to_agilent_3458a.argtypes = [ctypes.c_size_t, ctypes.c_wchar_p, ctypes.c_int, ctypes.c_int,
+                                                ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_wchar_p]
+    mx_dll.connect_to_agilent_3458a.restype = ctypes.c_int
+
+    mx_dll.multimeter_get_measured_value.argtypes = [ctypes.c_size_t, ctypes.POINTER(ctypes.c_double)]
+    mx_dll.multimeter_get_measured_value.restype = ctypes.c_int
+
+    mx_dll.multimeter_set_range.argtypes = [ctypes.c_wchar_p]
+    mx_dll.multimeter_set_range.restype = ctypes.c_wchar_p
 
     return mx_dll
 
