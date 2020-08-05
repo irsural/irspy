@@ -189,6 +189,12 @@ class NetworkVariables:
             a_index=406, a_bit_index=4, a_type="bit"), a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
             a_buffer_delay_s=a_variables_read_delay)
 
+        self.final_stabilizer_dac_dc_level = BufferedVariable(a_variable_info=VariableInfo(a_index=416,
+                                                                                           a_type="double"),
+                                                              a_calibrator=self.__calibrator,
+                                                              a_mode=BufferedVariable.Mode.R,
+                                                              a_buffer_delay_s=a_variables_read_delay)
+
         self.aux_stabilizer_adc_dc_600v_voltage = BufferedVariable(a_variable_info=VariableInfo(a_index=428,
                                                                                                 a_type="double"),
                                                                    a_calibrator=self.__calibrator,

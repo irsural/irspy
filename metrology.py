@@ -133,6 +133,33 @@ class ImpulseFilter:
         self.mxsrclib_dll.imp_filter_assign(pointer_to_double, size)
 
 
+class ParamFilter:
+    def __init__(self):
+        assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+        self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll
+
+    def tick(self):
+        self.mxsrclib_dll.param_filter_tick()
+
+    def add(self, a_value: float):
+        self.mxsrclib_dll.param_filter_add(a_value)
+
+    def get_value(self) -> float:
+        return self.mxsrclib_dll.param_filter_get_value()
+
+    def restart(self):
+        self.mxsrclib_dll.param_filter_restart()
+
+    def set_sampling_time(self, a_sampling_time: float):
+        self.mxsrclib_dll.param_filter_set_sampling_time(a_sampling_time)
+
+    def resize(self, a_new_size: int):
+        self.mxsrclib_dll.param_filter_resize(a_new_size)
+
+    def stop(self):
+        self.mxsrclib_dll.param_filter_stop()
+
+
 if __name__ == "__main__":
     import os
     from irspy.dlls import mxsrlib_dll
