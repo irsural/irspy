@@ -15,6 +15,13 @@ def set_up_mxsrclib_dll(a_full_path):
                                                        f"Ожидаемая: {Revisions.mxsrlib_dll}"
 
     mx_dll.ftdi_set_out_pins.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint8]
+    mx_dll.ftdi_reinit.restype = ctypes.c_int
+    mx_dll.ftdi_write_gpio.argtypes = [ctypes.c_uint32, ctypes.c_uint8, ctypes.c_int]
+    mx_dll.ftdi_write_gpio.restype = ctypes.c_int
+    mx_dll.ftdi_read_gpio.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint8]
+    mx_dll.ftdi_read_gpio.restype = ctypes.c_int
+    mx_dll.ftdi_write_byte.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint8]
+    mx_dll.ftdi_write_byte.restype = ctypes.c_int
 
     mx_dll.imp_filter_get.restype = ctypes.c_double
 
