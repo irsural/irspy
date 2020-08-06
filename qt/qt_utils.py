@@ -140,9 +140,9 @@ class QTextEditLogger(logging.Handler):
             color = QtCore.Qt.red
         elif record.levelno == logging.WARNING:
             color = QtCore.Qt.darkYellow
-        elif record.levelno == logging.DEBUG:
+        elif record.levelno == logging.INFO:
             color = QtCore.Qt.blue
-        else: # INFO or NOTSET
+        else: # DEBUG or NOTSET
             color = QtCore.Qt.black
 
         self.text_edit.setTextColor(color)
