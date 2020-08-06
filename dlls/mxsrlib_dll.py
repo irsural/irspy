@@ -58,8 +58,7 @@ def set_up_mxsrclib_dll(a_full_path):
     mx_dll.param_filter_resize.argtypes = [ctypes.c_size_t]
     mx_dll.param_filter_get_value.restype = ctypes.c_double
 
-    mx_dll.multimeter_set_range.argtypes = [ctypes.c_wchar_p]
-    mx_dll.multimeter_set_range.restype = ctypes.c_wchar_p
+    mx_dll.multimeter_set_range.argtypes = [ctypes.c_size_t, ctypes.c_double]
 
     return mx_dll
 
