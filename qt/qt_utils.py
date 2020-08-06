@@ -126,11 +126,26 @@ class TableHeaderContextMenu:
 
 
 class QTextEditLogger(logging.Handler):
-    def __init__(self, parent, a_plain_text_edit):
+    def __init__(self, parent, a_text_edit: QtWidgets.QTextEdit):
         super().__init__()
-        self.widget = a_plain_text_edit
+        self.text_edit = a_text_edit
         # self.widget.setReadOnly(True)
 
     def emit(self, record):
         msg = self.format(record)
-        self.widget.appendPlainText(msg)
+
+        if record.levelno == logging.CRITICAL:
+            color = QtCore.Qt.darkRed
+        elif record.levelno == logging.ERROR:
+            color = QtCore.Qt.red
+        elif record.levelno == logging.WARNING:
+            color = QtCore.Qt.darkYellow
+        elif record.levelno == logging.DEBUG:
+            color = QtCore.Qt.blue
+        else: # INFO or NOTSET
+            color = QtCore.Qt.black
+
+        self.text_edit.setTextColor(color)
+        self.text_edit.insertPlainText(msg + '\n')
+        self.text_edit.ensureCursorVisible()
+
