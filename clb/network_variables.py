@@ -48,6 +48,10 @@ class NetworkVariables:
                                            a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
                                            a_buffer_delay_s=a_variables_read_delay)
 
+        self.reverse = BufferedVariable(a_variable_info=VariableInfo(a_index=69, a_bit_index=2, a_type="bit"),
+                                        a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.RW,
+                                        a_buffer_delay_s=a_variables_read_delay)
+
         self.release_firmware = BufferedVariable(a_variable_info=VariableInfo(a_index=69, a_bit_index=5, a_type="bit"),
                                                  a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.R,
                                                  a_buffer_delay_s=a_variables_read_delay)
