@@ -170,7 +170,7 @@ if __name__ == "__main__":
     impulse_filter = ImpulseFilter()
     impulse_filter.clear()
 
-    directory = "D:\\proj\\autocalibration\\autocalibration\\configurations"
+    directory = "D:\\proj\\clb_autocalibration\\clb_autocalibration\\configurations"
     for file in os.listdir(directory):
         if file.startswith("test_data"):
             with open(f"{directory}\\{file}", "r") as data_file:
