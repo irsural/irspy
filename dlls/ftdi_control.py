@@ -105,7 +105,7 @@ class FtdiControl:
         pins_ok = []
         for (channel, bus), pins in self.pin_buffers.items():
             if self.pin_changed[(channel, bus)]:
-                # print(f"{channel.name}::{bus.name} write: {pins:>08b}")
+                # logging.debug(f"write_changes: {channel.name}::{bus.name} write: {pins:>08b}")
 
                 result = self.__write_byte(channel, bus, pins)
                 if result:

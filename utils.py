@@ -129,7 +129,7 @@ def bound(a_value, a_min, a_max):
     return max(min(a_value, a_max), a_min)
 
 
-def compare_float(a_first: float, a_second: float):
+def are_float_equal(a_first: float, a_second: float):
     """
     :return: True, если a_first == a_second, инача False
     """

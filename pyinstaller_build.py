@@ -12,7 +12,7 @@ VSVersionInfo(
   ffi=FixedFileInfo(
 # filevers and prodvers should be always a tuple with four items: (1, 2, 3, 4)
 # Set not needed items to zero 0.
-filevers=(0, 0, 0, 0),
+filevers=(0, {version}, 0, 0),
 prodvers=(0, 0, 0, 0),
 # Contains a bitmask that specifies the valid bits 'flags'r
 mask=0x0,
@@ -37,12 +37,12 @@ StringFileInfo(
     u'040904B0',
     [StringStruct(u'CompanyName', u'ООО "Радиоэлектронные системы"'),
     StringStruct(u'FileDescription', u'Clb AutoCalibration'),
-    StringStruct(u'FileVersion', u'0.{version}.0'),
+    StringStruct(u'FileVersion', u'0.{version}.0.0'),
     StringStruct(u'InternalName', u'CAC'),
     StringStruct(u'LegalCopyright', u'Копирайт © ООО "РЭС"'),
     StringStruct(u'OriginalFilename', u'Clb_AutoCalibration.exe'),
     StringStruct(u'ProductName', u'Calibrator AutoCalibration'),
-    StringStruct(u'ProductVersion', u'0.{version}.0 (0)')])
+    StringStruct(u'ProductVersion', u'0.{version}.0.0')])
   ]), 
 VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]
