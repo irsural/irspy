@@ -1,6 +1,5 @@
-from typing import Sequence, Dict, Tuple
+from typing import Dict, Tuple
 from enum import IntEnum
-import functools
 import numbers
 import sys
 
@@ -27,8 +26,8 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
         Column.VALUE: "Значение"
     }
 
-    def __init__(self, a_object: object):
-        super().__init__()
+    def __init__(self, a_variables_owner: object, a_parent=None):
+        super().__init__(a_parent)
         self.setLayout(QtWidgets.QGridLayout(self))
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -41,8 +40,7 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
         self.__settings_table.horizontalHeader().setStretchLastSection(True)
         self.layout().addWidget(self.__settings_table)
 
-        self.__variables_owner = a_object
-
+        self.__variables_owner = a_variables_owner
         self.__fields: Dict[str, Tuple[str, type]] = {}
         self.__widget_rows = {}
 
@@ -173,6 +171,7 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
         else:
             raise TypeError(f'Параметр "{a_object_field}"; Неподдерживаемый тип параметра {type(value)}')
 
+        self.__settings_table.resizeColumnsToContents()
         self.__settings_table.resizeRowsToContents()
 
 
