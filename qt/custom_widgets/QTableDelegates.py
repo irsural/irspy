@@ -95,6 +95,14 @@ class ComboboxIgnoreWheel(QtWidgets.QComboBox):
         e.ignore()
 
 
+class SpinboxIgnoreWheel(QtWidgets.QSpinBox):
+    def __init__(self, a_parent):
+        super().__init__(a_parent)
+
+    def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
+        e.ignore()
+
+
 class ComboboxCellDelegate(QtWidgets.QItemDelegate):
     def __init__(self, a_parent: QtCore.QObject, a_values: Tuple):
         super().__init__(a_parent)
