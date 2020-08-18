@@ -1,6 +1,7 @@
 from collections import deque
 from array import array
 from math import sqrt
+import logging
 import ctypes
 
 from irspy.dlls import mxsrlib_dll
@@ -161,32 +162,22 @@ class ParamFilter:
 
 
 if __name__ == "__main__":
-    import os
     from irspy.dlls import mxsrlib_dll
     from array import array
 
     mxsrclib_dll = mxsrlib_dll.set_up_mxsrclib_dll("dlls/mxsrclib_dll.dll")
 
-    impulse_filter = ImpulseFilter()
-    impulse_filter.clear()
+    param_filter = ParamFilter()
+    param_filter.stop()
+    param_filter.resize(100)
+    param_filter.set_sampling_time(0.1)
 
-    directory = "D:\\proj\\clb_autocalibration\\clb_autocalibration\\configurations"
-    for file in os.listdir(directory):
-        if file.startswith("test_data"):
-            with open(f"{directory}\\{file}", "r") as data_file:
+    param_filter.restart()
 
-                expect_result = float(data_file.readline())
-                print("expected:", expect_result)
+    for i in range(110000):
+        print(i / 110000000 * 100)
+        param_filter.add(i / 100)
+        param_filter.tick()
 
-                data_to_filter = array('d')
-                impulse_filter.clear()
-
-                for line in data_file:
-                    value = float(line)
-                    data_to_filter.append(value)
-
-                impulse_filter.assign(data_to_filter)
-
-                print("got:", impulse_filter.get())
-                print("diff percents:", (expect_result - impulse_filter.get()) / expect_result * 100)
-                print()
+    param_filter.stop()
+    print(param_filter.get_value())

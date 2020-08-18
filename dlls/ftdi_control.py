@@ -37,7 +37,7 @@ class FtdiControl:
             (FtdiControl.Channel.A, FtdiControl.Bus.D): 0b11111111,
             (FtdiControl.Channel.A, FtdiControl.Bus.C): 0b11111111,
             (FtdiControl.Channel.B, FtdiControl.Bus.D): 0b11111111,
-            (FtdiControl.Channel.B, FtdiControl.Bus.C): 0b11111111,
+            (FtdiControl.Channel.B, FtdiControl.Bus.C): 0b01111111,
         }
 
         self.pin_changed = {

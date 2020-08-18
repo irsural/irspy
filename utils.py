@@ -133,7 +133,7 @@ def are_float_equal(a_first: float, a_second: float):
     """
     :return: True, если a_first == a_second, инача False
     """
-    return math.isclose(a_first, a_second, rel_tol=float_info.epsilon)
+    return math.isclose(a_first, a_second, rel_tol=1e-09)
 
 
 def relative_step_change(a_value: float, a_step: float, a_min_step: float, a_normalize_value=None):

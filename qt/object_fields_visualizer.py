@@ -38,6 +38,7 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
             ObjectFieldsVisualizer.PARAMETER_TO_NAME[ObjectFieldsVisualizer.Column.VALUE],
         ])
         self.__settings_table.horizontalHeader().setStretchLastSection(True)
+        self.__settings_table.setWordWrap(True)
         self.layout().addWidget(self.__settings_table)
 
         self.__variables_owner = a_variables_owner
