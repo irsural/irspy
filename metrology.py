@@ -1,3 +1,4 @@
+from typing import Sequence
 from collections import deque
 from array import array
 from math import sqrt
@@ -134,6 +135,36 @@ class ImpulseFilter:
         self.mxsrclib_dll.imp_filter_assign(pointer_to_double, size)
 
 
+class Pchip:
+    def __init__(self):
+        assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
+        self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll
+
+        self.__handle = self.mxsrclib_dll.pchip_create()
+        self.__inited = False
+
+    def __del__(self):
+        pass
+        self.mxsrclib_dll.pchip_destroy(self.__handle)
+
+    def set_points(self, a_x_points: Sequence, a_y_points: Sequence):
+        assert len(a_x_points) == len(a_y_points), "Последивательности должны быть одинаковой длины!"
+        assert len(a_x_points) >= 2, "Размер последовательностей должен быть больше 1"
+
+        for i in range(1, len(a_x_points)):
+            assert a_x_points[i] >= a_x_points[i - 1], "Последовательность X должна быть неубывающая"
+
+        x_points = (ctypes.c_double * len(a_x_points))(*a_x_points)
+        y_points = (ctypes.c_double * len(a_y_points))(*a_y_points)
+        print([x for x in x_points])
+        self.mxsrclib_dll.pchip_set_points(self.__handle, x_points, y_points, len(a_x_points))
+        self.__inited = True
+
+    def interpolate(self, a_value: float):
+        assert self.__inited, "Точки интерполяции не заданы"
+        return self.mxsrclib_dll.pchip_interpolate(self.__handle, a_value)
+
+
 class ParamFilter:
     def __init__(self):
         assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
@@ -167,17 +198,10 @@ if __name__ == "__main__":
 
     mxsrclib_dll = mxsrlib_dll.set_up_mxsrclib_dll("dlls/mxsrclib_dll.dll")
 
-    param_filter = ParamFilter()
-    param_filter.stop()
-    param_filter.resize(100)
-    param_filter.set_sampling_time(0.1)
+    pchip1 = Pchip()
+    pchip1.set_points((1, 2, 3), (4, 5, 6))
+    print(pchip1.interpolate(2.5))
 
-    param_filter.restart()
-
-    for i in range(110000):
-        print(i / 110000000 * 100)
-        param_filter.add(i / 100)
-        param_filter.tick()
-
-    param_filter.stop()
-    print(param_filter.get_value())
+    pchip2 = Pchip()
+    pchip2.set_points((2.3, 3.124, 4.23), (5.535, 6.25, 7.23))
+    print(pchip2.interpolate(2.5))

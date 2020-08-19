@@ -2,6 +2,6 @@ from enum import IntEnum
 
 
 class Revisions(IntEnum):
-    irspy = 39
-    mxsrlib_dll = 14
+    irspy = 40
+    mxsrlib_dll = 15
     clb_dll = 29

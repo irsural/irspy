@@ -60,6 +60,12 @@ def set_up_mxsrclib_dll(a_full_path):
 
     mx_dll.multimeter_set_range.argtypes = [ctypes.c_size_t, ctypes.c_double]
 
+    mx_dll.pchip_set_points.argtypes = [ctypes.c_size_t, ctypes.POINTER(ctypes.c_double),
+                                        ctypes.POINTER(ctypes.c_double), ctypes.c_size_t]
+    mx_dll.pchip_interpolate.argtypes = [ctypes.c_size_t, ctypes.c_double]
+    mx_dll.pchip_interpolate.restype = ctypes.c_double
+    mx_dll.pchip_destroy.argtypes = [ctypes.c_size_t]
+
     return mx_dll
 
 
