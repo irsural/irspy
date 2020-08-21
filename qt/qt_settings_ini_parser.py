@@ -1,6 +1,6 @@
 from typing import Union
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 from irspy.settings_ini_parser import Settings
 from irspy import utils as utils
@@ -10,29 +10,65 @@ class QtSettings(Settings):
     """
     Добавляет к Settings методы для сохранения состояния и размера виджетов и состояние таблиц
     """
-    def save_geometry(self, a_window_name: str, a_geometry: Union[bytes, QtCore.QByteArray]):
-        self.add_ini_section(Settings.GEOMETRY_SECTION)
-        self.settings[self.GEOMETRY_SECTION][a_window_name] = utils.bytes_to_base64(bytes(a_geometry))
+    GEOMETRY_SECTION = "GEOMETRY"
+
+    def save_bytes(self, a_name: str, a_bytes: bytes):
+        self.add_ini_section(QtSettings.GEOMETRY_SECTION)
+        self.settings[QtSettings.GEOMETRY_SECTION][a_name] = utils.bytes_to_base64(a_bytes)
         self.save()
 
-    def get_last_geometry(self, a_window_name: str):
+    def read_bytes(self, a_name: str) -> QtCore.QByteArray:
         try:
-            geometry_bytes = self.settings[self.GEOMETRY_SECTION][a_window_name]
-            return QtCore.QByteArray(utils.base64_to_bytes(geometry_bytes))
+            geometry_string = self.settings[QtSettings.GEOMETRY_SECTION][a_name]
+            return QtCore.QByteArray(utils.base64_to_bytes(geometry_string))
         except (KeyError, ValueError):
             return QtCore.QByteArray()
 
-    def save_header_state(self, a_header_name: str, a_state: QtCore.QByteArray):
-        self.add_ini_section(Settings.GEOMETRY_SECTION)
-        self.settings[Settings.GEOMETRY_SECTION][a_header_name] = utils.bytes_to_base64(bytes(a_state))
-        self.save()
+    def save_qwidget_state(self, a_widget: QtWidgets.QWidget):
+        widget_name = a_widget.objectName()
+        assert bool(widget_name), "Виджет должен иметь objectName! (Уникальный)"
 
-    def get_last_header_state(self, a_header_name: str):
+        if isinstance(a_widget, QtWidgets.QMainWindow) or isinstance(a_widget, QtWidgets.QDialog):
+            widget_state = a_widget.saveGeometry()
+        elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
+            widget_state = a_widget.horizontalHeader().saveState()
+        else:
+            widget_state = a_widget.saveState()
+
+        self.save_bytes(widget_name, bytes(widget_state))
+
+    def restore_qwidget_state(self, a_widget: QtWidgets.QWidget):
+        widget_name = a_widget.objectName()
+        geometry_bytes = self.read_bytes(widget_name)
+
+        if isinstance(a_widget, QtWidgets.QMainWindow) or isinstance(a_widget, QtWidgets.QDialog):
+            a_widget.restoreGeometry(geometry_bytes)
+        elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
+            a_widget.horizontalHeader().restoreState(geometry_bytes)
+        else:
+            a_widget.restoreState(geometry_bytes)
+
+    def save_dialog_size(self, a_widget: QtWidgets.QWidget):
+        """
+        В отличии от save_qwidget_state сохраняет не все состояние диалога, а только его размеры
+        """
+        widget_name = a_widget.objectName()
+        assert bool(widget_name), "Виджет должен иметь objectName! (Уникальный)"
+
+        size = f"{a_widget.size().width()};{a_widget.size().height()}"
+        widget_state = bytes(size, encoding='cp1251')
+
+        self.save_bytes(widget_name, bytes(widget_state))
+
+    def restore_dialog_size(self, a_widget):
+        widget_name = a_widget.objectName()
+        geometry_bytes = self.read_bytes(widget_name)
+
         try:
-            state_bytes = self.settings[Settings.GEOMETRY_SECTION][a_header_name]
-            return QtCore.QByteArray(utils.base64_to_bytes(state_bytes))
-        except (KeyError, ValueError):
-            return QtCore.QByteArray()
+            size = geometry_bytes.split(";")
+            a_widget.resize(int(size[0]), int(size[1]))
+        except ValueError:
+            pass
 
 
 if __name__ == "__main__":
@@ -59,10 +95,11 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
     w = QtWidgets.QDialog()
-    w.setWindowTitle('Simple')
-    w.restoreGeometry(a.get_last_geometry("dialog"))
-    w.exec()
+    w.setObjectName("test")
+    a.restore_dialog_size(w)
+    w.show()
+    app.exec()
 
-    a.save_geometry("dialog", w.saveGeometry())
+    a.save_dialog_size(w)
 
     print(a.list_float, a.list_int, a.float1, a.int1, a.str1)

@@ -14,7 +14,7 @@ class DialogWithText(QtWidgets.QDialog):
         self.ui.setupUi(self)
 
         self.settings = a_settings
-        self.restoreGeometry(self.settings.get_last_geometry(self.__class__.__name__))
+        self.settings.restore_qwidget_state(self)
         self.show()
 
         self.ui.textEdit.setText("".join(a_text_strings))
@@ -23,5 +23,5 @@ class DialogWithText(QtWidgets.QDialog):
         print("dialog with text deleted")
 
     def closeEvent(self, a_event: QtGui.QCloseEvent) -> None:
-        self.settings.save_geometry(self.__class__.__name__, self.saveGeometry())
+        self.settings.save(self)
         a_event.accept()

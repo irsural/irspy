@@ -31,7 +31,6 @@ def add_properties_to_class(instance, a_properties):
 
 
 class Settings(metaclass=PropertyOwner):
-    GEOMETRY_SECTION = "GEOMETRY"
 
     class ValueType(IntEnum):
         INT = 0
