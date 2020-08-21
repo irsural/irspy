@@ -1,7 +1,8 @@
 from collections.abc import Iterable
 import configparser
 import abc
-from utils import base64_to_bytes, bytes_to_base64
+
+from irspy.utils import base64_to_bytes, bytes_to_base64
 
 
 class Property(abc.ABC):
