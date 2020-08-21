@@ -1,5 +1,5 @@
-from typing import Sequence
 from collections import deque
+from typing import Sequence
 from array import array
 from math import sqrt
 import logging
@@ -9,6 +9,9 @@ from irspy.dlls import mxsrlib_dll
 
 
 def deviation_percents(a_value: float, a_reference: float):
+    """
+    :return: Разность между двумя числами в процентах
+    """
     assert a_reference != 0, "a_reference must not be zero"
     return (a_value - a_reference) / abs(a_reference) * 100
 
@@ -21,12 +24,14 @@ def student_t_inverse_distribution_2x(a_confidence_level, a_degrees_of_freedom):
     return mxsrlib_dll.mxsrclib_dll.student_t_inverse_distribution_2x(a_confidence_level, a_degrees_of_freedom)
 
 
-class StabilityControl:
-    pass
-
-
 class MovingAverage:
+    """
+    Класс для вычисления среднего в скользящем окне
+    """
     def __init__(self, a_window_size: int = 0):
+        """
+        :param a_window_size: Размер скользящего окна
+        """
         self.__window_size = a_window_size
         self.__sum = 0
 
@@ -64,7 +69,13 @@ class MovingAverage:
 
 
 class MovingSKO:
+    """
+    Класс для вычисления СКО в скользящем окне
+    """
     def __init__(self, a_window_size: int = 0):
+        """
+        :param a_window_size: Размер скользящего окна
+        """
         self.__window_size = a_window_size
         self.__average = MovingAverage(self.__window_size)
         self.__squares_sum = 0
@@ -136,6 +147,9 @@ class ImpulseFilter:
 
 
 class Pchip:
+    """
+    Класс для вычисления интерполяции Эрмита
+    """
     def __init__(self):
         assert mxsrlib_dll.mxsrclib_dll is not None, "mxsrclib_dll не инициализирована !!!"
         self.mxsrclib_dll = mxsrlib_dll.mxsrclib_dll

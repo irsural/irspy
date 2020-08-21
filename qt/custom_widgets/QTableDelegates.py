@@ -7,29 +7,14 @@ from PyQt5.QtWidgets import QWidget
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 
 
-class NonOverlappingPainter(QtWidgets.QStyledItemDelegate):
-    def __init__(self, a_parent=None):
-        super().__init__(a_parent)
-
-    def paint(self, painter: QtGui.QPainter, option, index: QtCore.QModelIndex):
-        background = index.data(QtCore.Qt.BackgroundRole)
-        if isinstance(background, QtGui.QBrush):
-            if background.color() != QtCore.Qt.white:
-                # WARNING Чтобы drawText работал правильно, нужно чтобы в ui форме в QTable
-                # был явно прописан размер шрифта!!!
-                painter.fillRect(option.rect, background)
-                text_rect = option.rect
-                # Не знаю как получить нормальный прямоугольник для отрисовки текста, поэтому только так
-                text_rect.setLeft(text_rect.left() + 3)
-                painter.drawText(text_rect, option.displayAlignment, index.data())
-            else:
-                super().paint(painter, option, index)
-        else:
-            super().paint(painter, option, index)
-
-
 class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
+    """
+    Делегат для рисования выделения ячеек QTableView прозрачным цветом
+    """
     def __init__(self, a_parent=None, a_default_color="#f5f0f0"):
+        """
+        :param a_default_color: Цвет выделения
+        """
         super().__init__(a_parent)
         self.color_default = QtGui.QColor(a_default_color)
 
@@ -59,7 +44,13 @@ class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
 
 
 class TransparentPainterForWidget(TransparentPainterForView):
+    """
+    Делегат для рисования выделения ячеек QTableWidget прозрачным цветом
+    """
     def __init__(self, a_parent=None, a_default_color="#f5f0f0"):
+        """
+        :param a_default_color: Цвет выделения
+        """
         super().__init__(a_parent, a_default_color)
         self.color_default = QtGui.QColor(a_default_color)
 
@@ -82,11 +73,6 @@ class TableEditDoubleClick(QtWidgets.QItemDelegate):
         return QEditDoubleClick(parent)
 
 
-class NonOverlappingDoubleClick(NonOverlappingPainter, TableEditDoubleClick):
-    def __init__(self, a_parent):
-        super().__init__(a_parent)
-
-
 class ComboboxIgnoreWheel(QtWidgets.QComboBox):
     def __init__(self, a_parent):
         super().__init__(a_parent)
@@ -104,6 +90,9 @@ class SpinboxIgnoreWheel(QtWidgets.QSpinBox):
 
 
 class ComboboxCellDelegate(QtWidgets.QItemDelegate):
+    """
+    Делегат для задания комбобокса в ячейки таблицы
+    """
     def __init__(self, a_parent: QtCore.QObject, a_values: Tuple):
         super().__init__(a_parent)
         self.cb_values = a_values

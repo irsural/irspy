@@ -1,5 +1,3 @@
-from typing import Union
-
 from PyQt5 import QtCore, QtWidgets
 
 from irspy.settings_ini_parser import Settings
@@ -8,7 +6,7 @@ from irspy import utils as utils
 
 class QtSettings(Settings):
     """
-    Добавляет к Settings методы для сохранения состояния и размера виджетов и состояние таблиц
+    Добавляет к Settings методы для сохранения состояния и размера некоторых виджетов qt
     """
     GEOMETRY_SECTION = "GEOMETRY"
 
@@ -58,7 +56,7 @@ class QtSettings(Settings):
         size = f"{a_widget.size().width()};{a_widget.size().height()}"
         widget_state = bytes(size, encoding='cp1251')
 
-        self.save_bytes(widget_name, bytes(widget_state))
+        self.save_bytes(widget_name, widget_state)
 
     def restore_dialog_size(self, a_widget):
         widget_name = a_widget.objectName()

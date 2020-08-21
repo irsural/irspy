@@ -1,6 +1,5 @@
 from linecache import checkcache, getline
 from configparser import ConfigParser
-from sys import float_info
 from enum import IntEnum
 from sys import exc_info
 import traceback
@@ -184,11 +183,6 @@ def increase_by_percent(a_value, a_percent, a_normalize_value=None):
 def decrease_by_percent(a_value, a_percent, a_normalize_value=None):
     normalize = a_normalize_value if a_normalize_value else a_value
     return a_value - abs(normalize) * a_percent / 100
-
-
-def save_settings(a_path: str, a_config: ConfigParser):
-    with open(a_path, 'w') as config_file:
-        a_config.write(config_file)
 
 
 def calc_smooth_approach(a_from, a_to, a_count, a_dt, sigma=0.01):

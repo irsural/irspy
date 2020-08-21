@@ -1,11 +1,9 @@
-from typing import List, Union
+from typing import List
 from enum import IntEnum
 import configparser
-import base64
 import os
 
 import irspy.settings_properties as prop
-import irspy.utils as utils
 
 
 class BadIniException(Exception):

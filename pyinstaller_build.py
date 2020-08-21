@@ -52,7 +52,16 @@ VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
 
 def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_filename: str = "", a_noconsole=True,
               a_one_file=True, a_libs: List[str] = None):
-
+    """
+    Запускает сборку через pyinstaller с заданными параметрами.
+    :param a_main_filename: Имя файла главного скрипта
+    :param a_app_name: Имя приложения
+    :param a_version: Версия приложения
+    :param a_icon_filename: Путь к иконке приложения
+    :param a_noconsole: Параметр noconole в pyinstaller
+    :param a_one_file: Параметр onefile в pyinstaller
+    :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    """
     name = f" -n {a_app_name}"
     onefile = " --onefile" if a_one_file else ""
     noconsole = " --noconsole" if a_noconsole else ""
@@ -71,6 +80,11 @@ def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_file
 
 def build_qt_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_filename: str = "", a_noconsole=True,
                  a_one_file=True, a_libs: List[str] = None):
+    """
+      Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
+      которые конвертируют ресурсы qt в python.
+      Параметры, как у build_app
+    """
 
     tmp_filename = f"{a_app_name}.py"
 

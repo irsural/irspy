@@ -12,6 +12,10 @@ import irspy.utils as utils
 
 
 class EditedListWidget(QtWidgets.QWidget):
+    """
+    Класс для контролируемого ввода в QListWidget. Можно унаследоваться и перегрузить process_input и get_list,
+    чтобы QListWidget подстраивал ввод в нужном формате
+    """
     def __init__(self, parent=None, a_init_items=(), a_min_value=None, a_max_value=None, a_optional_widget=None,
                  a_list_header=""):
         super().__init__(parent)
@@ -168,11 +172,12 @@ class EditedListWithUnits(EditedListWidget):
 
 
 class OkCancelDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None, a_title="Dialog"):
+    def __init__(self, parent=None, a_title="dialog"):
         super().__init__(parent)
 
         self.ui = OkCancelForm()
         self.ui.setupUi(self)
+        self.setObjectName("ok_cancel_" + a_title)
         self.setWindowTitle(a_title)
         self.main_widget = None
 

@@ -23,5 +23,5 @@ class DialogWithText(QtWidgets.QDialog):
         print("dialog with text deleted")
 
     def closeEvent(self, a_event: QtGui.QCloseEvent) -> None:
-        self.settings.save(self)
+        self.settings.save_qwidget_state(self)
         a_event.accept()
