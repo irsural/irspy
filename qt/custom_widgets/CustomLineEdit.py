@@ -32,6 +32,9 @@ class QEditDoubleClick(QtWidgets.QLineEdit):
 
 
 class QEditCopyButton(QEditDoubleClick):
+    """
+    QEditDoubleClick с добавлением кнопки "Копировать" справа в эдите
+    """
     def __init__(self, a_parent=None):
         super().__init__(a_parent)
 

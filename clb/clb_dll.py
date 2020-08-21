@@ -10,7 +10,6 @@ from irspy.revisions import Revisions
 import irspy.utils as utils
 
 
-# noinspection DuplicatedCode
 def set_up_driver(a_full_path):
     clb_driver_lib = ctypes.CDLL(a_full_path)
 
@@ -123,7 +122,7 @@ class ClbDrv:
         self.__amplitude = 0
         self.__frequency = 0
         self.__signal_type = clb.SignalType.ACI
-        self.__dc_polarity = clb.Polatiry.POS
+        self.__dc_polarity = clb.Polarity.POS
         self.__signal_on = False
         self.__mode = clb.Mode.SOURCE
         self.__signal_ready = False
@@ -147,7 +146,7 @@ class ClbDrv:
         self.__amplitude = 0
         self.__frequency = 0
         self.__signal_type = clb.SignalType.ACI
-        self.__dc_polarity = clb.Polatiry.POS
+        self.__dc_polarity = clb.Polarity.POS
         self.__signal_on = False
         self.__mode = clb.Mode.SOURCE
         self.__signal_ready = False
@@ -160,7 +159,7 @@ class ClbDrv:
 
     def amplitude_changed(self):
         actual_amplitude = clb.bound_amplitude(self.__clb_dll.get_amplitude(), self.__signal_type)
-        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polatiry.POS else -actual_amplitude
+        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polarity.POS else -actual_amplitude
 
         if self.__amplitude != signed_amplitude:
             self.__amplitude = signed_amplitude
@@ -188,10 +187,10 @@ class ClbDrv:
         return utils.bound(clb.bound_amplitude(a_amplitude, self.__signal_type), a_lower, a_upper)
 
     def __set_polarity_by_amplitude_sign(self, a_amplitude):
-        if a_amplitude < 0 and self.__clb_dll.get_polarity() != clb.Polatiry.NEG:
-            self.__clb_dll.set_polarity(clb.Polatiry.NEG)
-        elif a_amplitude >= 0 and self.__clb_dll.get_polarity() != clb.Polatiry.POS:
-            self.__clb_dll.set_polarity(clb.Polatiry.POS)
+        if a_amplitude < 0 and self.__clb_dll.get_polarity() != clb.Polarity.NEG:
+            self.__clb_dll.set_polarity(clb.Polarity.NEG)
+        elif a_amplitude >= 0 and self.__clb_dll.get_polarity() != clb.Polarity.POS:
+            self.__clb_dll.set_polarity(clb.Polarity.POS)
 
     def frequency_changed(self):
         actual_frequency = utils.bound(self.__clb_dll.get_frequency(), clb.MIN_FREQUENCY, clb.MAX_FREQUENCY)
@@ -236,33 +235,6 @@ class ClbDrv:
     @state.setter
     def state(self, a_state: clb.State):
         self.__state = a_state
-
-    # def polarity_changed(self):
-    #     actual_polarity = self.__clb_dll.get_polarity()
-    #     if self.__dc_polarity != actual_polarity:
-    #         self.__set_amplitude_sign(actual_polarity)
-    #         print(2, self.amplitude)
-    #         self.__dc_polarity = actual_polarity
-    #         print(3, self.__dc_polarity)
-    #         return True
-    #     else:
-    #         return False
-    #
-    # @property
-    # def polarity(self):
-    #     return self.__dc_polarity
-    #
-    # @polarity.setter
-    # def polarity(self, a_polarity: int):
-    #     self.__set_amplitude_sign(a_polarity)
-    #     self.__dc_polarity = a_polarity
-    #     self.__clb_dll.set_polarity(a_polarity)
-    #
-    # def __set_amplitude_sign(self, a_polarity):
-    #     if a_polarity == clb.Polatiry.POS:
-    #         self.__amplitude = abs(self.__amplitude)
-    #     elif a_polarity == clb.Polatiry.NEG:
-    #         self.__amplitude = -abs(self.__amplitude)
 
     def signal_enable_changed(self):
         actual_enabled = self.__clb_dll.enabled()

@@ -6,8 +6,8 @@ import sys
 from PyQt5 import QtGui, QtWidgets, QtCore
 
 from irspy.qt.custom_widgets.QTableDelegates import ComboboxIgnoreWheel, SpinboxIgnoreWheel
-from irspy.qt import qt_utils
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
+from irspy.qt import qt_utils
 import irspy.utils as utils
 
 

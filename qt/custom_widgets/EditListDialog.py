@@ -1,13 +1,13 @@
+from collections import OrderedDict
 from typing import List, Iterable
 from sys import float_info
-from collections import OrderedDict
 
-from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import pyqtSignal
 
+from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 from ui.py.edited_list_widget import Ui_Form as EditedListForm
 from ui.py.ok_cancel_dialog import Ui_Dialog as OkCancelForm
-from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 import irspy.utils as utils
 
 

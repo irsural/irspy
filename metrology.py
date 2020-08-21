@@ -156,7 +156,6 @@ class Pchip:
 
         x_points = (ctypes.c_double * len(a_x_points))(*a_x_points)
         y_points = (ctypes.c_double * len(a_y_points))(*a_y_points)
-        print([x for x in x_points])
         self.mxsrclib_dll.pchip_set_points(self.__handle, x_points, y_points, len(a_x_points))
         self.__inited = True
 
