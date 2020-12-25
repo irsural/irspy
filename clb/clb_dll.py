@@ -15,7 +15,7 @@ def set_up_driver(a_full_path):
 
     clb_driver_lib.revision.restype = ctypes.c_int
 
-    assert clb_driver_lib.revision() == Revisions.clb_dll, f"Ревизия mxsrclib_dll не соответствует ожидаемой! " \
+    assert clb_driver_lib.revision() == Revisions.clb_dll, f"Ревизия clb_dll не соответствует ожидаемой! " \
                                                            f"Текущая версия {clb_driver_lib.revision()}. " \
                                                            f"Ожидаемая: {Revisions.clb_dll}"
 

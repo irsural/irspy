@@ -41,6 +41,9 @@ class __UnitsPrefix(IntEnum):
     MICRO = 1
     MILLI = 2
     NO = 3
+    KILO = 4
+    MEGA = 5
+    GIGA = 6
 
 
 __enum_to_units = {
@@ -48,6 +51,9 @@ __enum_to_units = {
     __UnitsPrefix.MICRO: "мк",
     __UnitsPrefix.MILLI: "м",
     __UnitsPrefix.NO: "",
+    __UnitsPrefix.KILO: "к",
+    __UnitsPrefix.MEGA: "М",
+    __UnitsPrefix.GIGA: "Г",
 }
 
 
@@ -93,6 +99,16 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
         elif abs_value < 1:
             a_value *= 1e3
             prefix_type = __UnitsPrefix.MILLI
+        elif 1e3 <= abs_value < 1e6:
+            a_value /= 1e3
+            prefix_type = __UnitsPrefix.KILO
+        elif 1e6 <= abs_value < 1e9:
+            a_value /= 1e6
+            prefix_type = __UnitsPrefix.MEGA
+        elif 1e9 <= abs_value:
+            a_value /= 1e9
+            prefix_type = __UnitsPrefix.GIGA
+
         result = round(a_value, 9)
         result_str = float_to_string(result)
         result_with_units = "{0} {1}{2}".format(result_str, __enum_to_units[prefix_type], a_postfix)
