@@ -5,6 +5,7 @@ import ctypes
 
 from irspy.dlls import mxsrlib_dll
 
+
 FtdiPin = namedtuple("FtdiPin", "channel bus pin")
 
 
