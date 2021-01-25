@@ -1,7 +1,8 @@
 from collections.abc import Iterable
 import configparser
-import base64
 import abc
+
+from irspy.utils import base64_to_bytes, bytes_to_base64
 
 
 class Property(abc.ABC):
@@ -154,24 +155,16 @@ class BytesProperty(Property):
     def from_ini(self):
         try:
             ini_string = self.ini_parser[self.section][self.name]
-            return BytesProperty.__from_base64(ini_string)
+            return base64_to_bytes(ini_string)
         except (ValueError, KeyError):
             self.ini_parser[self.section][self.name] = self.to_ini(self.default)
             return self.default
 
     def to_ini(self, a_value):
         try:
-            value_to_ini = BytesProperty.__to_base64(a_value)
+            value_to_ini = bytes_to_base64(bytes(a_value))
         except ValueError:
             print("bytes value_error")
-            value_to_ini = BytesProperty.__to_base64(BytesProperty.DEFAULT)
+            value_to_ini = bytes_to_base64(BytesProperty.DEFAULT)
 
         return value_to_ini
-
-    @staticmethod
-    def __to_base64(a_bytes):
-        return base64.b64encode(bytes(a_bytes)).decode()
-
-    @staticmethod
-    def __from_base64(a_string: str):
-        return base64.b64decode(a_string)

@@ -1,3 +1,4 @@
+from typing import Iterable
 from math import isclose
 import logging
 
@@ -27,22 +28,21 @@ def get_wheel_steps(event: QtGui.QWheelEvent):
     return steps_num.y()
 
 
-def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data: tuple):
+def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data: Iterable):
+    """
+    Вставляет в конец QTableWidget строку с QTableWidgetItem's, содержащими текст из a_row_data
+    :param a_table: QTableWidget
+    :param a_row_data: Данные, которые будут вставлены в таблицу
+    """
     row_num = a_table.rowCount()
     a_table.insertRow(row_num)
     for col, data in enumerate(a_row_data):
         a_table.setItem(row_num, col, QtWidgets.QTableWidgetItem(str(data)))
 
 
-def qtablewidget_clear(a_table: QtWidgets.QTableWidget):
-    """
-    В отличии от QTableWidget.clear не удаляет заголовки таблицы и
-    В отличии от QTableWidget.clearContents удаляет строки, вместо простого их очищения
-    :param a_table: QTableWidget
-    :return:
-    """
-    for row in reversed(range(a_table.rowCount())):
-        a_table.removeRow(row)
+def get_selected_row(a_qtablewidget: QtWidgets.QTableWidget):
+    rows = a_qtablewidget.selectionModel().selectedRows()
+    return None if not rows else rows[0].row()
 
 
 def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
@@ -52,7 +52,51 @@ def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
             a_table.removeRow(idx_model.row())
 
 
+def wrap_in_layout(a_widget: QtWidgets.QWidget):
+    """
+    Заворачивает виджет в layout. Нужно для вставки виджетов в ячейки таблицы, при вставке как есть, виджеты
+    не выравниваются в ячейке
+    """
+    widget = QtWidgets.QWidget()
+    layout = QtWidgets.QHBoxLayout(widget)
+    layout.addWidget(a_widget)
+    layout.setAlignment(QtCore.Qt.AlignCenter)
+    layout.setContentsMargins(0, 0, 0, 0)
+    return widget
+
+
+def unwrap_from_layout(a_widget: QtWidgets.QWidget):
+    """
+    Достает виджет из layout'а, см. wrap_in_layout выше
+    """
+    return a_widget.layout().itemAt(0).widget()
+
+
+def open_or_activate_dialog(a_dialog_object_name: str, a_dialog_parent, a_dialog: QtWidgets.QDialog, *args, **kwargs):
+    """
+    Проверяет, открыт ли диалог с заданным именем, если не открыт, то открывает его, иначе просто активирует
+    :param a_dialog_object_name: Имя диалога
+    :param a_dialog_parent: Родитель диалога
+    :param a_dialog: Объект диалога
+    :param args: Аргументы конструктора диалога
+    :param kwargs: Аргументы конструктора диалога
+    :return: Объект диалога
+    """
+    dialog: QtWidgets.QDialog = a_dialog_parent.findChild(QtWidgets.QDialog, a_dialog_object_name)
+    if dialog:
+        dialog.activateWindow()
+    else:
+        dialog = a_dialog(*args, **kwargs)
+        dialog.exec()
+    return dialog
+
+
 class TableHeaderContextMenu:
+    """
+    Добавляет к хэдеру QTableView контекстное меню, которое содержит чекбоксы для сокрытия его колонок
+    Перед закрытием виджета QTableView необходимо вызвать self.delete_connections(), иначе лямбда соединения могут
+    помешать удалению ссылающихся на них объектов (по хорошему надо переписать на слабые ссылки)
+    """
     def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView, a_hide_first_column: bool = False):
         table_header = a_table.horizontalHeader()
         table_header.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -90,11 +134,27 @@ class TableHeaderContextMenu:
 
 
 class QTextEditLogger(logging.Handler):
-    def __init__(self, parent, a_plain_text_edit):
+    """
+    Связывает QTextEdit и logging. Выделяет разные уровни сообщений цветом.
+    """
+    def __init__(self, a_text_edit: QtWidgets.QTextEdit):
         super().__init__()
-        self.widget = a_plain_text_edit
-        # self.widget.setReadOnly(True)
+        self.text_edit = a_text_edit
 
     def emit(self, record):
         msg = self.format(record)
-        self.widget.appendPlainText(msg)
+
+        if record.levelno == logging.CRITICAL:
+            color = QtCore.Qt.darkRed
+        elif record.levelno == logging.ERROR:
+            color = QtCore.Qt.red
+        elif record.levelno == logging.WARNING:
+            color = QtCore.Qt.darkYellow
+        elif record.levelno == logging.INFO:
+            color = QtCore.Qt.blue
+        else: # DEBUG or NOTSET
+            color = QtCore.Qt.black
+
+        self.text_edit.setTextColor(color)
+        self.text_edit.insertPlainText(msg + '\n')
+        self.text_edit.ensureCursorVisible()

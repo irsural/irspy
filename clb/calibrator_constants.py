@@ -9,12 +9,10 @@ MIN_CURRENT = -11
 MAX_VOLTAGE = 630
 MIN_VOLTAGE = -630
 
-MIN_ALTERNATIVE = 0
+MIN_AC_AMPLITUDE = 0
 
 MAX_FREQUENCY = 2000
-MIN_FREQUENCY = 35
-
-FREQUENCY_MIN_STEP = 1
+MIN_FREQUENCY = 40
 
 SHORT_CIRCUIT_PASSWORD = 4242
 MANUAL_MODE_ENABLE_PASSWORD = 8925
@@ -23,14 +21,14 @@ SHUTDOWN_EXECUTE_PASSWORD = 5298
 CLB_CONFIG_NAME = "Calibrator 2.ini"
 
 
-class Polatiry(enum.IntEnum):
+class Polarity(enum.IntEnum):
     POS = 0
     NEG = 1
 
 
-int_to_polarity = {
-    Polatiry.POS: "+",
-    Polatiry.NEG: "-"
+polarity_to_text = {
+    Polarity.POS: "+",
+    Polarity.NEG: "-"
 }
 
 
@@ -54,27 +52,27 @@ class State(enum.IntEnum):
     READY = 3
 
 
-enum_to_state = {
+state_to_text = {
     State.DISCONNECTED: "Соединение отсутствует",
     State.STOPPED: "Остановлен",
     State.WAITING_SIGNAL: "Установка сигнала...",
     State.READY: "Готов"
 }
 
-enum_to_mode = {
+mode_to_text = {
     Mode.SOURCE: "Источник",
     Mode.FIXED_RANGE: "Фиксированный",
     Mode.DETUNING: "Расстройка",
 }
 
-enum_to_signal_type = {
+signal_type_to_text = {
     SignalType.ACI: "Переменный ток",
     SignalType.ACV: "Переменное напряжение",
     SignalType.DCI: "Постоянный ток",
     SignalType.DCV: "Постоянное напряжение"
 }
 
-enum_to_signal_type_short = {
+signal_type_to_text_short = {
     SignalType.ACI: "I~",
     SignalType.ACV: "U~",
     SignalType.DCI: "I=",
@@ -109,11 +107,32 @@ is_voltage_signal = {
     SignalType.DCV: True
 }
 
+is_amperes_signal = {
+    SignalType.ACI: True,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: False
+}
+
 signal_type_to_min_step = {
     SignalType.ACI: 2e-6,
     SignalType.ACV: 2e-6,
     SignalType.DCI: 2e-9,
     SignalType.DCV: 2e-7,
+}
+
+signal_type_to_current_enabled_bit = {
+    SignalType.ACI: True,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: False
+}
+
+signal_type_to_dc_enabled_bit = {
+    SignalType.ACI: False,
+    SignalType.DCI: True,
+    SignalType.ACV: False,
+    SignalType.DCV: True
 }
 
 error_code_to_message = {
@@ -148,18 +167,32 @@ error_code_to_message = {
 }
 
 
-def bound_amplitude(a_amplitude: float, a_signal_type: SignalType):
+def bound_amplitude(a_amplitude: float, a_signal_type: SignalType) -> float:
+    """
+    Обрезает амплитуду в допустимых для калибратора границах, в зависимости от типа сигнала
+    Для постоянных типов сигнала может возвращать амплитуду с отрицательным знаком
+    :param a_amplitude: Уставка амплитуды
+    :param a_signal_type: Тип сигнала
+    :return: Обрезанная уставка амплитуды
+    """
     min_value = MIN_VOLTAGE
     max_value = MAX_VOLTAGE
     if not is_voltage_signal[a_signal_type]:
         min_value = MIN_CURRENT
         max_value = MAX_CURRENT
     if is_ac_signal[a_signal_type]:
-        min_value = MIN_ALTERNATIVE
+        min_value = MIN_AC_AMPLITUDE
     return round(bound(a_amplitude, min_value, max_value), 9)
 
 
-def bound_frequency(a_frequency: float, a_signal_type: SignalType):
+def bound_frequency(a_frequency: float, a_signal_type: SignalType) -> float:
+    """
+    Обрезает частоту в допустимых для калибратора границах, в зависимости от типа сигнала (постоянный или переменный)
+    Если тип сигнала постоянный, то всегда возвращает 0
+    :param a_frequency: Уставка частоты
+    :param a_signal_type: Тип сигнала
+    :return: Обрезанная уставка частоты
+    """
     min_frequency = MIN_FREQUENCY if is_ac_signal[a_signal_type] else 0
     max_frequency = MAX_FREQUENCY if is_ac_signal[a_signal_type] else 0
     return round(bound(a_frequency, min_frequency, max_frequency), 9)

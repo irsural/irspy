@@ -1,13 +1,9 @@
-from enum import IntEnum
 from typing import List
+from enum import IntEnum
 import configparser
-import base64
 import os
 
-from PyQt5 import QtCore
-
 import irspy.settings_properties as prop
-import irspy.utils as utils
 
 
 class BadIniException(Exception):
@@ -33,7 +29,6 @@ def add_properties_to_class(instance, a_properties):
 
 
 class Settings(metaclass=PropertyOwner):
-    GEOMETRY_SECTION = "GEOMETRY"
 
     class ValueType(IntEnum):
         INT = 0
@@ -104,41 +99,6 @@ class Settings(metaclass=PropertyOwner):
         except configparser.ParsingError:
             raise BadIniException
 
-    def save_geometry(self, a_window_name: str, a_geometry: QtCore.QByteArray):
-        try:
-            self.add_ini_section(Settings.GEOMETRY_SECTION)
-            self.settings[self.GEOMETRY_SECTION][a_window_name] = self.__to_base64(a_geometry)
-            self.save()
-        except Exception as err:
-            print(utils.exception_handler(err))
-
-    def get_last_geometry(self, a_window_name: str):
-        try:
-            geometry_bytes = self.settings[self.GEOMETRY_SECTION][a_window_name]
-            return QtCore.QByteArray(self.__from_base64(geometry_bytes))
-        except (KeyError, ValueError):
-            return QtCore.QByteArray()
-
-    def save_header_state(self, a_header_name: str, a_state: QtCore.QByteArray):
-        self.add_ini_section(Settings.GEOMETRY_SECTION)
-        self.settings[Settings.GEOMETRY_SECTION][a_header_name] = self.__to_base64(a_state)
-        self.save()
-
-    def get_last_header_state(self, a_header_name: str):
-        try:
-            state_bytes = self.settings[Settings.GEOMETRY_SECTION][a_header_name]
-            return QtCore.QByteArray(self.__from_base64(state_bytes))
-        except (KeyError, ValueError):
-            return QtCore.QByteArray()
-
-    @staticmethod
-    def __to_base64(a_qt_bytes: QtCore.QByteArray):
-        return base64.b64encode(bytes(a_qt_bytes)).decode()
-
-    @staticmethod
-    def __from_base64(a_string: str):
-        return base64.b64decode(a_string)
-
     def save(self):
         with open(self.ini_path, 'w') as config_file:
             self.settings.write(config_file)
@@ -146,10 +106,6 @@ class Settings(metaclass=PropertyOwner):
 
 if __name__ == "__main__":
     # Пример использования
-
-    import sys
-    from PyQt5 import QtWidgets
-
     a = Settings("./test_settings.ini", [
         Settings.VariableInfo(a_name="list_float", a_section="PARAMETERS", a_type=Settings.ValueType.LIST_FLOAT),
         Settings.VariableInfo(a_name="list_int", a_section="PARAMETERS", a_type=Settings.ValueType.LIST_INT),
@@ -165,14 +121,5 @@ if __name__ == "__main__":
     a.float1 = 11.
     a.int1 = 331
     a.str1 = "he1he"
-
-    app = QtWidgets.QApplication(sys.argv)
-
-    w = QtWidgets.QDialog()
-    w.setWindowTitle('Simple')
-    w.restoreGeometry(a.get_last_geometry("dialog"))
-    w.exec()
-
-    a.save_geometry("dialog", w.saveGeometry())
 
     print(a.list_float, a.list_int, a.float1, a.int1, a.str1)

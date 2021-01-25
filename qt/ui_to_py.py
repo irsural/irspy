@@ -6,14 +6,28 @@ HASHES_FILE = "hashes.json"
 
 
 def convert_ui(path_in=".", path_out="."):
+    """
+    Конвертирует .ui формы из path_in в .py файлы (в path_out)
+    :param path_in: Каталог, содержащий .ui формы
+    :param path_out: Каталог, в коротом будут создаваться .py файлы
+    """
     __convert_gui("pyuic5 {_in} > {_out}", ".ui", ".py", path_in, path_out)
 
 
 def convert_resources(path_in=".", path_out="."):
+    """
+    Конвертирует .qrc ресурсы из path_in в .py файлы (в path_out)
+    :param path_in: Каталог, содержащий .qrc формы
+    :param path_out: Каталог, в коротом будут создаваться .py файлы
+    """
     __convert_gui("pyrcc5 {_in} > {_out}", ".qrc", "_rc.py", path_in, path_out)
 
 
 def __convert_gui(convert_cmd: str, ext_in: str, ext_out: str, path_in=".", path_out="."):
+    """
+    Конвертирует специальные файлы qt в файлы python. При это вычисляет и сохраняет хэш конвртируемого файла.
+    Если хэш совпадает с прошлым и python файл уже существует, то не конвертирует файл
+    """
     hashes_path = "{0}/{1}".format(path_in, HASHES_FILE)
     try:
         with open(hashes_path, 'r') as hashes_file:

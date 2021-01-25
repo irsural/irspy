@@ -4,6 +4,7 @@ from enum import IntEnum
 from sys import exc_info
 import traceback
 import logging
+import base64
 import math
 import time
 import re
@@ -50,7 +51,7 @@ __enum_to_units = {
 }
 
 
-def parse_input(a_input: str, a_reverse_check=False):
+def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     if not a_input:
         return 0.
     input_re = check_input_re.match(a_input)
@@ -59,7 +60,7 @@ def parse_input(a_input: str, a_reverse_check=False):
 
     number = float(input_re.group('number').replace(",", "."))
     factor = __units_to_factor[input_re.group("units").lower()]
-    result = round(number * factor, 9)
+    result = round(number * factor, a_precision)
 
     # print(f"S->V. Input: {a_input}. Parsed: {number} {input_re.group('units').lower()}. Result: {result}")
     if a_reverse_check:
@@ -106,17 +107,13 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
     return value_to_user
 
 
-def float_to_string(a_number: float):
-    return "{0:.9f}".format(a_number).rstrip('0').rstrip('.').replace(".", ",")
+def float_to_string(a_number: float, a_precision=9):
+    format_str = f"{{0:.{a_precision}f}}"
+    return format_str.format(a_number).rstrip('0').rstrip('.').replace(".", ",")
 
 
 def absolute_error(a_reference: float, a_value: float):
     return a_reference - a_value
-
-
-def relative_error(a_reference: float, a_value: float, a_normalize: float):
-    assert a_normalize != 0, "Normalize value must not be zero"
-    return (a_reference - a_value) / a_normalize * 100
 
 
 def variation(a_lval: float, a_rval: float):
@@ -129,6 +126,13 @@ def absolute_error_limit(a_normalize_value: float, a_error_percent: float):
 
 def bound(a_value, a_min, a_max):
     return max(min(a_value, a_max), a_min)
+
+
+def are_float_equal(a_first: float, a_second: float):
+    """
+    :return: True, если a_first == a_second, инача False
+    """
+    return math.isclose(a_first, a_second, rel_tol=1e-09)
 
 
 def relative_step_change(a_value: float, a_step: float, a_min_step: float, a_normalize_value=None):
@@ -179,11 +183,6 @@ def increase_by_percent(a_value, a_percent, a_normalize_value=None):
 def decrease_by_percent(a_value, a_percent, a_normalize_value=None):
     normalize = a_normalize_value if a_normalize_value else a_value
     return a_value - abs(normalize) * a_percent / 100
-
-
-def save_settings(a_path: str, a_config: ConfigParser):
-    with open(a_path, 'w') as config_file:
-        a_config.write(config_file)
 
 
 def calc_smooth_approach(a_from, a_to, a_count, a_dt, sigma=0.01):
@@ -239,9 +238,9 @@ def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
     return decorator
 
 
-exception_decorator = get_decorator(log_out_foo=logging.debug)
+exception_decorator = get_decorator(log_out_foo=logging.critical)
 exception_decorator_print = get_decorator(log_out_foo=print)
-assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=logging.debug)
+assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=logging.critical)
 
 
 def get_array_min_diff(a_array: list):
@@ -253,6 +252,14 @@ def get_array_min_diff(a_array: list):
     return round(min_diff, 9)
 
 
+def bytes_to_base64(a_bytes):
+    return base64.b64encode(a_bytes).decode()
+
+
+def base64_to_bytes(a_string: str):
+    return base64.b64decode(a_string)
+
+
 class Timer:
     def __init__(self, a_interval_s: float):
         self.interval_s = a_interval_s
@@ -262,7 +269,7 @@ class Timer:
 
     def start(self, a_interval_s=None):
         self.__started = True
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
         if a_interval_s is not None:
             self.interval_s = a_interval_s
         self.stop_time = self.start_time + self.interval_s
@@ -275,7 +282,16 @@ class Timer:
     def check(self):
         if not self.__started:
             return False
-        return time.time() > self.stop_time
+        return time.perf_counter() > self.stop_time
 
     def started(self):
         return self.__started
+
+    def time_passed(self):
+        if not self.__started:
+            return 0
+        elif time.perf_counter() > self.stop_time:
+            return self.interval_s
+        else:
+            return time.perf_counter() - self.start_time
+
