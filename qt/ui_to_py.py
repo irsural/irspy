@@ -51,7 +51,7 @@ def __convert_gui(convert_cmd: str, ext_in: str, ext_out: str, path_in=".", path
         json.dump(hashes, hashes_file)
 
 
-def create_translate(a_py_files_folder: str, a_ts_files_folder):
+def create_translate(a_py_files_folder: str, a_ts_file_path: str):
     """
     Создает ts-файлы с помощью pylupdate5 из py-файлов qt-форм. Полученные файлы можно открыть в QtLinguist, чтобы
     сгенерировать qm-файл для QTranslator
@@ -65,23 +65,25 @@ def create_translate(a_py_files_folder: str, a_ts_files_folder):
     except FileNotFoundError:
         hashes = {}
 
-    if not os.path.isdir(a_ts_files_folder):
-        os.makedirs(a_ts_files_folder)
-
+    py_files_list = []
+    py_files_changed = False
     for file in os.listdir(a_py_files_folder):
-        if ".py" in file:
+        if file.endswith(".py"):
             py_filename = "{0}/{1}".format(a_py_files_folder, file)
+            py_files_list.append(py_filename)
+
             py_current_hash = __get_file_hash(py_filename)
             py_prev_hash = "" if py_filename not in hashes.keys() else hashes[py_filename]
 
-            ts_filename = "{0}/{1}".format(a_ts_files_folder, file.replace(".py", ".ts"))
-
-            if py_prev_hash != py_current_hash or not os.path.isfile(ts_filename):
+            if py_prev_hash != py_current_hash or not os.path.isfile(a_ts_file_path):
                 hashes[py_filename] = py_current_hash
-                os.system("pylupdate5 {} -ts {}".format(py_filename, ts_filename))
+                py_files_changed = True
 
-    with open(hashes_path, 'w') as hashes_file:
-        json.dump(hashes, hashes_file)
+    if py_files_changed:
+        os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
+
+        with open(hashes_path, 'w') as hashes_file:
+            json.dump(hashes, hashes_file)
 
 
 def __get_file_hash(a_filename):
