@@ -13,6 +13,7 @@
     <file>icons/robot_2.png</file>
     <file>icons/robot_1.png</file>
     <file>icons/tracker.png</file>
+    <file>icons/reset.png</file>
     <file>icons/add_file.png</file>
     <file>icons/graph_2.png</file>
     <file>icons/graph_3.png</file>
@@ -52,6 +53,8 @@
     <file>icons/minus2.png</file>
     <file>icons/pause.png</file>
     <file>icons/play.png</file>
+    <file>icons/down.png</file>
+    <file>icons/up.png</file>
     <file>icons/plus.png</file>
     <file>icons/remove.svg</file>
     <file>icons/settings.png</file>

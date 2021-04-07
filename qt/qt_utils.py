@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Union
 from math import isclose
 import logging
 
@@ -50,6 +50,27 @@ def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
     if rows:
         for idx_model in reversed(rows):
             a_table.removeRow(idx_model.row())
+
+
+def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget) -> Union[None, QtCore.QModelIndex]:
+    selected_indexes = a_table_widget.selectionModel().selectedIndexes()
+    if len(selected_indexes) == 1:
+        return selected_indexes[0]
+    elif len(selected_indexes) > 1:
+        QtWidgets.QMessageBox.critical(None, "Ошибка", "Необходимо выбрать ровно одну ячейку",
+                                       QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+    else:
+        return None
+
+
+def qtablewidget_get_only_selected_row(a_table_widget: QtWidgets.QTableWidget) -> Union[None, int]:
+    selected_indexes = a_table_widget.selectionModel().selectedRows()
+    if len(selected_indexes) == 1:
+        return selected_indexes[0].row()
+    elif len(selected_indexes) > 1:
+        QtWidgets.QMessageBox.critical(None, "Ошибка", "Необходимо выбрать ровно одну строку",
+                                       QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+    return None
 
 
 def wrap_in_layout(a_widget: QtWidgets.QWidget):

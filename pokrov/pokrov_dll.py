@@ -22,6 +22,7 @@ def set_up_driver(a_full_path):
     pokrov_dll_lib.is_gnrw_connected.restype = ctypes.c_size_t
 
     pokrov_dll_lib.signal_on.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.is_signal_on.restype = ctypes.c_int
 
     pokrov_dll_lib.get_id.restype = ctypes.c_size_t
 
@@ -57,6 +58,12 @@ class PokrovDrv:
 
     def tick(self):
         self.__pokrov_dll.tick()
+
+    def is_signal_on(self):
+        signal_on = False
+        if self.is_connected():
+            signal_on = self.__pokrov_dll.is_signal_on()
+        return signal_on
 
     def signal_on(self, a_enable):
         if self.is_connected():
