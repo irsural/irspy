@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QWidget
 
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 
+from utils import exception_decorator_print
+
 
 class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
     """
@@ -18,6 +20,7 @@ class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
         super().__init__(a_parent)
         self.color_default = QtGui.QColor(a_default_color)
 
+    @exception_decorator_print
     def paint(self, painter, option, index):
         if option.state & QtWidgets.QStyle.State_Selected:
             option.palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)

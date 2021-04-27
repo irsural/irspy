@@ -62,18 +62,18 @@ def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_file
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
     """
-    name = f" -n {a_app_name}"
+    name = " -n {}".format(a_app_name)
     onefile = " --onefile" if a_one_file else ""
     noconsole = " --noconsole" if a_noconsole else ""
-    icon = f" --icon={a_icon_filename}" if a_icon_filename else ""
-    libs = "".join((f' --add-data "{lib}";.' for lib in a_libs)) if a_libs is not None else ""
+    icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
+    libs = "".join((' --add-data "{}";.'.format(lib) for lib in a_libs)) if a_libs is not None else ""
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(version=a_version))
-        version = f" --version-file={version_filename}"
+        version = " --version-file={}".format(version_filename)
 
-    os.system(f"pyinstaller{name}{onefile}{noconsole}{icon}{version}{libs} {a_main_filename}")
+    os.system("pyinstaller{}{}{}{}{}{} {}".format(name, onefile, noconsole, icon, version, libs, a_main_filename))
 
     os.remove(version_filename)
 
@@ -86,7 +86,7 @@ def build_qt_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_f
       Параметры, как у build_app
     """
 
-    tmp_filename = f"{a_app_name}.py"
+    tmp_filename = "{}.py".format(a_app_name)
 
     with open(a_main_filename, encoding='utf8') as main_py:
         with open(tmp_filename, "w", encoding='utf8') as compile_main:

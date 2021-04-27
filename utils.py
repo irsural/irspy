@@ -124,7 +124,7 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
 
 
 def float_to_string(a_number: float, a_precision=9):
-    format_str = f"{{0:.{a_precision}f}}"
+    format_str = "{{0:.{}f}}".format(a_precision)
     return format_str.format(a_number).rstrip('0').rstrip('.').replace(".", ",")
 
 

@@ -82,7 +82,7 @@ def open_or_activate_dialog(a_dialog_object_name: str, a_dialog_parent, a_dialog
     :param kwargs: Аргументы конструктора диалога
     :return: Объект диалога
     """
-    dialog: QtWidgets.QDialog = a_dialog_parent.findChild(QtWidgets.QDialog, a_dialog_object_name)
+    dialog = a_dialog_parent.findChild(QtWidgets.QDialog, a_dialog_object_name)
     if dialog:
         dialog.activateWindow()
     else:
