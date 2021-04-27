@@ -66,7 +66,8 @@ def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_file
     onefile = " --onefile" if a_one_file else ""
     noconsole = " --noconsole" if a_noconsole else ""
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
-    libs = "".join((' --add-data "{}";.'.format(lib) for lib in a_libs)) if a_libs is not None else ""
+    add_data_sep = ";" if os.name == 'nt' else ":"
+    libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
