@@ -53,7 +53,7 @@ class QtSettings(Settings):
         widget_name = a_widget.objectName()
         assert bool(widget_name), "Виджет должен иметь objectName! (Уникальный)"
 
-        size = f"{a_widget.size().width()};{a_widget.size().height()}"
+        size = "{};{}".format(a_widget.size().width(), a_widget.size().height())
         widget_state = bytes(size, encoding='cp1251')
 
         self.save_bytes(widget_name, widget_state)
