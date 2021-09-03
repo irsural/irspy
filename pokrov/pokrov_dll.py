@@ -82,6 +82,7 @@ class PokrovDrv:
         global _pokrov_dll
         self.__pokrov_dll = _pokrov_dll
         self.__pokrov_handle = self.__pokrov_dll.create()
+        self.__ip = "0.0.0.0"
 
     def __del__(self):
         self.__pokrov_dll.destroy(self.__pokrov_handle)
@@ -92,7 +93,11 @@ class PokrovDrv:
         except ValueError:
             logging.error("PokrovDrv.connect({}) - невалидный ip-адрес".format(a_ip))
         else:
+            self.__ip = a_ip
             self.__pokrov_dll.gnrw_connect(self.__pokrov_handle, a_ip.encode("ascii"))
+
+    def get_ip(self):
+        return self.__ip
 
     def is_connected(self):
         return bool(self.__pokrov_dll.is_gnrw_connected(self.__pokrov_handle))
