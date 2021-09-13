@@ -231,7 +231,7 @@ class TstlanDialog(QtWidgets.QDialog):
                 match = filter_text in cell_text
 
             if self.ui.show_marked_checkbox.isChecked():
-                marked_cb = self.ui.variables_table.cellWidget(i, self.Column.MARK).layout().itemAt(0).widget()
+                marked_cb = self.ui.variables_table.cellWidget(i, self.Column.MARK).grid().itemAt(0).widget()
                 match = match & marked_cb.isChecked()
             self.ui.variables_table.setRowHidden(i, not match)
 
