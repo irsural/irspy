@@ -184,7 +184,7 @@ class GraphDialog(QtWidgets.QDialog):
         graph_color = GraphDialog.GRAPH_COLORS[graph_number % len(GraphDialog.GRAPH_COLORS)]
 
         pg_item = pyqtgraph.PlotCurveItem(pen=pyqtgraph.mkPen(color=graph_color, width=2), name=a_graph_name)
-        pg_item.setData(x=self.graphs_data[a_graph_name][0], y=self.graphs_data[a_graph_name][1], name=a_graph_name)
+        pg_item.setData(,
         self.graph_widget.addItem(pg_item)
 
     def update_graph_parameters(self, _):
