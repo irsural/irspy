@@ -52,7 +52,7 @@ class TstlanGraphDialog(QtWidgets.QDialog):
         try:
             for graph_name in a_graph_data.keys():
                 pg_item = self.graph_items[graph_name]
-                pg_item.setData(x=a_graph_data[graph_name][0], y=a_graph_data[graph_name][1], name=graph_name)
+                pg_item.setData(,
         except Exception as err:
             logging.debug(utils.exception_handler(err))
 

@@ -3,9 +3,9 @@ from math import isclose
 import logging
 
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import QMessageBox
 
 import irspy.constants as constants
-
 
 QSTYLE_COLOR_WHITE = "background-color: rgb(255, 255, 255);"
 QSTYLE_COLOR_YELLOW = "background-color: rgb(250, 250, 170);"
@@ -118,6 +118,7 @@ class TableHeaderContextMenu:
     Перед закрытием виджета QTableView необходимо вызвать self.delete_connections(), иначе лямбда соединения могут
     помешать удалению ссылающихся на них объектов (по хорошему надо переписать на слабые ссылки)
     """
+
     def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView, a_hide_first_column: bool = False):
         table_header = a_table.horizontalHeader()
         table_header.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -158,6 +159,7 @@ class QTextEditLogger(logging.Handler):
     """
     Связывает QTextEdit и logging. Выделяет разные уровни сообщений цветом.
     """
+
     def __init__(self, a_text_edit: QtWidgets.QTextEdit):
         super().__init__()
         self.text_edit = a_text_edit
@@ -173,9 +175,17 @@ class QTextEditLogger(logging.Handler):
             color = QtCore.Qt.darkYellow
         elif record.levelno == logging.INFO:
             color = QtCore.Qt.blue
-        else: # DEBUG or NOTSET
+        else:  # DEBUG or NOTSET
             color = QtCore.Qt.black
 
         self.text_edit.setTextColor(color)
         self.text_edit.insertPlainText(msg + '\n')
         self.text_edit.ensureCursorVisible()
+
+
+def show_message_error(a_title, a_text):
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Critical)
+    msg.setWindowTitle(a_title)
+    msg.setText(a_text)
+    msg.exec()
