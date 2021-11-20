@@ -1,5 +1,5 @@
-from typing import List
 from enum import IntEnum
+from typing import List
 import configparser
 import os
 
@@ -47,6 +47,7 @@ class Settings(metaclass=PropertyOwner):
 
     def __init__(self, a_ini_path, a_variables: List[VariableInfo]):
         self.ini_path = a_ini_path
+        self.ini_folder = os.path.dirname(self.ini_path)
         self.settings = configparser.ConfigParser()
 
         self.__variables = {}
@@ -100,6 +101,8 @@ class Settings(metaclass=PropertyOwner):
             raise BadIniException
 
     def save(self):
+        if not os.path.exists(self.ini_folder):
+            os.makedirs(self.ini_folder)
         with open(self.ini_path, 'w') as config_file:
             self.settings.write(config_file)
 
