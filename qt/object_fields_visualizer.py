@@ -1,4 +1,3 @@
-from typing import Dict, Tuple
 from enum import IntEnum
 import numbers
 import sys
@@ -42,7 +41,7 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
         self.layout().addWidget(self.__settings_table)
 
         self.__variables_owner = a_variables_owner
-        self.__fields: Dict[str, Tuple[str, type]] = {}
+        self.__fields = {}
         self.__widget_rows = {}
 
     def add_new_name(self, a_name):
@@ -67,7 +66,7 @@ class ObjectFieldsVisualizer(QtWidgets.QWidget):
         name, type_ = self.get_object_field_by_row(row)
         return name, type_
 
-    def add_combobox_param(self, a_name, a_object_field, a_value: Dict):
+    def add_combobox_param(self, a_name, a_object_field, a_value):
         items = list(a_value.keys())[0]
         assert all(map(lambda el: type(items[0]) == type(el), items)), \
             "Все элементы последовательности должны быть одного типа"

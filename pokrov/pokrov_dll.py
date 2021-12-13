@@ -1,5 +1,4 @@
 from os.path import dirname
-from typing import Union
 from os import sep
 import ipaddress
 import logging
@@ -10,7 +9,7 @@ import platform
 from irspy.revisions import Revisions
 
 
-def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
+def set_up_driver(a_full_path):
     pokrov_dll_lib = ctypes.CDLL(a_full_path)
 
     pokrov_dll_lib.revision.restype = ctypes.c_int

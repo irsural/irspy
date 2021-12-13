@@ -1,4 +1,3 @@
-from typing import List
 from enum import IntEnum
 import configparser
 import os
@@ -45,7 +44,7 @@ class Settings(metaclass=PropertyOwner):
             self.type_ = a_type
             self.default = a_default
 
-    def __init__(self, a_ini_path, a_variables: List[VariableInfo]):
+    def __init__(self, a_ini_path, a_variables):
         self.ini_path = a_ini_path
         self.settings = configparser.ConfigParser()
 

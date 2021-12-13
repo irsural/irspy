@@ -1,4 +1,3 @@
-from typing import Union
 from array import array
 from os.path import dirname
 from os import sep
@@ -72,7 +71,7 @@ def set_up_mxsrclib_dll(a_full_path):
 
 
 __path = dirname(__file__) + sep + "mxsrclib_dll.dll"
-mxsrclib_dll: [Union, ctypes.CDLL] = set_up_mxsrclib_dll(__path)
+mxsrclib_dll = set_up_mxsrclib_dll(__path)
 
 
 class FunnelClient:

@@ -1,4 +1,3 @@
-from typing import Dict, Tuple, Iterable
 from collections import OrderedDict
 from sys import float_info
 from enum import IntEnum
@@ -98,7 +97,7 @@ class GraphDialog(QtWidgets.QDialog):
         ParametersRow.STUDENT_999: "Доверительный интервал 0,999, %",
     }
 
-    def __init__(self, a_graph_data: Dict[str, Tuple[Iterable[float], Iterable[float]]], a_settings: QtSettings,
+    def __init__(self, a_graph_data, a_settings: QtSettings,
                  a_parent=None):
         super().__init__(a_parent)
 
@@ -135,7 +134,7 @@ class GraphDialog(QtWidgets.QDialog):
 
         self.ui.chart_layout.addWidget(self.graph_widget)
 
-        self.graph_items: Dict[str, pyqtgraph.PlotCurveItem] = OrderedDict()
+        self.graph_items = OrderedDict()
         self.graphs_data = OrderedDict(((name, (list(data_x), list(data_y))) for name, (data_x, data_y) in a_graph_data.items()))
 
         for (data_x, data_y) in self.graphs_data.values():

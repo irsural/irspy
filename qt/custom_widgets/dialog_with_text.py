@@ -1,5 +1,3 @@
-from typing import List
-
 from PyQt5 import QtGui, QtWidgets
 
 from ui.py.dialog_with_text import Ui_Dialog as DialogForm
@@ -7,7 +5,7 @@ from irspy.qt.qt_settings_ini_parser import QtSettings
 
 
 class DialogWithText(QtWidgets.QDialog):
-    def __init__(self, a_text_strings: List[str], a_settings: QtSettings, a_parent=None):
+    def __init__(self, a_text_strings, a_settings: QtSettings, a_parent=None):
         super().__init__(a_parent)
 
         self.ui = DialogForm()

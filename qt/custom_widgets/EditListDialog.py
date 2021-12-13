@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from typing import List, Iterable
 from sys import float_info
 
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -105,7 +104,7 @@ class QRegExpDelegator(QtWidgets.QItemDelegate):
 
 
 class EditedListOnlyNumbers(EditedListWidget):
-    def __init__(self, parent=None, a_init_items: Iterable[float] = (), a_min_value=None, a_max_value=None,
+    def __init__(self, parent=None, a_init_items = (), a_min_value=None, a_max_value=None,
                  a_optional_widget=None, a_list_header=""):
         str_items = (str(item) for item in a_init_items)
         super().__init__(parent, str_items, a_min_value, a_max_value, a_optional_widget, a_list_header)
@@ -147,7 +146,7 @@ class EditedListWithUnits(EditedListWidget):
             processed_value = self.bound_input(0)
         return self.value_to_user(processed_value)
 
-    def get_list(self) -> List[float]:
+    def get_list(self):
         out_list = []
         try:
             for idx in range(self.ui.list_widget.count()):

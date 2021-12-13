@@ -1,5 +1,4 @@
 from os.path import dirname
-from typing import Union
 from os import sep
 import logging
 import ctypes
@@ -55,7 +54,7 @@ def set_up_driver(a_full_path):
 
 
 __path = dirname(__file__) + sep + "clb_driver_dll.dll"
-clb_dll: [Union, ctypes.CDLL] = set_up_driver(__path)
+clb_dll = set_up_driver(__path)
 
 
 class UsbDrv:

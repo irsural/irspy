@@ -1,4 +1,3 @@
-from typing import Iterable, Union
 from math import isclose
 import logging
 
@@ -28,7 +27,7 @@ def get_wheel_steps(event: QtGui.QWheelEvent):
     return steps_num.y()
 
 
-def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data: Iterable):
+def qtablewidget_append_row(a_table: QtWidgets.QTableWidget, a_row_data):
     """
     Вставляет в конец QTableWidget строку с QTableWidgetItem's, содержащими текст из a_row_data
     :param a_table: QTableWidget
@@ -52,7 +51,7 @@ def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
             a_table.removeRow(idx_model.row())
 
 
-def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget) -> Union[None, QtCore.QModelIndex]:
+def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget):
     selected_indexes = a_table_widget.selectionModel().selectedIndexes()
     if len(selected_indexes) == 1:
         return selected_indexes[0]
@@ -63,7 +62,7 @@ def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget) 
         return None
 
 
-def qtablewidget_get_only_selected_row(a_table_widget: QtWidgets.QTableWidget) -> Union[None, int]:
+def qtablewidget_get_only_selected_row(a_table_widget: QtWidgets.QTableWidget):
     selected_indexes = a_table_widget.selectionModel().selectedRows()
     if len(selected_indexes) == 1:
         return selected_indexes[0].row()

@@ -1,5 +1,4 @@
 from collections import deque
-from typing import Sequence
 from array import array
 from math import sqrt
 import logging
@@ -161,7 +160,7 @@ class Pchip:
         pass
         self.mxsrclib_dll.pchip_destroy(self.__handle)
 
-    def set_points(self, a_x_points: Sequence, a_y_points: Sequence):
+    def set_points(self, a_x_points, a_y_points):
         assert len(a_x_points) == len(a_y_points), "Последивательности должны быть одинаковой длины!"
         assert len(a_x_points) >= 2, "Размер последовательностей должен быть больше 1"
 

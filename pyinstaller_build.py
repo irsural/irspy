@@ -1,4 +1,3 @@
-from typing import List
 import os
 
 
@@ -64,7 +63,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs: List[str] = None, a_hidden_import: str = None):
+              a_one_file=True, a_libs = None, a_hidden_import: str = None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -98,7 +97,7 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
 
 
 def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-                 a_one_file=True, a_libs: List[str] = None, a_hidden_import: str = None):
+                 a_one_file=True, a_libs = None, a_hidden_import: str = None):
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.

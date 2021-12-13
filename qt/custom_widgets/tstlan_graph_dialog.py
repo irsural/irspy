@@ -1,4 +1,3 @@
-from typing import List, Dict, Tuple
 import logging
 
 from PyQt5 import QtGui, QtWidgets
@@ -25,7 +24,7 @@ class TstlanGraphDialog(QtWidgets.QDialog):
         (204, 102, 255),
     )
 
-    def __init__(self, a_graph_data: Dict[str, Tuple[List[float], List[float]]], a_settings: QtSettings,
+    def __init__(self, a_graph_data, a_settings: QtSettings,
                  a_parent=None):
         super().__init__(a_parent)
 
@@ -44,11 +43,11 @@ class TstlanGraphDialog(QtWidgets.QDialog):
 
         self.ui.chart_layout.addWidget(self.graph_widget)
 
-        self.graph_items: Dict[str, pyqtgraph.PlotCurveItem] = {}
+        self.graph_items = {}
         for graph_name in a_graph_data.keys():
             self.add_graph(graph_name)
 
-    def update_graphs(self, a_graph_data: Dict[str, List[Tuple[float, float]]]):
+    def update_graphs(self, a_graph_data):
         try:
             for graph_name in a_graph_data.keys():
                 pg_item = self.graph_items[graph_name]

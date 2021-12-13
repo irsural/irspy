@@ -1,5 +1,4 @@
 from enum import IntEnum
-from typing import List
 import logging
 import struct
 import re
@@ -733,7 +732,7 @@ class NetworkVariables:
             a_buffer_delay_s=a_variables_read_delay)
 
     @staticmethod
-    def get_variables_from_ini(a_ini_path: str) -> List[VariableInfo]:
+    def get_variables_from_ini(a_ini_path: str):
         """
         Парсит ini-файл с информацией о сетевых переменных и возвращает список VariableInfo
         :param a_ini_path: Путь к ini-файлу
@@ -774,7 +773,7 @@ class NetworkVariables:
                                 current_var.index = prev_var.index + prev_var.size
         return variables_info
 
-    def get_variables_info(self) -> List[VariableInfo]:
+    def get_variables_info(self):
         """
         Возвращает список VariableInfo с информацией о сетевых переменных
         """

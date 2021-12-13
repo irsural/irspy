@@ -1,4 +1,3 @@
-from typing import Tuple
 import logging
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -96,7 +95,7 @@ class ComboboxCellDelegate(QtWidgets.QItemDelegate):
     """
     Делегат для задания комбобокса в ячейки таблицы
     """
-    def __init__(self, a_parent: QtCore.QObject, a_values: Tuple):
+    def __init__(self, a_parent: QtCore.QObject, a_values):
         super().__init__(a_parent)
         self.cb_values = a_values
 

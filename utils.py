@@ -1,6 +1,5 @@
 from linecache import checkcache, getline
 from configparser import ConfigParser
-from typing import Iterable
 from enum import IntEnum
 from sys import exc_info
 import traceback
@@ -277,7 +276,7 @@ def base64_to_bytes(a_string: str):
     return base64.b64decode(a_string)
 
 
-def get_allowable_name(a_existing_names: Iterable, a_new_name: str, a_format_str: str = "{new_name}_{number}") -> str:
+def get_allowable_name(a_existing_names, a_new_name: str, a_format_str: str = "{new_name}_{number}") -> str:
     """
     Проверяет, есть ли a_new_name в a_existing_names, если есть, то возвращает имя с приставкой _number.
     number = количество раз, которое встречается имя в a_existing_names, включая имена с приставками.
@@ -329,4 +328,3 @@ class Timer:
             return self.interval_s
         else:
             return time.perf_counter() - self.start_time
-

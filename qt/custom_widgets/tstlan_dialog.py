@@ -1,4 +1,3 @@
-from typing import Tuple, Dict, List
 from enum import IntEnum
 from math import floor
 import logging
@@ -37,8 +36,8 @@ class TstlanDialog(QtWidgets.QDialog):
         self.settings = a_settings
         self.settings.restore_qwidget_state(self)
 
-        self.variables_to_graph: Dict[str, nv.BufferedVariable] = {}
-        self.graphs_data: Dict[str, Tuple[List[float], List[float]]] = {}
+        self.variables_to_graph = {}
+        self.graphs_data = {}
         self.ui.graphs_button.clicked.connect(self.show_graphs)
         self.start_timestamp = time.time()
         self.graphs_dialog = None
@@ -111,7 +110,7 @@ class TstlanDialog(QtWidgets.QDialog):
                     self.update_graph_variables(row, graph_state)
 
     @staticmethod
-    def create_table_checkbox(a_cb_state) -> Tuple[QtWidgets.QWidget, QtWidgets.QCheckBox]:
+    def create_table_checkbox(a_cb_state):
         widget = QtWidgets.QWidget()
         cb = QtWidgets.QCheckBox()
         cb.setChecked(a_cb_state)
