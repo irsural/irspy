@@ -5,6 +5,7 @@ import ipaddress
 import logging
 import ctypes
 import sys
+import platform
 
 from irspy.revisions import Revisions
 
@@ -71,8 +72,13 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
 
     return pokrov_dll_lib
 
-
-__dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2**32 else "pokrov_dll_32.dll"
+if platform.system() == 'Windows':
+    __dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2**32 else "pokrov_dll_32.dll"
+else: # Linux
+    if 'astra' in platform.system().lower():
+        __dll_name = 'apokrov_dll.so.1.0.0'
+    else:
+        __dll_name = 'pokrov_dll.so.1.0.0'
 __path = dirname(__file__) + sep + __dll_name
 _pokrov_dll = set_up_driver(__path)
 
