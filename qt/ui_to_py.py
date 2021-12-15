@@ -32,7 +32,7 @@ def __convert_gui(convert_cmd: str, ext_in: str, ext_out: str, path_in=".", path
     try:
         with open(hashes_path, 'r') as hashes_file:
             hashes = json.load(hashes_file)
-    except FileNotFoundError:
+    except IOError:
         hashes = {}
 
     for file in os.listdir(path_in):
