@@ -1,11 +1,10 @@
-from collections.abc import Iterable
+from collections import Iterable
 import configparser
-import abc
 
 from irspy.utils import base64_to_bytes, bytes_to_base64
 
 
-class Property(abc.ABC):
+class Property:
     def __init__(self, a_ini_path, a_ini_parser: configparser.ConfigParser, a_section: str):
         self.name = None
         self.ini_path = a_ini_path
@@ -30,11 +29,9 @@ class Property(abc.ABC):
         with open(self.ini_path, 'w') as config_file:
             self.ini_parser.write(config_file)
 
-    @abc.abstractmethod
     def from_ini(self):
         pass
 
-    @abc.abstractmethod
     def to_ini(self, a_value):
         pass
 
