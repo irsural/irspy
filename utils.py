@@ -6,8 +6,19 @@ import traceback
 import logging
 import base64
 import math
-import time
 import re
+
+import platform
+
+__python_verion_arr = [int(part) for part in platform.python_version().split('.')]
+__python_version = __python_verion_arr[0] * 1000 + __python_verion_arr[1] * 100 +\
+    __python_verion_arr[2]
+
+if __python_version <= 3300:
+    import time
+    perf_counter = time.time
+else:
+    from time import perf_counter
 
 
 check_input_re = re.compile(
@@ -303,7 +314,7 @@ class Timer:
 
     def start(self, a_interval_s=None):
         self.__started = True
-        self.start_time = time.perf_counter()
+        self.start_time = perf_counter()
         if a_interval_s is not None:
             self.interval_s = a_interval_s
         self.stop_time = self.start_time + self.interval_s
@@ -316,7 +327,7 @@ class Timer:
     def check(self):
         if not self.__started:
             return False
-        return time.perf_counter() > self.stop_time
+        return perf_counter() > self.stop_time
 
     def started(self):
         return self.__started
@@ -324,7 +335,7 @@ class Timer:
     def time_passed(self):
         if not self.__started:
             return 0
-        elif time.perf_counter() > self.stop_time:
+        elif perf_counter() > self.stop_time:
             return self.interval_s
         else:
-            return time.perf_counter() - self.start_time
+            return perf_counter() - self.start_time
