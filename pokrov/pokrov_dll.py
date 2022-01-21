@@ -75,7 +75,7 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
 if platform.system() == 'Windows':
     __dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2**32 else "pokrov_dll_32.dll"
 else: # Linux
-    if 'astra' in platform.system().lower():
+    if 'astra' in platform.platform().lower():
         __dll_name = 'apokrov_dll.so.1.0.0'
     else:
         __dll_name = 'pokrov_dll.so.1.0.0'
