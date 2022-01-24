@@ -1,6 +1,6 @@
 from os.path import dirname
 from typing import Union
-from os import sep
+import os
 import ipaddress
 import logging
 import ctypes
@@ -72,21 +72,26 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
 
     return pokrov_dll_lib
 
-if platform.system() == 'Windows':
-    __dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2**32 else "pokrov_dll_32.dll"
-else: # Linux
-    if 'astra' in platform.system().lower():
-        __dll_name = 'apokrov_dll.so.1.0.0'
-    else:
-        __dll_name = 'pokrov_dll.so.1.0.0'
-__path = dirname(__file__) + sep + __dll_name
-_pokrov_dll = set_up_driver(__path)
+
+def get_path_of_pokrov_dll(a_dir_name=None):
+    if platform.system() == 'Windows':
+        dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2 ** 32 else "pokrov_dll_32.dll"
+    else:  # Linux
+        if 'astra' in platform.platform().lower():
+            dll_name = 'apokrov_dll.so.1.0.0'
+        else:
+            dll_name = 'pokrov_dll.so.1.0.0'
+
+    if a_dir_name is None:
+        a_dir_name = dirname(__file__)
+
+    path = os.path.join(a_dir_name, dll_name)
+    return path
 
 
 class PokrovDrv:
-    def __init__(self):
-        global _pokrov_dll
-        self.__pokrov_dll = _pokrov_dll
+    def __init__(self, a_dir_name=None):
+        self.__pokrov_dll = set_up_driver(get_path_of_pokrov_dll(a_dir_name))
         self.__pokrov_handle = self.__pokrov_dll.create()
         self.__ip = "0.0.0.0"
 
