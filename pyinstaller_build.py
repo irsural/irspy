@@ -2,7 +2,6 @@ import os
 import sys
 
 from typing import List
-from sys import platform
 
 version_file_content = \
 """
@@ -66,7 +65,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs: List[str] = None, a_hidden_import: str = None, a_paths=None):
+              a_one_file=True, a_libs: List[str] = None, a_hidden_imports: List[str] = None, a_paths: List[str] = None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -75,6 +74,7 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_noconsole: Параметр noconole в pyinstaller
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param a_hidden_imports: Скрытые библиотеки, которые не видны pyinstaller
     :param a_paths: Пути до директорий, которые не видны pyinstaller
     """
 
@@ -84,13 +84,9 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
     libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
-    himport = " --hiddenimport {}".format(a_hidden_import) if a_hidden_import is not None else ""
-
-    paths = ""
-    # sep = ";" if platform == 'win32' else ':'
-    for src, _ in a_paths:
-      paths += ' --paths "{}"'.format(src)
-
+    himport = "".join(' --hiddenimport {}'.format(iimport) for iimport in a_hidden_imports) if a_hidden_imports is not None else ""
+    paths = "".join((' --paths {}'.format(src) for src in a_paths)) if a_paths is not None else ""
+    
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
@@ -108,7 +104,7 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
 
 
 def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-                 a_one_file=True, a_libs: List[str] = None, a_hidden_import: str = None, a_paths=None):
+                 a_one_file=True, a_libs: List[str] = None, a_hidden_imports: List[str] = None, a_paths=None):
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
@@ -124,7 +120,7 @@ def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str
                     compile_main.write(line)
 
     build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, 
-      a_libs, a_hidden_import=a_hidden_import, a_paths=a_paths)
+      a_libs, a_hidden_imports=a_hidden_imports, a_paths=a_paths)
 
     os.remove(tmp_filename)
 
