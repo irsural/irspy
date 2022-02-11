@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 version_file_content = \
@@ -63,7 +64,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs = None, a_hidden_import: str = None):
+              a_one_file=True, a_libs = None, a_hidden_imports: str = None, a_paths=None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -72,6 +73,8 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_noconsole: Параметр noconole в pyinstaller
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param a_hidden_imports: Скрытые библиотеки, которые не видны pyinstaller
+    :param a_paths: Пути до директорий, которые не видны pyinstaller
     """
     name = " -n {}".format(a_app_info.app_name)
     onefile = " --onefile" if a_one_file else ""
@@ -79,7 +82,8 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
     libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
-    himport = " --hiddenimport {}".format(a_hidden_import) if a_hidden_import is not None else ""
+    himport = " --hiddenimport {}".format(a_hidden_imports) if a_hidden_imports is not None else ""
+    paths = "".join((' --paths {}'.format(src) for src in a_paths)) if a_paths is not None else ""
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
@@ -90,14 +94,15 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
         ))
         version = " --version-file={}".format(version_filename)
 
-    os.system("pyinstaller{}{}{}{}{}{}{} {}".format(name, onefile, noconsole,
-                                                      icon, version, libs, himport, a_main_filename))
+    os.system("pyinstaller{}{}{}{}{}{}{}{} {}".format(name, onefile, noconsole,
+                                                      icon, version, libs, himport, 
+                                                      paths, a_main_filename))
 
     os.remove(version_filename)
 
 
 def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-                 a_one_file=True, a_libs = None, a_hidden_import: str = None):
+                 a_one_file=True, a_libs = None, a_hidden_imports: str = None, a_paths=None):
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
@@ -113,6 +118,16 @@ def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str
                     compile_main.write(line)
 
     build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, 
-      a_libs, a_hidden_import=a_hidden_import)
+      a_libs, a_hidden_imports=a_hidden_imports, a_paths=a_paths)
 
     os.remove(tmp_filename)
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
