@@ -5,10 +5,12 @@ import sys
 import imp
 import os
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class AbstractDecoder(ABC):
+class AbstractDecoder:
+    __metaclass__ = ABCMeta
+
     @abstractmethod
     def decode(a_input_file: str) -> str:
         return NotImplemented
