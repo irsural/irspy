@@ -64,7 +64,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs = None, a_hidden_imports: str = None, a_paths=None):
+              a_one_file=True, a_libs = None, a_hidden_imports: str = None, a_paths=None, a_others_parameters=None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -82,8 +82,9 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
     libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
-    himport = " --hiddenimport {}".format(a_hidden_imports) if a_hidden_imports is not None else ""
+    himport = "".join(' --hiddenimport {}'.format(iimport) for iimport in a_hidden_imports) if a_hidden_imports is not None else ""
     paths = "".join((' --paths {}'.format(src) for src in a_paths)) if a_paths is not None else ""
+    others = " {}".format(a_others_parameters) if a_others_parameters is not None else ""
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
@@ -94,9 +95,9 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
         ))
         version = " --version-file={}".format(version_filename)
 
-    os.system("pyinstaller{}{}{}{}{}{}{}{} {}".format(name, onefile, noconsole,
-                                                      icon, version, libs, himport, 
-                                                      paths, a_main_filename))
+    os.system("pyinstaller{}{}{}{}{}{}{}{}{} {}".format(name, onefile, noconsole,
+                                                      icon, version, libs, himport,
+                                                      paths, others, a_main_filename))
 
     os.remove(version_filename)
 
