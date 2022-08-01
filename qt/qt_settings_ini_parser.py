@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 
 from irspy.settings_ini_parser import Settings
-from irspy import utils as utils
+from irspy import utils
 
 
 class QtSettings(Settings):
