@@ -30,6 +30,8 @@ class QtSettings(Settings):
             widget_state = a_widget.saveGeometry()
         elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
             widget_state = a_widget.horizontalHeader().saveState()
+        elif isinstance(a_widget, QtWidgets.QTreeWidget) or isinstance(a_widget, QtWidgets.QTableView):
+            widget_state = a_widget.header().saveState()
         else:
             widget_state = a_widget.saveState()
 
@@ -43,6 +45,8 @@ class QtSettings(Settings):
             a_widget.restoreGeometry(geometry_bytes)
         elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
             a_widget.horizontalHeader().restoreState(geometry_bytes)
+        elif isinstance(a_widget, QtWidgets.QTreeWidget) or isinstance(a_widget, QtWidgets.QTableView):
+            a_widget.header().restoreState(geometry_bytes)
         else:
             a_widget.restoreState(geometry_bytes)
 

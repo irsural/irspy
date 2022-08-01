@@ -24,7 +24,8 @@ class TstlanDialog(QtWidgets.QDialog):
         TYPE = 5
         VALUE = 6
 
-    def __init__(self, a_variables: nv.NetworkVariables, a_calibrator: ClbDrv, a_settings: QtSettings, a_parent=None):
+    def __init__(self, a_variables: nv.NetworkVariables, a_calibrator: ClbDrv,
+                 a_settings: QtSettings, a_parent=None):
         super().__init__(a_parent)
 
         self.ui = TstlanForm()

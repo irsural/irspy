@@ -10,17 +10,21 @@ def __is_file_newer(fst_filename, snd_filename):
     return os.path.getmtime(fst_filename) > os.path.getmtime(snd_filename)
 
 
-def convert_ui(path_in: str = ".", path_out: str = "."):
+def convert_ui(path_in: str = ".", path_out: str = ".", resources_path: str = ""):
     """
     Конвертирует .ui формы из path_in в .py файлы (в path_out)
     :param path_in: Каталог, содержащий .ui формы
     :param path_out: Каталог, в коротом будут создаваться .py файлы
+    :param resources_path: если не пустая строка, то код в py файлах сгенерируется со строкой
+    from resource_path import py_filename, иначе import py_filename
     """
     for ui_filename, py_filename in __old_files_with_extension(path_in, ".ui", path_out, ".py"):
         print(f"{ui_filename} updated")
         py_filename.parent.mkdir(exist_ok=True, parents=True)
         with open(py_filename, 'w', encoding='utf8') as py_file:
-            uic.compileUi(ui_filename, py_file, resource_suffix="")
+            uic.compileUi(ui_filename, py_file, resource_suffix="",
+                          from_imports=True if resources_path else False,
+                          import_from=resources_path)
 
 
 def convert_resources(path_in: str = ".", path_out: str = "."):
