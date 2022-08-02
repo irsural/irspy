@@ -7,7 +7,7 @@ import irspy.clb.calibrator_constants as clb
 from irspy.qt.qt_settings_ini_parser import QtSettings
 import irspy.clb.clb_dll as clb_dll
 from irspy import utils
-import qt_utils
+from irspy.qt import qt_utils
 
 
 class SourceModeWidget(QtWidgets.QWidget):
