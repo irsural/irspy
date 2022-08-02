@@ -7,7 +7,7 @@ from PyQt5 import pyrcc
 
 
 def __is_file_newer(fst_filename, snd_filename):
-    return os.path.getmtime(fst_filename) > os.path.getmtime(snd_filename)
+    return os.path.getmtime(str(fst_filename)) > os.path.getmtime(str(snd_filename))
 
 
 def convert_ui(path_in: str = ".", path_out: str = ".", resources_path: str = ""):
@@ -19,9 +19,9 @@ def convert_ui(path_in: str = ".", path_out: str = ".", resources_path: str = ""
     from resource_path import py_filename, иначе import py_filename
     """
     for ui_filename, py_filename in __old_files_with_extension(path_in, ".ui", path_out, ".py"):
-        print(f"{ui_filename} updated")
+        print(ui_filename, "updated")
         py_filename.parent.mkdir(exist_ok=True, parents=True)
-        with open(py_filename, 'w', encoding='utf8') as py_file:
+        with open(str(py_filename), 'w', encoding='utf8') as py_file:
             uic.compileUi(ui_filename, py_file, resource_suffix="",
                           from_imports=True if resources_path else False,
                           import_from=resources_path)
@@ -34,7 +34,7 @@ def convert_resources(path_in: str = ".", path_out: str = "."):
     :param path_out: Каталог, в коротом будут создаваться .py файлы
     """
     for qrc_filename, py_filename in __old_files_with_extension(path_in, ".qrc", path_out, ".py"):
-        print(f"{qrc_filename} updated")
+        print(qrc_filename, "updated")
         py_filename.parent.mkdir(exist_ok=True, parents=True)
         __qrc_to_py([str(qrc_filename)], str(py_filename))
 
@@ -43,13 +43,13 @@ def __old_files_with_extension(path_in, ext_in: str, path_out, ext_out: str) -> 
     path_in = Path(path_in)
     path_out = Path(path_out)
 
-    for file in os.listdir(path_in):
+    for file in os.listdir(str(path_in)):
         if file.endswith(ext_in):
             file = Path(file)
             ui_filename = path_in/file
             py_filename = path_out/file.with_suffix(ext_out)
 
-            if not os.path.isfile(py_filename) or __is_file_newer(ui_filename, py_filename):
+            if not os.path.isfile(str(py_filename)) or __is_file_newer(ui_filename, py_filename):
                 yield ui_filename, py_filename
 
 
