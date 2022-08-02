@@ -1,7 +1,5 @@
 from os.path import dirname
-from typing import Union
 from os import sep
-import logging
 import ctypes
 import enum
 
@@ -10,14 +8,14 @@ from irspy.revisions import Revisions
 import irspy.utils as utils
 
 
-def set_up_driver(a_full_path):
+def set_up_driver(a_full_path) -> ctypes.CDLL:
     clb_driver_lib = ctypes.CDLL(a_full_path)
 
     clb_driver_lib.revision.restype = ctypes.c_int
 
-    assert clb_driver_lib.revision() == Revisions.clb_dll, f"Ревизия clb_dll не соответствует ожидаемой! " \
-                                                           f"Текущая версия {clb_driver_lib.revision()}. " \
-                                                           f"Ожидаемая: {Revisions.clb_dll}"
+    assert clb_driver_lib.revision() == Revisions.clb_dll, \
+        "Ревизия clb_dll не соответствует ожидаемой! " \
+        "Текущая версия {}. Ожидаемая: {}".format(clb_driver_lib.revision(), Revisions.clb_dll)
 
     # Возвращает список калибраторов, разделенных ';'
     clb_driver_lib.get_usb_devices.restype = ctypes.c_char_p
@@ -55,7 +53,7 @@ def set_up_driver(a_full_path):
 
 
 __path = dirname(__file__) + sep + "clb_driver_dll.dll"
-clb_dll: [Union, ctypes.CDLL] = set_up_driver(__path)
+clb_dll = set_up_driver(__path)
 
 
 class UsbDrv:
@@ -159,7 +157,8 @@ class ClbDrv:
 
     def amplitude_changed(self):
         actual_amplitude = clb.bound_amplitude(self.__clb_dll.get_amplitude(), self.__signal_type)
-        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polarity.POS else -actual_amplitude
+        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polarity.POS \
+            else -actual_amplitude
 
         if self.__amplitude != signed_amplitude:
             self.__amplitude = signed_amplitude
@@ -193,7 +192,8 @@ class ClbDrv:
             self.__clb_dll.set_polarity(clb.Polarity.POS)
 
     def frequency_changed(self):
-        actual_frequency = utils.bound(self.__clb_dll.get_frequency(), clb.MIN_FREQUENCY, clb.MAX_FREQUENCY)
+        actual_frequency = utils.bound(
+            self.__clb_dll.get_frequency(), clb.MIN_FREQUENCY, clb.MAX_FREQUENCY)
         if self.__frequency != actual_frequency:
             self.__frequency = actual_frequency
             return True
