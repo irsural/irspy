@@ -6,8 +6,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal
 
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
-from ui.py.edited_list_widget import Ui_Form as EditedListForm
-from ui.py.ok_cancel_dialog import Ui_Dialog as OkCancelForm
+from irspy.qt.custom_widgets.ui_py.edited_list_widget import Ui_edited_list_widget as EditedListForm
+from irspy.qt.custom_widgets.ui_py.ok_cancel_dialog import Ui_ok_cancel_dialog as OkCancelForm
 import irspy.utils as utils
 
 
@@ -16,8 +16,8 @@ class EditedListWidget(QtWidgets.QWidget):
     Класс для контролируемого ввода в QListWidget. Можно унаследоваться и перегрузить process_input и get_list,
     чтобы QListWidget подстраивал ввод в нужном формате
     """
-    def __init__(self, parent=None, a_init_items=(), a_min_value=None, a_max_value=None, a_optional_widget=None,
-                 a_list_header=""):
+    def __init__(self, parent=None, a_init_items=(), a_min_value=None, a_max_value=None,
+                 a_optional_widget=None, a_list_header=""):
         super().__init__(parent)
 
         self.ui = EditedListForm()

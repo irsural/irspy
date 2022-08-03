@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'edited_list_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -10,14 +10,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(221, 288)
+class Ui_edited_list_widget(object):
+    def setupUi(self, edited_list_widget):
+        edited_list_widget.setObjectName("edited_list_widget")
+        edited_list_widget.resize(221, 288)
         font = QtGui.QFont()
         font.setPointSize(10)
-        Form.setFont(font)
-        self.verticalLayout = QtWidgets.QVBoxLayout(Form)
+        edited_list_widget.setFont(font)
+        self.verticalLayout = QtWidgets.QVBoxLayout(edited_list_widget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -30,7 +30,7 @@ class Ui_Form(object):
         self.horizontalLayout_2.addLayout(self.optional_widget_layout)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
-        self.add_list_item_button = QtWidgets.QPushButton(Form)
+        self.add_list_item_button = QtWidgets.QPushButton(edited_list_widget)
         self.add_list_item_button.setMinimumSize(QtCore.QSize(35, 0))
         self.add_list_item_button.setMaximumSize(QtCore.QSize(35, 16777215))
         font = QtGui.QFont()
@@ -44,7 +44,7 @@ class Ui_Form(object):
         self.add_list_item_button.setIcon(icon)
         self.add_list_item_button.setObjectName("add_list_item_button")
         self.horizontalLayout_2.addWidget(self.add_list_item_button)
-        self.delete_list_item_button = QtWidgets.QPushButton(Form)
+        self.delete_list_item_button = QtWidgets.QPushButton(edited_list_widget)
         self.delete_list_item_button.setMinimumSize(QtCore.QSize(35, 0))
         self.delete_list_item_button.setMaximumSize(QtCore.QSize(35, 16777215))
         font = QtGui.QFont()
@@ -59,12 +59,12 @@ class Ui_Form(object):
         self.delete_list_item_button.setObjectName("delete_list_item_button")
         self.horizontalLayout_2.addWidget(self.delete_list_item_button)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.list_header = QtWidgets.QLabel(Form)
+        self.list_header = QtWidgets.QLabel(edited_list_widget)
         self.list_header.setText("")
         self.list_header.setWordWrap(True)
         self.list_header.setObjectName("list_header")
         self.verticalLayout.addWidget(self.list_header)
-        self.list_widget = QtWidgets.QListWidget(Form)
+        self.list_widget = QtWidgets.QListWidget(edited_list_widget)
         font = QtGui.QFont()
         font.setPointSize(13)
         self.list_widget.setFont(font)
@@ -85,13 +85,13 @@ class Ui_Form(object):
         self.list_widget.setObjectName("list_widget")
         self.verticalLayout.addWidget(self.list_widget)
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
-        Form.setTabOrder(self.add_list_item_button, self.delete_list_item_button)
-        Form.setTabOrder(self.delete_list_item_button, self.list_widget)
+        self.retranslateUi(edited_list_widget)
+        QtCore.QMetaObject.connectSlotsByName(edited_list_widget)
+        edited_list_widget.setTabOrder(self.add_list_item_button, self.delete_list_item_button)
+        edited_list_widget.setTabOrder(self.delete_list_item_button, self.list_widget)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, edited_list_widget):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        edited_list_widget.setWindowTitle(_translate("edited_list_widget", "Form"))
         self.list_widget.setSortingEnabled(False)
 from irspy.qt.resources import icons

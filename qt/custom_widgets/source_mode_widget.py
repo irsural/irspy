@@ -2,9 +2,9 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, QTimer
 
 
-from irspy.qt.custom_widgets.ui_py.source_mode_widget import Ui_Form as SourceModeForm
-import irspy.clb.calibrator_constants as clb
+from irspy.qt.custom_widgets.ui_py.source_mode_widget import Ui_source_mode_widget as SourceModeForm
 from irspy.qt.qt_settings_ini_parser import QtSettings
+import irspy.clb.calibrator_constants as clb
 import irspy.clb.clb_dll as clb_dll
 from irspy import utils
 from irspy.qt import qt_utils
@@ -110,11 +110,8 @@ class SourceModeWidget(QtWidgets.QWidget):
         self.calibrator.signal_enable = a_signal_enable
         self.update_signal_enable_state(a_signal_enable)
 
-    def signal_enable_changed(self, a_enable):
-        if a_enable:
-            self.update_signal_enable_state(True)
-        else:
-            self.update_signal_enable_state(False)
+    def signal_enable_changed(self, a_enable: bool):
+        self.update_signal_enable_state(a_enable)
 
     def update_signal_enable_state(self, a_signal_enabled: bool):
         if a_signal_enabled:

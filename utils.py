@@ -1,5 +1,4 @@
 from linecache import checkcache, getline
-from configparser import ConfigParser
 from typing import Iterable
 from enum import IntEnum
 from sys import exc_info

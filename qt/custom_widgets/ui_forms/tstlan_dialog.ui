@@ -22,7 +22,7 @@
    <string>Tstlan</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/tstlan.png</normaloff>:/icons/icons/tstlan.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -121,10 +121,10 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <attribute name="verticalHeaderMinimumSectionSize">
+     <attribute name="verticalHeaderDefaultSectionSize">
       <number>22</number>
      </attribute>
-     <attribute name="verticalHeaderDefaultSectionSize">
+     <attribute name="verticalHeaderMinimumSectionSize">
       <number>22</number>
      </attribute>
      <column>
@@ -174,7 +174,7 @@
   <tabstop>name_filter_edit</tabstop>
  </tabstops>
  <resources>
-  <include location="../resources/icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>
