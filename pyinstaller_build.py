@@ -76,15 +76,15 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
     """
-    pyinstaller_args = [a_main_filename, f"--name={a_app_info.app_name}"]
+    pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
     if a_one_file:
         pyinstaller_args.append("--onefile")
     if a_noconsole:
         pyinstaller_args.append("--noconsole")
     if a_icon_filename:
-        pyinstaller_args.append(f"--icon={a_icon_filename}")
+        pyinstaller_args.append("--icon={}".format(a_icon_filename))
     for src, dst in a_libs:
-        pyinstaller_args.append(f"--add-data={src}{os.pathsep}{dst}")
+        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
@@ -95,7 +95,7 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
             product_name=a_app_info.product_name)
         )
 
-    pyinstaller_args.append(f"--version-file={version_filename}")
+    pyinstaller_args.append("--version-file={}".format(version_filename))
 
     try:
         pyinstaller.run(pyinstaller_args)
