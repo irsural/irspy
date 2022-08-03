@@ -132,6 +132,11 @@ def absolute_error(a_reference: float, a_value: float):
     return a_reference - a_value
 
 
+def relative_error(a_reference: float, a_value: float, a_normalize: float):
+    assert a_normalize != 0, "Normalize value must not be zero"
+    return (a_reference - a_value) / a_normalize * 100
+
+
 def variation(a_lval: float, a_rval: float):
     return abs(a_lval - a_rval)
 
