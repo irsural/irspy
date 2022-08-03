@@ -32,8 +32,12 @@ class QtSettings(Settings):
             widget_state = a_widget.horizontalHeader().saveState()
         elif isinstance(a_widget, QtWidgets.QTreeWidget) or isinstance(a_widget, QtWidgets.QTableView):
             widget_state = a_widget.header().saveState()
-        else:
+        elif hasattr(a_widget, "restoreGeometry"):
+            widget_state = a_widget.saveGeometry()
+        elif hasattr(a_widget, "saveState"):
             widget_state = a_widget.saveState()
+        else:
+            assert True, 'No way to save widget state'
 
         self.save_bytes(widget_name, bytes(widget_state))
 
@@ -47,8 +51,12 @@ class QtSettings(Settings):
             a_widget.horizontalHeader().restoreState(geometry_bytes)
         elif isinstance(a_widget, QtWidgets.QTreeWidget) or isinstance(a_widget, QtWidgets.QTableView):
             a_widget.header().restoreState(geometry_bytes)
-        else:
+        elif hasattr(a_widget, "restoreGeometry"):
+            a_widget.restoreGeometry(geometry_bytes)
+        elif hasattr(a_widget, "restoreState"):
             a_widget.restoreState(geometry_bytes)
+        else:
+            assert True, 'No way to restore widget state'
 
     def save_dialog_size(self, a_widget: QtWidgets.QWidget):
         """
