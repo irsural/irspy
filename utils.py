@@ -265,7 +265,7 @@ assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=loggi
 
 
 def get_array_min_diff(a_array: list):
-    unique_array = list(dict.fromkeys(a_array))
+    unique_array = sorted(list(set(a_array)))
     min_diff = unique_array[-1] - unique_array[0]
     for i in range(len(unique_array) - 1):
         diff = unique_array[i + 1] - unique_array[i]
