@@ -157,11 +157,13 @@ class ClbDrv:
 
     def amplitude_changed(self):
         actual_amplitude = clb.bound_amplitude(self.__clb_dll.get_amplitude(), self.__signal_type)
-        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polarity.POS \
-            else -actual_amplitude
 
-        if self.__amplitude != signed_amplitude:
-            self.__amplitude = signed_amplitude
+        if self.__clb_dll.get_polarity() == clb.Polarity.NEG and \
+                clb.is_dc_signal[self.__signal_type]:
+            actual_amplitude = -actual_amplitude
+
+        if self.__amplitude != actual_amplitude:
+            self.__amplitude = actual_amplitude
             return True
         else:
             return False
