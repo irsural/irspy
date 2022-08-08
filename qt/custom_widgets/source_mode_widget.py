@@ -51,7 +51,7 @@ class SourceModeWidget(QtWidgets.QWidget):
 
         self.clb_check_timer = QTimer()
         self.clb_check_timer.timeout.connect(self.sync_clb_parameters)
-        self.clb_check_timer.start(10)
+        self.clb_check_timer.start(100)
 
     def __del__(self):
         print("source mode deleted")
@@ -90,21 +90,19 @@ class SourceModeWidget(QtWidgets.QWidget):
     def connect_to_clb(self, a_clb_name):
         self.calibrator.connect(a_clb_name)
 
+    @utils.exception_decorator_print
     def sync_clb_parameters(self):
+        if self.calibrator.signal_type_changed():
+            self.show_signal_type()
+
         if self.calibrator.amplitude_changed():
-            self.set_amplitude(self.calibrator.amplitude)
+            self.show_amplitude()
 
         if self.calibrator.frequency_changed():
-            self.set_frequency(self.calibrator.frequency)
-
-        if self.calibrator.signal_type_changed():
-            self.signal_type = self.calibrator.signal_type
-            self.signal_type_to_radio[self.signal_type].setChecked(True)
-            self.update_signal_type(self.signal_type)
+            self.show_frequency()
 
         if self.calibrator.mode_changed():
-            self.mode = self.calibrator.mode
-            self.mode_to_radio[self.mode].setChecked(True)
+            self.show_mode()
 
     def enable_signal(self, a_signal_enable):
         self.calibrator.signal_enable = a_signal_enable
@@ -147,7 +145,10 @@ class SourceModeWidget(QtWidgets.QWidget):
         event.accept()
 
     def set_amplitude(self, a_amplitude: float):
-        self.calibrator.amplitude = clb.bound_amplitude(a_amplitude, self.signal_type)
+        self.calibrator.amplitude = a_amplitude
+        self.show_amplitude()
+
+    def show_amplitude(self):
         self.ui.amplitude_edit.setText(self.value_to_user(self.calibrator.amplitude))
         self.amplitude_edit_text_changed()
 
@@ -173,11 +174,14 @@ class SourceModeWidget(QtWidgets.QWidget):
 
     def set_frequency(self, a_frequency):
         self.calibrator.frequency = a_frequency
-        current_frequency = 0 if clb.is_dc_signal[self.signal_type] else self.calibrator.frequency
-        self.ui.frequency_edit.setText(utils.float_to_string(current_frequency))
+        self.show_frequency()
+
+    def show_frequency(self):
+        self.ui.frequency_edit.setText(utils.float_to_string(self.calibrator.frequency))
 
     def frequency_edit_text_changed(self):
-        qt_utils.update_edit_color(self.calibrator.frequency, self.ui.frequency_edit.text().replace(",", "."),
+        qt_utils.update_edit_color(self.calibrator.frequency,
+                                   self.ui.frequency_edit.text().replace(",", "."),
                                    self.ui.frequency_edit)
 
     def apply_frequency_button_clicked(self):
@@ -213,18 +217,23 @@ class SourceModeWidget(QtWidgets.QWidget):
     def update_signal_type(self, a_signal_type: clb.SignalType):
         if not self.calibrator.signal_enable:
             self.calibrator.signal_type = a_signal_type
-            self.signal_type = a_signal_type
+            self.show_signal_type()
 
-            self.units = clb.signal_type_to_units[self.signal_type]
-            self.value_to_user = utils.value_to_user_with_units(self.units)
-
-            self.set_amplitude(self.calibrator.amplitude)
-            self.set_frequency(self.calibrator.frequency)
+    def show_signal_type(self):
+        self.signal_type = self.calibrator.signal_type
+        self.signal_type_to_radio[self.signal_type].setChecked(True)
+        self.units = clb.signal_type_to_units[self.signal_type]
+        self.value_to_user = utils.value_to_user_with_units(self.units)
+        self.show_amplitude()
 
     def update_mode(self, a_mode: clb.Mode):
         if not self.calibrator.signal_enable:
             self.calibrator.mode = a_mode
             self.mode = a_mode
+
+    def show_mode(self):
+        self.mode = self.calibrator.mode
+        self.mode_to_radio[self.mode].setChecked(True)
 
     def closeEvent(self, a_event: QtGui.QCloseEvent) -> None:
         self.calibrator.signal_enable = False
