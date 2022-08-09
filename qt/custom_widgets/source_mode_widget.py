@@ -178,6 +178,7 @@ class SourceModeWidget(QtWidgets.QWidget):
 
     def show_frequency(self):
         self.ui.frequency_edit.setText(utils.float_to_string(self.calibrator.frequency))
+        self.frequency_edit_text_changed()
 
     def frequency_edit_text_changed(self):
         qt_utils.update_edit_color(self.calibrator.frequency,
@@ -188,7 +189,6 @@ class SourceModeWidget(QtWidgets.QWidget):
         try:
             new_frequency = utils.parse_input(self.ui.frequency_edit.text())
             self.set_frequency(new_frequency)
-            self.frequency_edit_text_changed()
         except ValueError:
             # Отлавливает некорректный ввод
             pass
