@@ -1,6 +1,8 @@
+from typing import Dict, Tuple
 import enum
 
 from irspy.utils import bound
+from irspy.utils import parse_input
 
 
 MAX_CURRENT = 11
@@ -135,6 +137,7 @@ signal_type_to_dc_enabled_bit = {
     SignalType.DCV: True
 }
 
+
 error_code_to_message = {
     257: "Перегрев аналоговой платы",
     258: "Перегрев платы питания",
@@ -164,6 +167,72 @@ error_code_to_message = {
     4122: "Обнаружено короткое замыкание",
     129: "SD карта не обнаружена. Калибровка прибора нарушена",
     140: "Не удалось смонтировать файловую систему. Калибровка прибора нарушена",
+}
+
+
+class DcvRanges(enum.Enum):
+    DCV_40mv = "40 мВ"
+    DCV_420mv = "420 мВ"
+    DCV_4_08v = "4.08 В"
+    DCV_42_9v = "42.9 В"
+    DCV_200v = "200 В"
+    DCV_635v = "635 В"
+
+
+class DciRanges(enum.Enum):
+    DCI_110mca = "110 мкА"
+    DCI_1_11mA = "1.1 мА"
+    DCI_11ma = "11 мА"
+    DCI_110ma = "110 мА"
+    DCI_1_1a = "1.1 А"
+    DCI_10a = "11 А"
+
+
+class AcvRanges(enum.Enum):
+    ACV_110mv = "110 мВ"
+    ACV_1_1v = "1.1 В"
+    ACV_11v = "11 В"
+    ACV_110v = "110 В"
+    ACV_630v = "630 В"
+
+
+class AciRanges(enum.Enum):
+    ACI_110ma = "110 мА"
+    ACI_1_1a = "1.1 А"
+    ACI_11a = "11 А"
+
+
+class SignalRange(enum.Enum):
+    DCV = DcvRanges
+    DCI = DciRanges
+    ACV = AcvRanges
+    ACI = AciRanges
+
+
+def __make_range_limits() -> Dict[SignalRange, Tuple[float, float]]:
+    range_limits = {}
+    lower_limit = 0
+    for signal in SignalRange:
+        for range in signal.value:
+            upper_limit = parse_input(range.value)
+
+            if upper_limit < lower_limit:
+                # Следующий тип сигнала
+                lower_limit = 0
+
+            range_limits[range] = (lower_limit, upper_limit)
+            lower_limit = upper_limit
+
+    return range_limits
+
+
+RANGE_LIMITS = __make_range_limits()
+
+SIGNAL_TYPE_RANGES = {
+    SignalType.DCV: DcvRanges,
+    SignalType.DCI: DciRanges,
+    SignalType.ACV: AcvRanges,
+    SignalType.ACI: AciRanges
 }
 
 

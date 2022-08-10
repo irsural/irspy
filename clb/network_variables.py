@@ -262,6 +262,10 @@ class NetworkVariables:
                                                             a_mode=BufferedVariable.Mode.RW,
                                                             a_buffer_delay_s=a_variables_read_delay)
 
+        self.source_ready = BufferedVariable(a_variable_info=VariableInfo(
+            a_index=220, a_bit_index=0, a_type="bit"), a_calibrator=self.__calibrator,
+            a_mode=BufferedVariable.Mode.R, a_buffer_delay_s=a_variables_read_delay)
+
         self.fast_adc_slow = BufferedVariable(a_variable_info=VariableInfo(a_index=229, a_type="double"),
                                               a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.R,
                                               a_buffer_delay_s=a_variables_read_delay)
