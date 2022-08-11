@@ -859,6 +859,9 @@ class BufferedVariable:
         self.__delay_timer = utils.Timer(self._buffer_delay)
 
     def get(self):
+        if self.__calibrator.state == clb.State.DISCONNECTED:
+            return 0
+
         if self.__delay_timer.check() or not self.__delay_timer.started():
             if self.__is_bit:
                 return self.__calibrator.read_bit(self.__variable_info.index, self.__variable_info.bit_index)
