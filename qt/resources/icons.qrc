@@ -59,6 +59,7 @@
     <file>icons/remove.svg</file>
     <file>icons/settings.png</file>
     <file>icons/warning.png</file>
+    <file>icons/log_file.png</file>
   </qresource>
   <qresource prefix="images">
     <file>images/just_for_fun.png</file>
