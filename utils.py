@@ -1,4 +1,5 @@
 from linecache import checkcache, getline
+from collections import defaultdict
 from typing import Iterable
 from enum import IntEnum
 from sys import exc_info
@@ -334,3 +335,23 @@ class Timer:
         else:
             return time.perf_counter() - self.start_time
 
+
+class PerfTime:
+    def __init__(self, threshold_s):
+        self.threshold_s = threshold_s
+        self.start_time = 0
+        self.times = defaultdict(list)
+
+    def start(self):
+        self.start_time = time.perf_counter()
+
+    def trace(self, trace_name):
+        trace_time = time.perf_counter() - self.start_time
+        if trace_time > self.threshold_s:
+            self.times[trace_name].append(trace_time)
+            print(trace_name, trace_time)
+
+        self.start()
+
+    def get_times(self):
+        return self.times
