@@ -10,7 +10,7 @@ import platform
 from irspy.revisions import Revisions
 
 
-def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
+def set_up_driver(a_full_path) -> ctypes.CDLL:
     pokrov_dll_lib = ctypes.CDLL(a_full_path)
 
     pokrov_dll_lib.revision.restype = ctypes.c_int
@@ -20,10 +20,10 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
         "Ревизия pokrov_dll не соответствует ожидаемой! Текущая версия {}. Ожидаемая: {}".format(
         pokrov_dll_lib.revision(), Revisions.pokrov_dll)
 
-    pokrov_dll_lib.create.restype = ctypes.c_size_t
-    pokrov_dll_lib.destroy.argtypes = [ctypes.c_size_t]
+    pokrov_dll_lib.create.restype = ctypes.c_int
+    pokrov_dll_lib.destroy.argtypes = [ctypes.c_int]
 
-    pokrov_dll_lib.tick.argtypes = [ctypes.c_size_t]
+    pokrov_dll_lib.tick.argtypes = [ctypes.c_int]
 
     pokrov_dll_lib.gnrw_connect.argtypes = [ctypes.c_size_t, ctypes.c_char_p]
 
@@ -31,21 +31,21 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
     pokrov_dll_lib.is_gnrw_connected.restype = ctypes.c_size_t
 
     pokrov_dll_lib.signal_on.argtypes = [ctypes.c_size_t, ctypes.c_int]
-    pokrov_dll_lib.is_signal_on.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.is_signal_on.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.is_signal_on.restype = ctypes.c_int
 
-    pokrov_dll_lib.is_fault.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.is_fault.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.is_fault.restype = ctypes.c_int
-    pokrov_dll_lib.is_ether_ok.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.is_ether_ok.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.is_ether_ok.restype = ctypes.c_int
-    pokrov_dll_lib.is_line_ok.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.is_line_ok.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.is_line_ok.restype = ctypes.c_int
 
-    pokrov_dll_lib.get_work_time.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_work_time.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_work_time.restype = ctypes.c_double
     pokrov_dll_lib.get_ether_work_time.argtypes = [ctypes.c_int]
     pokrov_dll_lib.get_ether_work_time.restype = ctypes.c_double
-    pokrov_dll_lib.get_line_work_time.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_line_work_time.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_line_work_time.restype = ctypes.c_double
 
     pokrov_dll_lib.get_id.argtypes = [ctypes.c_size_t]
@@ -59,15 +59,15 @@ def set_up_driver(a_full_path) -> [Union, ctypes.CDLL]:
     pokrov_dll_lib.get_line_power.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_line_power.restype = ctypes.c_size_t
 
-    pokrov_dll_lib.get_volume.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_volume.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_volume.restype = ctypes.c_size_t
 
-    pokrov_dll_lib.get_brightness.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_brightness.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_brightness.restype = ctypes.c_size_t
 
-    pokrov_dll_lib.get_show_power_interval.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_show_power_interval.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_show_power_interval.restype = ctypes.c_size_t
-    pokrov_dll_lib.get_show_time_interval.argtypes = [ctypes.c_int]
+    pokrov_dll_lib.get_show_time_interval.argtypes = [ctypes.c_size_t]
     pokrov_dll_lib.get_show_time_interval.restype = ctypes.c_size_t
 
     return pokrov_dll_lib
