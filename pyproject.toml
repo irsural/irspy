@@ -1,19 +1,24 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "irspy"
-version = "0.0.1"
+version = ""
 authors = [
-  { name="irs"},
+  { name="irs ural"},
 ]
-description = "Library from irs ural"
+description = "Python library"
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+qt = [
+    "PyQt6"
 ]
 
 [project.urls]
