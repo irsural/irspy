@@ -1,7 +1,5 @@
 from os.path import dirname
-from typing import Union
 from os import sep
-import logging
 import ctypes
 import enum
 
@@ -10,14 +8,14 @@ from irspy.revisions import Revisions
 import irspy.utils as utils
 
 
-def set_up_driver(a_full_path):
+def set_up_driver(a_full_path) -> ctypes.CDLL:
     clb_driver_lib = ctypes.CDLL(a_full_path)
 
     clb_driver_lib.revision.restype = ctypes.c_int
 
-    assert clb_driver_lib.revision() == Revisions.clb_dll, f"Ревизия clb_dll не соответствует ожидаемой! " \
-                                                           f"Текущая версия {clb_driver_lib.revision()}. " \
-                                                           f"Ожидаемая: {Revisions.clb_dll}"
+    assert clb_driver_lib.revision() == Revisions.clb_dll, \
+        "Ревизия clb_dll не соответствует ожидаемой! " \
+        "Текущая версия {}. Ожидаемая: {}".format(clb_driver_lib.revision(), Revisions.clb_dll)
 
     # Возвращает список калибраторов, разделенных ';'
     clb_driver_lib.get_usb_devices.restype = ctypes.c_char_p
@@ -55,7 +53,7 @@ def set_up_driver(a_full_path):
 
 
 __path = dirname(__file__) + sep + "clb_driver_dll.dll"
-clb_dll: [Union, ctypes.CDLL] = set_up_driver(__path)
+clb_dll = set_up_driver(__path)
 
 
 class UsbDrv:
@@ -76,6 +74,7 @@ class UsbDrv:
         self.usb_status_changed = False
         self.usb_status = self.UsbState.DISABLED
 
+    @utils.exception_decorator_print
     def tick(self):
         self.clb_dll.usb_tick()
         if self.clb_dll.usb_devices_changed():
@@ -121,12 +120,17 @@ class ClbDrv:
 
         self.__amplitude = 0
         self.__frequency = 0
+        # Это единственная переменная, которая не буферизуется в драйвере, потому что она должна
+        # обновляться синхронно с параметрами сигнала
         self.__signal_type = clb.SignalType.ACI
         self.__dc_polarity = clb.Polarity.POS
         self.__signal_on = False
         self.__mode = clb.Mode.SOURCE
         self.__signal_ready = False
         self.__state = clb.State.DISCONNECTED
+
+        self.__set_signal_timer = utils.Timer(1)
+        self.__set_signal_timer.start()
 
         buf1_t = ctypes.c_char * 1
         buf2_t = ctypes.c_char * 2
@@ -159,10 +163,13 @@ class ClbDrv:
 
     def amplitude_changed(self):
         actual_amplitude = clb.bound_amplitude(self.__clb_dll.get_amplitude(), self.__signal_type)
-        signed_amplitude = actual_amplitude if self.__clb_dll.get_polarity() == clb.Polarity.POS else -actual_amplitude
 
-        if self.__amplitude != signed_amplitude:
-            self.__amplitude = signed_amplitude
+        if self.__clb_dll.get_polarity() == clb.Polarity.NEG and \
+                clb.is_dc_signal[self.__signal_type]:
+            actual_amplitude = -actual_amplitude
+
+        if self.__amplitude != actual_amplitude:
+            self.__amplitude = actual_amplitude
             return True
         else:
             return False
@@ -173,18 +180,8 @@ class ClbDrv:
 
     @amplitude.setter
     def amplitude(self, a_amplitude: float):
-        amplitude = clb.bound_amplitude(a_amplitude, self.__signal_type)
-        self.__clb_dll.set_amplitude(abs(amplitude))
-        self.__set_polarity_by_amplitude_sign(amplitude)
-
-    def limit_amplitude(self, a_amplitude, a_lower, a_upper):
-        """
-        Обрезает значение амплитуды с учетом типа сигнала и параметров пользователя
-        :param a_amplitude: Заданная амплитуда
-        :param a_lower: Нижняя граница
-        :param a_upper: Верхняя граница
-        """
-        return utils.bound(clb.bound_amplitude(a_amplitude, self.__signal_type), a_lower, a_upper)
+        self.__clb_dll.set_amplitude(abs(a_amplitude))
+        self.__set_polarity_by_amplitude_sign(a_amplitude)
 
     def __set_polarity_by_amplitude_sign(self, a_amplitude):
         if a_amplitude < 0 and self.__clb_dll.get_polarity() != clb.Polarity.NEG:
@@ -193,7 +190,9 @@ class ClbDrv:
             self.__clb_dll.set_polarity(clb.Polarity.POS)
 
     def frequency_changed(self):
-        actual_frequency = utils.bound(self.__clb_dll.get_frequency(), clb.MIN_FREQUENCY, clb.MAX_FREQUENCY)
+        actual_frequency = self.__clb_dll.get_frequency() if clb.is_ac_signal[self.__signal_type] \
+            else 0
+
         if self.__frequency != actual_frequency:
             self.__frequency = actual_frequency
             return True
@@ -223,7 +222,9 @@ class ClbDrv:
 
     @signal_type.setter
     def signal_type(self, a_signal_type: int):
-        self.__clb_dll.set_signal_type(a_signal_type)
+        if self.__set_signal_timer.check():
+            self.__set_signal_timer.start()
+            self.__clb_dll.set_signal_type(a_signal_type)
 
     def is_signal_ready(self):
         return self.__clb_dll.is_signal_ready()

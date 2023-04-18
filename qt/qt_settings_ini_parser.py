@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 
 from irspy.settings_ini_parser import Settings
-from irspy import utils as utils
+from irspy import utils
 
 
 class QtSettings(Settings):
@@ -30,8 +30,14 @@ class QtSettings(Settings):
             widget_state = a_widget.saveGeometry()
         elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
             widget_state = a_widget.horizontalHeader().saveState()
-        else:
+        elif isinstance(a_widget, QtWidgets.QTreeWidget):
+            widget_state = a_widget.header().saveState()
+        elif hasattr(a_widget, "restoreGeometry") and not isinstance(a_widget, QtWidgets.QSplitter):
+            widget_state = a_widget.saveGeometry()
+        elif hasattr(a_widget, "saveState"):
             widget_state = a_widget.saveState()
+        else:
+            assert True, 'No way to save widget state'
 
         self.save_bytes(widget_name, bytes(widget_state))
 
@@ -43,8 +49,14 @@ class QtSettings(Settings):
             a_widget.restoreGeometry(geometry_bytes)
         elif isinstance(a_widget, QtWidgets.QTableWidget) or isinstance(a_widget, QtWidgets.QTableView):
             a_widget.horizontalHeader().restoreState(geometry_bytes)
-        else:
+        elif isinstance(a_widget, QtWidgets.QTreeWidget):
+            a_widget.header().restoreState(geometry_bytes)
+        elif hasattr(a_widget, "restoreGeometry") and not isinstance(a_widget, QtWidgets.QSplitter):
+            a_widget.restoreGeometry(geometry_bytes)
+        elif hasattr(a_widget, "restoreState"):
             a_widget.restoreState(geometry_bytes)
+        else:
+            assert True, 'No way to restore widget state'
 
     def save_dialog_size(self, a_widget: QtWidgets.QWidget):
         """

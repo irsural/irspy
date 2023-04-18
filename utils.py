@@ -1,5 +1,5 @@
 from linecache import checkcache, getline
-from configparser import ConfigParser
+from collections import defaultdict
 from typing import Iterable
 from enum import IntEnum
 from sys import exc_info
@@ -133,6 +133,11 @@ def absolute_error(a_reference: float, a_value: float):
     return a_reference - a_value
 
 
+def relative_error(a_reference: float, a_value: float, a_normalize: float):
+    assert a_normalize != 0, "Normalize value must not be zero"
+    return (a_reference - a_value) / a_normalize * 100
+
+
 def variation(a_lval: float, a_rval: float):
     return abs(a_lval - a_rval)
 
@@ -261,7 +266,7 @@ assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=loggi
 
 
 def get_array_min_diff(a_array: list):
-    unique_array = list(dict.fromkeys(a_array))
+    unique_array = sorted(list(set(a_array)))
     min_diff = unique_array[-1] - unique_array[0]
     for i in range(len(unique_array) - 1):
         diff = unique_array[i + 1] - unique_array[i]
@@ -330,3 +335,23 @@ class Timer:
         else:
             return time.perf_counter() - self.start_time
 
+
+class PerfTime:
+    def __init__(self, threshold_s):
+        self.threshold_s = threshold_s
+        self.start_time = 0
+        self.times = defaultdict(list)
+
+    def start(self):
+        self.start_time = time.perf_counter()
+
+    def trace(self, trace_name):
+        trace_time = time.perf_counter() - self.start_time
+        if trace_time > self.threshold_s:
+            self.times[trace_name].append(trace_time)
+            print(trace_name, trace_time)
+
+        self.start()
+
+    def get_times(self):
+        return self.times

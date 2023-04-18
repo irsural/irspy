@@ -160,6 +160,9 @@ class QTextEditLogger(logging.Handler):
     """
     def __init__(self, a_text_edit: QtWidgets.QTextEdit):
         super().__init__()
+
+        assert type(a_text_edit) is QtWidgets.QTextEdit
+
         self.text_edit = a_text_edit
 
     def emit(self, record):
@@ -173,7 +176,7 @@ class QTextEditLogger(logging.Handler):
             color = QtCore.Qt.darkYellow
         elif record.levelno == logging.INFO:
             color = QtCore.Qt.blue
-        else: # DEBUG or NOTSET
+        else:  # DEBUG or NOTSET
             color = QtCore.Qt.black
 
         self.text_edit.setTextColor(color)

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/lan.ico</file>
     <file>icons/update.png</file>
     <file>icons/medal.png</file>
     <file>icons/warning_2.png</file>
@@ -59,6 +60,7 @@
     <file>icons/remove.svg</file>
     <file>icons/settings.png</file>
     <file>icons/warning.png</file>
+    <file>icons/log_file.png</file>
   </qresource>
   <qresource prefix="images">
     <file>images/just_for_fun.png</file>

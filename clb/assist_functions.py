@@ -1,5 +1,5 @@
-from clb.network_variables import BufferedVariable, NetworkVariables
-import clb.calibrator_constants as clb
+from irspy.clb.network_variables import BufferedVariable, NetworkVariables
+import irspy.clb.calibrator_constants as clb
 
 
 def guaranteed_buffered_variable_set(a_buffered_variable: BufferedVariable, value) -> bool:

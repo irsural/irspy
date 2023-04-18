@@ -1,5 +1,7 @@
-from typing import List
+from typing import List, Tuple
 import os
+
+import PyInstaller.__main__ as pyinstaller
 
 
 version_file_content = \
@@ -64,7 +66,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs: List[str] = None):
+              a_one_file=True, a_libs: List[Tuple[str, str]] = None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -74,29 +76,35 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
     """
-    name = " -n {}".format(a_app_info.app_name)
-    onefile = " --onefile" if a_one_file else ""
-    noconsole = " --noconsole" if a_noconsole else ""
-    icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
-    add_data_sep = ";" if os.name == 'nt' else ":"
-    libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
+    pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
+    if a_one_file:
+        pyinstaller_args.append("--onefile")
+    if a_noconsole:
+        pyinstaller_args.append("--noconsole")
+    if a_icon_filename:
+        pyinstaller_args.append("--icon={}".format(a_icon_filename))
+    for src, dst in a_libs:
+        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
             company_name=a_app_info.company_name, file_description=a_app_info.file_description,
-            version=a_app_info.version, internal_name=a_app_info.internal_name, copyright=a_app_info.copyright,
-            original_filename=a_app_info.original_filename, product_name=a_app_info.product_name
-        ))
-        version = " --version-file={}".format(version_filename)
+            version=a_app_info.version, internal_name=a_app_info.internal_name,
+            copyright=a_app_info.copyright, original_filename=a_app_info.original_filename,
+            product_name=a_app_info.product_name)
+        )
 
-    os.system("pyinstaller{}{}{}{}{}{} {}".format(name, onefile, noconsole, icon, version, libs, a_main_filename))
+    pyinstaller_args.append("--version-file={}".format(version_filename))
 
-    os.remove(version_filename)
+    try:
+        pyinstaller.run(pyinstaller_args)
+    finally:
+        os.remove(version_filename)
 
 
-def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-                 a_one_file=True, a_libs: List[str] = None):
+def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "",
+                 a_noconsole=True, a_one_file=True, a_libs: List[Tuple[str, str]] = None):
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
@@ -111,6 +119,7 @@ def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str
                 if not ("ui_to_py" in line):
                     compile_main.write(line)
 
-    build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, a_libs)
-
-    os.remove(tmp_filename)
+    try:
+        build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, a_libs)
+    finally:
+        os.remove(tmp_filename)

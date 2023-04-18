@@ -1,73 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>tstlan_dialog</class>
- <widget class="QDialog" name="tstlan_dialog">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>651</height>
+    <width>738</width>
+    <height>356</height>
    </rect>
   </property>
-  <property name="font">
-   <font>
-    <pointsize>10</pointsize>
-   </font>
-  </property>
-  <property name="focusPolicy">
-   <enum>Qt::TabFocus</enum>
-  </property>
   <property name="windowTitle">
-   <string>Tstlan</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/tstlan.png</normaloff>:/icons/icons/tstlan.png</iconset>
+   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="leftMargin">
+   <property name="spacing">
     <number>5</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="1">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="2">
-      <widget class="QCheckBox" name="show_marked_checkbox">
-       <property name="text">
-        <string>Оставить отмеченные</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QLineEdit" name="name_filter_edit">
-       <property name="placeholderText">
-        <string>Поиск...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
       <widget class="QDoubleSpinBox" name="upadte_time_spinbox">
        <property name="decimals">
         <number>1</number>
@@ -83,20 +47,40 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Время обновления, с</string>
+     <item row="1" column="4">
+      <widget class="QLineEdit" name="name_filter_edit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="placeholderText">
+        <string>Поиск...</string>
        </property>
       </widget>
      </item>
      <item row="1" column="3">
+      <widget class="QCheckBox" name="show_marked_checkbox">
+       <property name="text">
+        <string>Оставить отмеченныеs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
       <widget class="QPushButton" name="graphs_button">
        <property name="text">
         <string>Графики</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Время обновления, с</string>
        </property>
       </widget>
      </item>
@@ -166,15 +150,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>variables_table</tabstop>
-  <tabstop>upadte_time_spinbox</tabstop>
-  <tabstop>show_marked_checkbox</tabstop>
-  <tabstop>graphs_button</tabstop>
-  <tabstop>name_filter_edit</tabstop>
- </tabstops>
- <resources>
-  <include location="../../resources/icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
