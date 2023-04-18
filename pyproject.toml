@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irspy"
-version = ""
+version = "94"
 authors = [
   { name="irs ural"},
 ]
