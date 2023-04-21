@@ -66,7 +66,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs: List[Tuple[str, str]] = None):
+              a_one_file=True, a_admin = False, a_libs: List[Tuple[str, str]] = None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -74,6 +74,7 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_icon_filename: Путь к иконке приложения
     :param a_noconsole: Параметр noconole в pyinstaller
     :param a_one_file: Параметр onefile в pyinstaller
+    :param a_admin: Параметр --uac-admin в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
     """
     pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
@@ -83,6 +84,8 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
         pyinstaller_args.append("--noconsole")
     if a_icon_filename:
         pyinstaller_args.append("--icon={}".format(a_icon_filename))
+    if a_admin:
+        pyinstaller_args.append("--uac-admin")
     for src, dst in a_libs:
         pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
 
