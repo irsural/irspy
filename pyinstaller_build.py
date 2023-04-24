@@ -64,7 +64,7 @@ class AppInfo:
 
 
 def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs = None, a_hidden_imports: str = None, a_paths=None, a_others_parameters=None):
+              a_one_file=True, a_libs=None, a_hidden_imports=None, a_paths=None, a_others_parameters=None):
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -76,12 +76,13 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     :param a_hidden_imports: Скрытые библиотеки, которые не видны pyinstaller
     :param a_paths: Пути до директорий, которые не видны pyinstaller
     """
+
     name = " -n {}".format(a_app_info.app_name)
     onefile = " --onefile" if a_one_file else ""
     noconsole = " --noconsole" if a_noconsole else ""
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
-    libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
+    libs = "".join((' --add-binary "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
     himport = "".join(' --hiddenimport {}'.format(iimport) for iimport in a_hidden_imports) if a_hidden_imports is not None else ""
     paths = "".join((' --paths {}'.format(src) for src in a_paths)) if a_paths is not None else ""
     others = " {}".format(a_others_parameters) if a_others_parameters is not None else ""
