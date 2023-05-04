@@ -77,10 +77,7 @@ def get_path_of_pokrov_dll(a_dir_name=None):
     if platform.system() == 'Windows':
         dll_name = "pokrov_dll_64.dll" if sys.maxsize > 2 ** 32 else "pokrov_dll_32.dll"
     else:  # Linux
-        if 'astra' in platform.platform().lower():
-            dll_name = 'apokrov_dll.so.1.0.0'
-        else:
-            dll_name = 'pokrov_dll.so.1.0.0'
+        dll_name = 'pokrov_dll.so.1.0.0'
 
     if a_dir_name is None:
         a_dir_name = dirname(__file__)
