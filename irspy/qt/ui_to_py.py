@@ -75,26 +75,10 @@ def create_translate(a_py_files_folder: str, a_ts_file_path: str):
     :param a_ts_files_folder: Каталог, в который будут помещены ts-файлы
     """
 
-    raise NotImplemented("Переписать с использованием функции __old_files_with_extension, без хэшей")
-    # py_files_list = []
-    # py_files_changed = False
-    # for file in os.listdir(a_py_files_folder):
-    #     if file.endswith(".py"):
-    #         py_filename = "{0}/{1}".format(a_py_files_folder, file)
-    #         py_files_list.append(py_filename)
-    #
-    #         py_current_hash = __get_file_hash(py_filename)
-    #         py_prev_hash = "" if py_filename not in hashes.keys() else hashes[py_filename]
-    #
-    #         if py_prev_hash != py_current_hash or not os.path.isfile(a_ts_file_path):
-    #             hashes[py_filename] = py_current_hash
-    #             py_files_changed = True
-    #
-    # if py_files_changed:
-    #     os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
-    #
-    #     with open(hashes_path, 'w') as hashes_file:
-    #         json.dump(hashes, hashes_file)
+    py_files_list = []
+    for py_filename, ts_filename in __old_files_with_extension(a_py_files_folder, ".py", a_ts_file_path, ".ts"):
+        py_files_list.append(str(py_filename))
+        os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
 
 
 if __name__ == "__main__":
