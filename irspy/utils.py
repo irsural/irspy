@@ -12,29 +12,11 @@ import re
 
 
 check_input_re = re.compile(
-    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?) *(?P<units>(?:мк|м|н)?[аАвВ]?) *$")
+    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?) *(?P<units>(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?) *$")
 
-check_input_no_python_re = re.compile(r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н)?[аАвВ]?$")
+check_input_no_python_re = re.compile(r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
 
 find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?")
-
-__units_to_factor = {
-    "": 1,
-    "в": 1,
-    "а": 1,
-
-    "м": 1e-3,
-    "мв": 1e-3,
-    "ма": 1e-3,
-
-    "мк": 1e-6,
-    "мкв": 1e-6,
-    "мка": 1e-6,
-
-    "н": 1e-9,
-    "нв": 1e-9,
-    "на": 1e-9,
-}
 
 
 class __UnitsPrefix(IntEnum):
@@ -44,18 +26,45 @@ class __UnitsPrefix(IntEnum):
     NO = 3
     KILO = 4
     MEGA = 5
-    GIGA = 6
+    GIGA = 6,
+    TERA = 7
+
+
+__units_to_factor = {
+    __UnitsPrefix.NANO: 1e-9,
+    __UnitsPrefix.MICRO: 1e-7,
+    __UnitsPrefix.MILLI: 1e-3,
+    __UnitsPrefix.NO: 1,
+    __UnitsPrefix.KILO: 1e+3,
+    __UnitsPrefix.MEGA: 1e+6,
+    __UnitsPrefix.GIGA: 1e+9,
+    __UnitsPrefix.TERA: 1e+12,
+}
 
 
 __enum_to_units = {
     __UnitsPrefix.NANO: "н",
     __UnitsPrefix.MICRO: "мк",
     __UnitsPrefix.MILLI: "м",
-    __UnitsPrefix.NO: "",
     __UnitsPrefix.KILO: "к",
     __UnitsPrefix.MEGA: "М",
     __UnitsPrefix.GIGA: "Г",
+    __UnitsPrefix.TERA: "Т",
 }
+
+
+class Units(IntEnum):
+    VOLT = 0
+    AMPER = 1
+    OM = 2
+
+
+__units_to_string = {
+    Units.VOLT: 'в',
+    Units.AMPER: 'а',
+    Units.OM: 'ом',
+}
+
 
 
 def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
@@ -64,9 +73,17 @@ def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     input_re = check_input_re.match(a_input)
     if not input_re:
         raise ValueError("Wrong units input format: {0}".format(a_input))
-
     number = float(input_re.group('number').replace(",", "."))
-    factor = __units_to_factor[input_re.group("units").lower()]
+    units = input_re.group("units")
+
+    units_prefix = __UnitsPrefix.NO
+    for prefix, name in __enum_to_units.items():
+        if units.startswith(name):
+            units_prefix = prefix
+            units.replace(name, '')
+            break
+
+    factor = __units_to_factor[units_prefix]
     result = round(number * factor, a_precision)
 
     # print(f"S->V. Input: {a_input}. Parsed: {number} {input_re.group('units').lower()}. Result: {result}")
@@ -106,9 +123,12 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
         elif 1e6 <= abs_value < 1e9:
             a_value /= 1e6
             prefix_type = __UnitsPrefix.MEGA
-        elif 1e9 <= abs_value:
+        elif 1e9 <= abs_value < 1e12:
             a_value /= 1e9
             prefix_type = __UnitsPrefix.GIGA
+        elif 1e12 <= abs_value:
+            a_value /= 1e12
+            prefix_type = __UnitsPrefix.TERA
 
         result = round(a_value, 9)
         result_str = float_to_string(result)
