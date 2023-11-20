@@ -70,6 +70,7 @@ __units_to_string = {
 def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     if not a_input:
         return 0.
+    a_input = a_input.strip()
     input_re = check_input_re.match(a_input)
     if not input_re:
         raise ValueError("Wrong units input format: {0}".format(a_input))
