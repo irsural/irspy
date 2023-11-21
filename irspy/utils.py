@@ -1,3 +1,4 @@
+import functools
 from linecache import checkcache, getline
 from collections import defaultdict
 from typing import Iterable
@@ -9,12 +10,13 @@ import base64
 import math
 import time
 import re
-
+from typing import Any, Callable
 
 check_input_re = re.compile(
     r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?) *(?P<units>(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?) *$")
 
-check_input_no_python_re = re.compile(r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
+check_input_no_python_re = re.compile(
+    r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
 
 find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?")
 
@@ -41,7 +43,6 @@ __units_to_factor = {
     __UnitsPrefix.TERA: 1e+12,
 }
 
-
 __enum_to_units = {
     __UnitsPrefix.NANO: "н",
     __UnitsPrefix.MICRO: "мк",
@@ -64,7 +65,6 @@ __units_to_string = {
     Units.AMPER: 'а',
     Units.OM: 'ом',
 }
-
 
 
 def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
@@ -142,6 +142,7 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
                 print("V->S reverse check is failed: {0} != {1}".format(result, parsed))
 
         return result_with_units
+
     return value_to_user
 
 
@@ -248,8 +249,7 @@ def calc_smooth_approach(a_from, a_to, a_count, a_dt, sigma=0.01):
 
     points = []
     for t in range(a_dt, dt_stop + a_dt, a_dt):
-
-        point = a_from + slope * (1 - math.e**(-a_k * t / 1000)) if a_from < a_to else \
+        point = a_from + slope * (1 - math.e ** (-a_k * t / 1000)) if a_from < a_to else \
             a_from + slope * (math.e ** (-a_k * t / 1000) - 1)
 
         points.append(round(point, 9))
@@ -264,26 +264,36 @@ def exception_handler(a_exception):
     filename = frame.f_code.co_filename
     checkcache(filename)
     line = getline(filename, lineno, frame.f_globals)
-    return "Exception{0} in {1}\n"\
-           "Line {2}: '{3}'\n"\
+    return "Exception{0} in {1}\n" \
+           "Line {2}: '{3}'\n" \
            "Message: {4}".format(type(a_exception), filename, lineno, line.strip(), a_exception)
 
 
-def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
-    def decorator(func):
-        def new_func(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except errors:
-                log_out_foo(traceback.format_exc())
-                return default_value
-        return new_func
-    return decorator
+def get_decorator(errors = (Exception,),
+                  default_value = None,
+                  log_out_foo = print,
+                  description_foo = None):
+    def description_decorator(description: str = '') -> Callable[[Any], Any]:
+        def decorator(func) -> Callable[[Any], Any]:
+            def new_func(*args, **kwargs) -> Any:
+                try:
+                    return func(*args, **kwargs)
+                except errors:
+                    if description_foo:
+                        description_foo(description)
+                    log_out_foo(traceback.format_exc())
+                    return default_value
+
+            return new_func
+
+        return decorator
+
+    return description_decorator
 
 
 exception_decorator = get_decorator(log_out_foo=logging.critical)
 exception_decorator_print = get_decorator(log_out_foo=print)
-assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=logging.critical)
+assertion_decorator = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
 
 
 def get_array_min_diff(a_array: list):
@@ -303,7 +313,8 @@ def base64_to_bytes(a_string: str):
     return base64.b64decode(a_string)
 
 
-def get_allowable_name(a_existing_names: Iterable, a_new_name: str, a_format_str: str = "{new_name}_{number}") -> str:
+def get_allowable_name(a_existing_names: Iterable, a_new_name: str,
+                       a_format_str: str = "{new_name}_{number}") -> str:
     """
     Проверяет, есть ли a_new_name в a_existing_names, если есть, то возвращает имя с приставкой _number.
     number = количество раз, которое встречается имя в a_existing_names, включая имена с приставками.

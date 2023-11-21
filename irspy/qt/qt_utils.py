@@ -3,7 +3,7 @@ from math import isclose
 import logging
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-
+from PyQt5.QtGui import QTextCursor
 import irspy.constants as constants
 
 
@@ -179,6 +179,7 @@ class QTextEditLogger(logging.Handler):
         else:  # DEBUG or NOTSET
             color = QtCore.Qt.black
 
+        self.text_edit.moveCursor(QTextCursor.End, QTextCursor.MoveAnchor)
         self.text_edit.setTextColor(color)
         self.text_edit.insertPlainText(msg + '\n')
         self.text_edit.ensureCursorVisible()
