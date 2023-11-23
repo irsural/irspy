@@ -269,31 +269,35 @@ def exception_handler(a_exception):
            "Message: {4}".format(type(a_exception), filename, lineno, line.strip(), a_exception)
 
 
-def get_decorator(errors = (Exception,),
-                  default_value = None,
-                  log_out_foo = print,
-                  description_foo = None):
-    def description_decorator(description: str = '') -> Callable[[Any], Any]:
-        def decorator(func) -> Callable[[Any], Any]:
-            def new_func(*args, **kwargs) -> Any:
+def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
+    def decorator(func):
+        def new_func(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except errors:
+                log_out_foo(traceback.format_exc())
+                return default_value
+        return new_func
+    return decorator
+
+
+def get_descripted_decorator(errors=(Exception, ), default_value=None, log_out_foo=print, description_foo=print):
+    def descripted(description: str):
+        def decorator(func):
+            def new_func(*args, **kwargs):
                 try:
                     return func(*args, **kwargs)
                 except errors:
-                    if description_foo:
-                        description_foo(description)
                     log_out_foo(traceback.format_exc())
+                    description_foo(description)
                     return default_value
-
             return new_func
-
         return decorator
+    return descripted
 
-    return description_decorator
-
-
-exception_decorator = get_decorator(log_out_foo=logging.critical)
+exception_decorator: Callable[[str], Callable[[Any], Any]] = get_decorator(log_out_foo=logging.critical)
 exception_decorator_print = get_decorator(log_out_foo=print)
-assertion_decorator = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
+assertion_decorator: Callable[[Any], Any] = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
 
 
 def get_array_min_diff(a_array: list):
