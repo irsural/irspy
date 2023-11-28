@@ -8,6 +8,10 @@ from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 
 from irspy.utils import exception_decorator_print
 
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, pyqtBoundSignal
+from PyQt5.QtGui import QPainter
+from PyQt5.QtWidgets import QWidget, QStyledItemDelegate, QStyleOptionViewItem, QSizePolicy
 
 class TransparentPainterForView(QtWidgets.QStyledItemDelegate):
     """
@@ -109,3 +113,42 @@ class ComboboxCellDelegate(QtWidgets.QItemDelegate):
 
     def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         editor.setCurrentText(index.data())
+
+class ButtonCellDelegate(QtWidgets.QStyledItemDelegate):
+    clicked = QtCore.pyqtSignal(int, int)
+
+    def __init__(self,
+                 parent: Optional[QWidget] = None,
+                 label: str | None = None,
+                 icon_path: str | None = None) -> None:
+        super().__init__(parent)
+        self.__label = label
+        self.__icon_path = icon_path
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        parent = self.parent()
+        if isinstance(parent, QtWidgets.QAbstractItemView):
+            parent.openPersistentEditor(index)
+        super().paint(painter, option, index)
+
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem,
+                     index: QModelIndex) -> QWidget:
+        editor = QtWidgets.QPushButton(parent)
+        if self.__label:
+            editor.setText(self.__label)
+        if self.__icon_path:
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(self.__icon_path), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            editor.setIcon(icon)
+        editor.clicked.connect(self.__make_handler(index))
+        return editor
+
+    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem,
+                             index: QModelIndex) -> None:
+        editor.setGeometry(option.rect)
+
+    def __make_handler(self, index: QModelIndex) -> Callable[[], None]:
+        def wrapper() -> None:
+            self.clicked.emit(index.row(), index.column())
+
+        return wrapper
