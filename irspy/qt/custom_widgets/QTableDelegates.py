@@ -1,8 +1,5 @@
-from typing import Tuple
+from typing import Tuple, Optional, Callable
 import logging
-
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget
 
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 
@@ -142,10 +139,6 @@ class ButtonCellDelegate(QtWidgets.QStyledItemDelegate):
             editor.setIcon(icon)
         editor.clicked.connect(self.__make_handler(index))
         return editor
-
-    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem,
-                             index: QModelIndex) -> None:
-        editor.setGeometry(option.rect)
 
     def __make_handler(self, index: QModelIndex) -> Callable[[], None]:
         def wrapper() -> None:
