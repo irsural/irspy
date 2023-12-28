@@ -10,15 +10,15 @@ import base64
 import math
 import time
 import re
-from typing import Any, Callable
+
 
 check_input_re = re.compile(
-    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?) *(?P<units>(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?) *$")
+    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)?) *(?P<units>(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?) *$")
 
 check_input_no_python_re = re.compile(
-    r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
+    r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
 
-find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?")
+find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)?")
 
 
 class __UnitsPrefix(IntEnum):
@@ -44,6 +44,7 @@ __units_to_factor = {
 }
 
 __enum_to_units = {
+    __UnitsPrefix.NO: "",
     __UnitsPrefix.NANO: "н",
     __UnitsPrefix.MICRO: "мк",
     __UnitsPrefix.MILLI: "м",
@@ -74,11 +75,14 @@ def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     input_re = check_input_re.match(a_input)
     if not input_re:
         raise ValueError("Wrong units input format: {0}".format(a_input))
-    number = float(input_re.group('number').replace(",", "."))
+    number = float(input_re.group('number').replace(",", ".").
+                   replace("е", "e").replace("Е", "E"))
     units = input_re.group("units")
 
     units_prefix = __UnitsPrefix.NO
     for prefix, name in __enum_to_units.items():
+        if prefix == __UnitsPrefix.NO:
+            continue
         if units.startswith(name):
             units_prefix = prefix
             units.replace(name, '')
@@ -146,7 +150,7 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
     return value_to_user
 
 
-def float_to_string(a_number: float, a_precision=9):
+def float_to_string(a_number: float, a_precision=9) -> str:
     format_str = "{{0:.{}f}}".format(a_precision)
     return format_str.format(a_number).rstrip('0').rstrip('.').replace(".", ",")
 
@@ -269,7 +273,7 @@ def exception_handler(a_exception):
            "Message: {4}".format(type(a_exception), filename, lineno, line.strip(), a_exception)
 
 
-def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
+def get_decorator(errors=(Exception,), default_value=None, log_out_foo=print):
     def decorator(func):
         def new_func(*args, **kwargs):
             try:
@@ -277,27 +281,15 @@ def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
             except errors:
                 log_out_foo(traceback.format_exc())
                 return default_value
+
         return new_func
+
     return decorator
 
 
-def get_descripted_decorator(errors=(Exception, ), default_value=None, log_out_foo=print, description_foo=print):
-    def descripted(description: str):
-        def decorator(func):
-            def new_func(*args, **kwargs):
-                try:
-                    return func(*args, **kwargs)
-                except errors:
-                    log_out_foo(traceback.format_exc())
-                    description_foo(description)
-                    return default_value
-            return new_func
-        return decorator
-    return descripted
-
-exception_decorator: Callable[[str], Callable[[Any], Any]] = get_decorator(log_out_foo=logging.critical)
+exception_decorator = get_decorator(log_out_foo=logging.critical)
 exception_decorator_print = get_decorator(log_out_foo=print)
-assertion_decorator: Callable[[Any], Any] = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
+assertion_decorator = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
 
 
 def get_array_min_diff(a_array: list):
