@@ -2,7 +2,7 @@ from typing import Tuple, Optional, Callable
 import logging
 
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
-
+from PyQt5.QtCore import QSize, Qt, QTimer
 from irspy.utils import exception_decorator_print
 
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -145,3 +145,27 @@ class ButtonCellDelegate(QtWidgets.QStyledItemDelegate):
             self.clicked.emit(index.row(), index.column())
 
         return wrapper
+
+class CheckBoxCellDelegate(QtWidgets.QStyledItemDelegate):
+    checked = QtCore.pyqtSignal(int, int, bool)
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        if isinstance(self.parent(), QtWidgets.QAbstractItemView):
+            self.parent().openPersistentEditor(index)
+        super().paint(painter, option, index)
+
+    def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
+        assert isinstance(editor, QtWidgets.QCheckBox)
+        assert isinstance(index.data(), bool)
+        editor.setChecked(index.data())
+
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
+        editor = QtWidgets.QCheckBox(parent)
+        def slot(*_):
+            self.checked.emit(index.row(), index.column(), editor.isChecked())
+        editor.clicked.connect(slot)
+        editor.setStyleSheet("QCheckBox::indicator { width:"+str(option.rect.width())+"px; height: "+str(option.rect.height())+"px; }");
+        return editor
