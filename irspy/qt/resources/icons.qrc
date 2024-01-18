@@ -64,6 +64,10 @@
     <file>icons/fork.png</file>
     <file>icons/arrow_redo.png</file>
     <file>icons/log_file.png</file>
+    <file>icons/square_arrow_left.png</file>
+    <file>icons/square_arrow_right.png</file>
+    <file>icons/triangle_left.png</file>
+    <file>icons/triangle_right.png</file>
   </qresource>
   <qresource prefix="images">
     <file>images/just_for_fun.png</file>
