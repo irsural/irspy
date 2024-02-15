@@ -4,6 +4,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import pyrcc
+from distutils.sysconfig import get_python_lib
 
 
 def __is_file_newer(fst_filename, snd_filename):
@@ -81,7 +82,19 @@ def create_translate(a_py_files_folder: str, a_ts_file_path: str, recursively: b
     py_files_list = []
     for py_filename, ts_filename in __old_files_with_extension(a_py_files_folder, ".py", a_ts_file_path, ".ts", recursively):
         py_files_list.append(str(py_filename))
-        os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
+    os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
+
+
+def compile_ts(ts_files_folder: str, qm_files_path: str):
+    """
+    Компилирует ts-файлы с помощью lrelease из ts-файлов
+    :param ts_files_folder: Каталог с ts-файлами
+    :param qm_files_path: Каталог, в который будen помещен qm-файлы
+    """
+
+    lrelease_path = f'{get_python_lib()}/qt5_applications/Qt/bin/lrelease'
+    for ts_filename, qm_filename in __old_files_with_extension(ts_files_folder, ".ts", qm_files_path, ".qm", False):
+        os.system(f'{lrelease_path} {ts_filename} -qm {qm_filename}')
 
 
 if __name__ == "__main__":
