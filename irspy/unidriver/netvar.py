@@ -105,10 +105,6 @@ class NetVar(Generic[T]):
         return self.__type
 
     @property
-    def size(self) -> int:
-        return self.__type.size
-
-    @property
     def index(self) -> NetVarIndex:
         return self.__index
 
@@ -145,7 +141,7 @@ class NetVarRepo(Dict[NetVarIndex, NetVar[Any]]):
                 next_bit_index += 1
         else:
             assert next_bit_index is None
-            next_byte_index += last_var.size // 8
+            next_byte_index += last_var.type.size // 8
 
         return NetVarIndex(next_byte_index, next_bit_index)
 
@@ -180,7 +176,7 @@ if __name__ == '__main__':
                                               coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
     var_fabric = NetVarFabric(unidriver_io, dev)
 
-    var = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
+    var: NetVar[int] = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
     var.set(5)
     while (True):
         unidriver_io.tick()

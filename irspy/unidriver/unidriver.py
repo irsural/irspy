@@ -118,6 +118,20 @@ class UnidriverDLLWrapper:
         return dll
 
 
+class UnidriverError(RuntimeError):
+    def __init__(self, error_code: int) -> None:
+        self.__error_code = error_code
+
+    def __repr__(self) -> str:
+        return f'Error in unidriver DLL. Code: {self.__error_code}'
+
+    @staticmethod
+    def raise_if_error(ret: int) -> int:
+        if ret < 0:
+            raise UnidriverError(ret)
+        return ret
+
+
 class UnidriverIO:
     def __init__(self, dll_wrapper: UnidriverDLLWrapper) -> None:
         self.__dll = dll_wrapper.dll
@@ -127,8 +141,8 @@ class UnidriverIO:
         assert index >= 0
         assert size > 0
         buf = ctypes.create_string_buffer(size)
-        ret = self.__dll.read_bytes(handle, buf, index, size)
-        assert ret == 0, f'Error, code: {ret}'
+        UnidriverError.raise_if_error(
+            self.__dll.read_bytes(handle, buf, index, size))
         return buf.raw
 
     def write_bytes(self, handle: int, index: int, value: bytes) -> None:
@@ -136,26 +150,27 @@ class UnidriverIO:
         assert index >= 0
         assert len(value) > 0
         buf = ctypes.create_string_buffer(value)
-        ret = self.__dll.write_bytes(handle, buf, index, len(value))
-        assert ret == 0, f'Error, code: {ret}'
+        UnidriverError.raise_if_error(
+            self.__dll.write_bytes(handle, buf, index, len(value)))
 
     def read_bit(self, handle: int, byte_index: int, bit_index: int) -> bool:
         assert handle >= 0
         assert byte_index >= 0
         assert 0 <= bit_index < 8
-        ret = self.__dll.read_bit(handle, byte_index, bit_index)
-        assert ret >= 0, f'Error, code: {ret}'
+        ret = UnidriverError.raise_if_error(
+            self.__dll.read_bit(handle, byte_index, bit_index))
         return bool(ret)
 
     def write_bit(self, handle: int, byte_index: int, bit_index: int, value: bool) -> None:
         assert handle >= 0
         assert byte_index >= 0
         assert 0 <= bit_index < 8
-        ret = self.__dll.write_bit(handle, byte_index, bit_index, value)
-        assert ret == 0, f'Error, code: {ret}'
+        UnidriverError.raise_if_error(
+            self.__dll.write_bit(handle, byte_index, bit_index, value))
 
     def tick(self) -> None:
         self.__dll.tick_all()
+
 
 class UnidriverDeviceFabric:
     class EndLine(IntEnum):
@@ -181,16 +196,17 @@ class UnidriverDeviceFabric:
                                  refresh_mode: RefreshModes = RefreshModes.AUTO,
                                  discr_inputs_size_byte: int = 8, coils_size_byte: int = 8,
                                  hold_regs_reg: int = 7, input_regs_reg: int = 7,
-                                 update_time: int = 200, device_name: str = 'modbus udp client') -> Device:
+                                 update_time: int = 200,
+                                 device_name: str = 'modbus udp client') -> Device:
         ip_buf = ctypes.create_string_buffer(ip.encode('utf-8'))
         port_buf = ctypes.create_string_buffer(port.encode('utf-8'))
-        flow_handle = self.__dll.create_udp_client_flow(ip_buf, port_buf)
-        assert flow_handle >= 0, f'Flow not created, code: {flow_handle}'
-        device_handle = self.__dll.create_modbus_client(flow_handle, refresh_mode,
-                                                        discr_inputs_size_byte,
-                                                        coils_size_byte, hold_regs_reg,
-                                                        input_regs_reg, update_time)
-        assert device_handle >= 0, f'Device not created, code: {flow_handle}'
+        flow_handle = UnidriverError.raise_if_error(
+            self.__dll.create_udp_client_flow(ip_buf, port_buf))
+        device_handle = UnidriverError.raise_if_error(
+            self.__dll.create_modbus_client(flow_handle, refresh_mode,
+                                            discr_inputs_size_byte,
+                                            coils_size_byte, hold_regs_reg,
+                                            input_regs_reg, update_time))
         return Device(handle=device_handle, name=device_name)
 
 
