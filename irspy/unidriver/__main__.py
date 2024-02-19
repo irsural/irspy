@@ -10,7 +10,7 @@ def builder_main() -> None:
     dev_builder = UnidriverDeviceBuilder(unidriver_dll)
     scheme = UnidriverScheme(unidriver_dll)
     param = scheme.param(6)
-    print(scheme.param(6), scheme.string(param.name))
+    print(param, scheme.string(param.name), type(param.default))
     builder_handle = dev_builder.make_builder(0, 0)
     dev_builder.set_param(builder_handle, 0, ParamTypes.STRING, '192.168.0.86')
     dev_builder.set_param(builder_handle, 1, ParamTypes.STRING, '5006')

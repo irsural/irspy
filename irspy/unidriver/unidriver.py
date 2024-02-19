@@ -83,13 +83,6 @@ class UnidriverDLLWrapper:
         dll.release.restype = res_t
         dll.release.argtypes = [handle_t]
 
-        dll.get_error_descriptions.restype = res_t
-        dll.get_error_descriptions.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
-
-        dll.get_error_description.restype = res_t
-        dll.get_error_description.argtypes = [ctypes.c_int32, ctypes.c_char_p,
-                                              ctypes.c_size_t]
-
         dll.create_udp_client_flow.restype = res_t
         dll.create_udp_client_flow.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 
