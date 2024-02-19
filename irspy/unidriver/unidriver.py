@@ -1,13 +1,46 @@
 import ctypes
 from copy import deepcopy
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 from itertools import chain
-from typing import List, Any, Tuple, Dict, Iterable
-
+from typing import List, Any, Dict, Iterable, TypeVar, Generic, Optional
 from pydantic import TypeAdapter
+from pydantic import BaseModel
 
-from irspy.unidriver.types import GroupScheme, BuilderScheme, ParamTypes, Device, ErrorScheme, \
-    ParamScheme
+
+class ParamTypes(StrEnum):
+    INT32 = 'int32'
+    DOUBLE = 'double'
+    STRING = 'string'
+    COUNTER = 'counter'
+    ENUM = 'enum'
+
+
+T = TypeVar('T')
+
+
+class ParamScheme(BaseModel, Generic[T]):
+    id: int
+    name: int
+    type: ParamTypes
+    default: Optional[T] = None
+    enum_fields: Optional[Dict[str, int]] = None
+
+
+class BuilderScheme(BaseModel):
+    id: int
+    name: int
+    params: List[int]
+
+
+class GroupScheme(BaseModel):
+    id: int
+    name: int
+    builders: List[BuilderScheme]
+
+
+class ErrorScheme(BaseModel):
+    id: int
+    name: int
 
 
 class UnidriverDLLWrapper:
@@ -197,8 +230,7 @@ class UnidriverDeviceFabric:
                                  refresh_mode: RefreshModes = RefreshModes.AUTO,
                                  discr_inputs_size_byte: int = 8, coils_size_byte: int = 8,
                                  hold_regs_reg: int = 7, input_regs_reg: int = 7,
-                                 update_time: int = 200,
-                                 device_name: str = 'modbus udp client') -> Device:
+                                 update_time: int = 200) -> int:
         ip_buf = ctypes.create_string_buffer(ip.encode('utf-8'))
         port_buf = ctypes.create_string_buffer(port.encode('utf-8'))
         flow_handle = UnidriverError.raise_if_error(
@@ -208,7 +240,7 @@ class UnidriverDeviceFabric:
                                             discr_inputs_size_byte,
                                             coils_size_byte, hold_regs_reg,
                                             input_regs_reg, update_time))
-        return Device(handle=device_handle, name=device_name)
+        return device_handle
 
 
 class UnidriverDeviceBuilder:

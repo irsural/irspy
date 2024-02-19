@@ -1,8 +1,6 @@
 from enum import IntEnum
 from typing import Dict, Any, NamedTuple, Generic, TypeVar
 import struct
-
-from irspy.unidriver.types import Device
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverIO, UnidriverDeviceFabric
 
 
@@ -68,7 +66,7 @@ class NetVarIndex(NamedTuple):
 
 
 class NetVar(Generic[T]):
-    def __init__(self, unidriver: UnidriverIO, name: str, device: Device, type_: NetVarType[T],
+    def __init__(self, unidriver: UnidriverIO, name: str, device_handle: int, type_: NetVarType[T],
                  index: NetVarIndex, mode: NetVarModes) -> None:
         assert type_.ctype != NetVarCTypes.BIT or index.bit_index is not None and 0 <= index.bit_index < 8, \
             f'Invalid bit index for bit network variable, {index}, {type_.ctype.name}'
@@ -77,15 +75,15 @@ class NetVar(Generic[T]):
         self.__type = type_
         self.__index = index
         self.__mode = mode
-        self.__device = device
+        self.__device_handle = device_handle
 
     def get(self) -> T:
         if self.__type.ctype == NetVarCTypes.BIT:
             assert self.__index.bit_index is not None
-            val = self.__unidriver.read_bit(self.__device.handle, self.__index.byte_index,
+            val = self.__unidriver.read_bit(self.__device_handle, self.__index.byte_index,
                                             self.__index.bit_index)
         else:
-            bytes_ = self.__unidriver.read_bytes(self.__device.handle, self.__index.byte_index,
+            bytes_ = self.__unidriver.read_bytes(self.__device_handle, self.__index.byte_index,
                                                  self.__type.size // 8)
             val = struct.unpack(self.__type.format, bytes_)[0]
         return self.__type.pytype_fabric(val)  # type: ignore
@@ -94,11 +92,11 @@ class NetVar(Generic[T]):
         assert isinstance(value, self.__type.pytype_fabric)
         if self.__type.ctype == NetVarCTypes.BIT:
             assert self.__index.bit_index
-            self.__unidriver.write_bit(self.__device.handle, self.__index.byte_index,
+            self.__unidriver.write_bit(self.__device_handle, self.__index.byte_index,
                                        self.__index.bit_index, bool(value))
         else:
             _bytes = struct.pack(self.__type.format, value)
-            self.__unidriver.write_bytes(self.__device.handle, self.__index.byte_index, _bytes)
+            self.__unidriver.write_bytes(self.__device_handle, self.__index.byte_index, _bytes)
 
     @property
     def type(self) -> NetVarType[T]:
@@ -152,9 +150,9 @@ class NetVarRepo(Dict[NetVarIndex, NetVar[Any]]):
 
 
 class NetVarFabric:
-    def __init__(self, unidriver: UnidriverIO, device: Device) -> None:
+    def __init__(self, unidriver: UnidriverIO, device_handle: int) -> None:
         self.__unidriver = unidriver
-        self.__device = device
+        self.__device_handle = device_handle
         self.__repo = NetVarRepo()
 
     def make(self, name: str, type_code_: NetVarCTypes, index: NetVarIndex | None = None,
@@ -162,6 +160,6 @@ class NetVarFabric:
         type_ = _types[type_code_]
         if index is None:
             index = self.__repo.next_index(type_)
-        net_var = NetVar(self.__unidriver, name, self.__device, type_, index, mode)
+        net_var = NetVar(self.__unidriver, name, self.__device_handle, type_, index, mode)
         self.__repo[index] = net_var
         return net_var

@@ -1,7 +1,6 @@
 from irspy.unidriver.netvar import NetVarFabric, NetVar, NetVarCTypes, NetVarIndex
-from irspy.unidriver.types import ParamTypes
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, \
-    UnidriverIO, UnidriverDeviceFabric
+    UnidriverIO, UnidriverDeviceFabric, ParamTypes
 
 
 def builder_main() -> None:
