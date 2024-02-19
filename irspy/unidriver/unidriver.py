@@ -1,7 +1,13 @@
 import ctypes
+from copy import deepcopy
 from enum import IntEnum
+from itertools import chain
+from typing import List, Any, Tuple, Dict, Iterable
 
-from irspy.unidriver.types import Device
+from pydantic import TypeAdapter
+
+from irspy.unidriver.types import GroupScheme, BuilderScheme, ParamTypes, Device, ErrorScheme, \
+    ParamScheme
 
 
 class UnidriverDLLWrapper:
@@ -21,12 +27,14 @@ class UnidriverDLLWrapper:
         enum_t = ctypes.c_int32
         counter_t = ctypes.c_int64
 
-        dll.get_groups_info.restype = res_t
-        dll.get_groups_info.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
-
-        dll.get_device_info.restype = res_t
-        dll.get_device_info.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.c_size_t,
-                                        ctypes.c_size_t]
+        dll.get_scheme.restype = res_t
+        dll.get_scheme.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
+        dll.get_errors.restype = res_t
+        dll.get_errors.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
+        dll.get_string.restype = res_t
+        dll.get_string.argtypes = [ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
+        dll.get_param.restype = res_t
+        dll.get_param.argtypes = [ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
 
         dll.builder_create.restype = res_t
         dll.builder_create.argtypes = [ctypes.c_size_t, ctypes.c_size_t]
@@ -191,7 +199,7 @@ class UnidriverDeviceFabric:
     def __init__(self, dll_wrapper: UnidriverDLLWrapper) -> None:
         self.__dll = dll_wrapper.dll
 
-    # Добавить функции для работы с counter
+    # TODO: Добавить функции для работы с counter
     def create_modbus_udp_client(self, ip: str, port: str,
                                  refresh_mode: RefreshModes = RefreshModes.AUTO,
                                  discr_inputs_size_byte: int = 8, coils_size_byte: int = 8,
@@ -213,3 +221,97 @@ class UnidriverDeviceFabric:
 class UnidriverDeviceBuilder:
     def __init__(self, dll_initializer: UnidriverDLLWrapper) -> None:
         self.__dll = dll_initializer.dll
+
+    def make_builder(self, group_scheme_index: int, builder_scheme_index: int) -> int:
+        builder_handle = UnidriverError.raise_if_error(
+            self.__dll.builder_create(group_scheme_index, builder_scheme_index))
+        return builder_handle
+
+    def set_param(self, builder_handle: int, param_id: int, param_type: ParamTypes, value: int | float | str) -> None:
+        match param_type:
+            case ParamTypes.INT32:
+                assert isinstance(value, int)
+                UnidriverError.raise_if_error(
+                    self.__dll.builder_set_param_int32(builder_handle, param_id, value))
+            case ParamTypes.DOUBLE:
+                assert isinstance(value, float)
+                UnidriverError.raise_if_error(
+                    self.__dll.builder_set_param_double(builder_handle, param_id, value))
+            case ParamTypes.STRING:
+                assert isinstance(value, str)
+                buf_val = ctypes.create_string_buffer(value.encode('utf-8'))
+                UnidriverError.raise_if_error(
+                    self.__dll.builder_set_param_u8str(builder_handle, param_id, buf_val, len(buf_val)))
+            case ParamTypes.COUNTER:
+                assert isinstance(value, int)
+                UnidriverError.raise_if_error(
+                    self.__dll.builder_set_param_counter(builder_handle, param_id, value))
+            case ParamTypes.ENUM:
+                assert isinstance(value, int)
+                UnidriverError.raise_if_error(
+                    self.__dll.builder_set_param_enum(builder_handle, param_id, value))
+            case _:
+                raise ValueError('Unexpected param type')
+
+    def apply(self, builder_handle: int) -> int:
+        device_handle = UnidriverError.raise_if_error(
+            self.__dll.builder_apply(builder_handle))
+        return device_handle
+
+
+class UnidriverScheme:
+    BUFFER_SIZE = 1024 * 1024
+
+    def __init__(self, dll_initializer: UnidriverDLLWrapper) -> None:
+        self.__dll = dll_initializer.dll
+        self.__buf = ctypes.create_string_buffer(self.BUFFER_SIZE)
+
+        group_ta = TypeAdapter(List[GroupScheme])
+        self.__groups = group_ta.validate_json(self.__load_scheme())
+        errors_ta = TypeAdapter(List[ErrorScheme])
+        self.__errors = errors_ta.validate_json(self.__load_errors())
+        self.__params: Dict[int, ParamScheme[Any]] = {}
+
+    def __load_scheme(self) -> bytes:
+        char_size = UnidriverError.raise_if_error(
+            self.__dll.get_scheme(self.__buf, len(self.__buf)))
+        return self.__buf.raw[0:char_size]
+
+    def __load_errors(self) -> bytes:
+        char_size = UnidriverError.raise_if_error(
+            self.__dll.get_errors(self.__buf, len(self.__buf)))
+        return self.__buf.raw[0:char_size]
+
+    def __load_param(self, param_id: int) -> bytes:
+        char_size = UnidriverError.raise_if_error(
+            self.__dll.get_param(param_id, self.__buf, len(self.__buf)))
+        return self.__buf.raw[0:char_size]
+
+    def param(self, param_id: int) -> ParamScheme[Any]:
+        try:
+            return deepcopy(self.__params[param_id])
+        except KeyError:
+            param = ParamScheme[Any].model_validate_json(self.__load_param(param_id))
+            self.__params[param_id] = param
+            return deepcopy(param)
+
+    def error(self, error_id: int) -> ErrorScheme:
+        return deepcopy(next(filter(lambda err: err.id == error_id, self.__errors)))
+
+    def groups(self) -> Iterable[GroupScheme]:
+        return (deepcopy(group) for group in self.__groups)
+
+    def group(self, group_id: int) -> GroupScheme:
+        return deepcopy(next(filter(lambda group: group.id == group_id, self.__groups)))
+
+    def builder(self, builder_id: int) -> BuilderScheme:
+        builders = chain(*[group.builders for group in self.__groups])
+        return deepcopy(next(filter(lambda builder: builder.id == builder_id, builders)))
+
+    def string(self, str_id: int) -> str:
+        char_size = UnidriverError.raise_if_error(
+            self.__dll.get_string(str_id, self.__buf, len(self.__buf)))
+        bytes_ = self.__buf.raw[0:char_size]
+        return bytes_[0:char_size].decode('utf-8')
+
+

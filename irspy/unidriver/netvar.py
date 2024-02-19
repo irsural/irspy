@@ -165,18 +165,3 @@ class NetVarFabric:
         net_var = NetVar(self.__unidriver, name, self.__device, type_, index, mode)
         self.__repo[index] = net_var
         return net_var
-
-
-if __name__ == '__main__':
-    dll_path = 'S:\\Data\\Users\\508\\Data\\Projects\\unidriver\\cmake-build-debug-cygwin\\unidriver\\cygunidriver.dll'
-    unidriver_dll = UnidriverDLLWrapper(dll_path)
-    unidriver_io = UnidriverIO(unidriver_dll)
-    dev_fabric = UnidriverDeviceFabric(unidriver_dll)
-    dev = dev_fabric.create_modbus_udp_client('192.168.0.86', '5006', discr_inputs_size_byte=0,
-                                              coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
-    var_fabric = NetVarFabric(unidriver_io, dev)
-
-    var: NetVar[int] = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
-    var.set(5)
-    while (True):
-        unidriver_io.tick()
