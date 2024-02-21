@@ -1,20 +1,24 @@
-import sys
-import traceback
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication
-from irspy.qt.ui_to_py import convert_ui, create_translate, convert_resources, compile_ts
-from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, \
-    UnidriverIO
+from dotenv import load_dotenv
+import sys
 
 SRC_FOLDER = Path(__file__).resolve().parent.parent
-GUI_TEST_FOLDER = f'{SRC_FOLDER}/irspy/unidriver/gui_test'
+load_dotenv(SRC_FOLDER / 'irspy' / '.env')
+sys.path.append(SRC_FOLDER.as_posix())
 
+import traceback
+from PyQt5.QtWidgets import QApplication
+from irspy.qt.ui_to_py import convert_ui, create_translate, convert_resources, compile_ts
+from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, UnidriverIO
+
+GUI_TEST_FOLDER = f'{SRC_FOLDER}/irspy/unidriver/gui_test'
 convert_resources(f'{SRC_FOLDER}/irspy/qt/resources', f'{GUI_TEST_FOLDER}/ui/resources')
 convert_ui(f'{GUI_TEST_FOLDER}/ui/', f'{GUI_TEST_FOLDER}/ui/py',
            resources_path='irspy.unidriver.gui_test.ui.resources')
 create_translate(f'{GUI_TEST_FOLDER}/', f'{GUI_TEST_FOLDER}/ui/translations/en.ts', True)
 compile_ts(f'{GUI_TEST_FOLDER}/ui/translations', f'{GUI_TEST_FOLDER}/ui/translations')
 from irspy.unidriver.gui_test.widgets import MainWidget
+
 
 
 def excepthook(exc_type, exc_value, exc_tb) -> None:  # type: ignore
