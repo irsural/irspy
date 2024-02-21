@@ -1,4 +1,5 @@
 import ctypes
+import os
 from copy import deepcopy
 from enum import IntEnum, StrEnum
 from itertools import chain
@@ -44,7 +45,7 @@ class ErrorScheme(BaseModel):
 
 
 class UnidriverDLLWrapper:
-    def __init__(self, unidriver_dll_path: str) -> None:
+    def __init__(self, unidriver_dll_path: str = f'{os.getcwd()}/libunidriver.dll') -> None:
         self.__dll = self.__setup_dll(unidriver_dll_path)
 
     @property
@@ -68,9 +69,14 @@ class UnidriverDLLWrapper:
         dll.get_string.argtypes = [ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
         dll.get_param.restype = res_t
         dll.get_param.argtypes = [ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
+        dll.set_lang.restype = res_t
+        dll.set_lang.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
 
-        dll.builder_create.restype = res_t
-        dll.builder_create.argtypes = [ctypes.c_size_t, ctypes.c_size_t]
+        dll.builder_create_by_index.restype = res_t
+        dll.builder_create_by_index.argtypes = [ctypes.c_size_t, ctypes.c_size_t]
+
+        dll.builder_create_by_id.restype = res_t
+        dll.builder_create_by_id.argtypes = [ctypes.c_size_t]
 
         dll.builder_apply.restype = res_t
         dll.builder_apply.argtypes = [handle_t]
@@ -202,6 +208,9 @@ class UnidriverIO:
         UnidriverError.raise_if_error(
             self.__dll.write_bit(handle, byte_index, bit_index, value))
 
+    def is_connected(self, handle: int) -> bool:
+        return UnidriverError.raise_if_error(self.__dll.is_connected(handle)) == 1
+
     def tick(self) -> None:
         self.__dll.tick_all()
 
@@ -247,9 +256,18 @@ class UnidriverDeviceBuilder:
     def __init__(self, dll_initializer: UnidriverDLLWrapper) -> None:
         self.__dll = dll_initializer.dll
 
-    def make_builder(self, group_scheme_index: int, builder_scheme_index: int) -> int:
-        builder_handle = UnidriverError.raise_if_error(
-            self.__dll.builder_create(group_scheme_index, builder_scheme_index))
+    def make_builder(self,
+                     group_scheme_index: int | None = None,
+                     builder_scheme_index: int | None = None,
+                     builder_id: int | None = None) -> int:
+        if builder_id is None:
+            assert group_scheme_index is not None
+            assert builder_scheme_index is not None
+            builder_handle = UnidriverError.raise_if_error(
+                self.__dll.builder_create_by_index(group_scheme_index, builder_scheme_index))
+        else:
+            builder_handle = UnidriverError.raise_if_error(
+                self.__dll.builder_create_by_id(builder_id))
         return builder_handle
 
     def set_param(self, builder_handle: int, param_id: int, param_type: ParamTypes, value: int | float | str) -> None:
@@ -268,7 +286,7 @@ class UnidriverDeviceBuilder:
                 UnidriverError.raise_if_error(
                     self.__dll.builder_set_param_u8str(builder_handle, param_id, buf_val, len(buf_val)))
             case ParamTypes.COUNTER:
-                assert isinstance(value, int)
+                assert isinstance(value, int), f'value={value} type={type(value)}'
                 UnidriverError.raise_if_error(
                     self.__dll.builder_set_param_counter(builder_handle, param_id, value))
             case ParamTypes.ENUM:
@@ -338,5 +356,10 @@ class UnidriverScheme:
             self.__dll.get_string(str_id, self.__buf, len(self.__buf)))
         bytes_ = self.__buf.raw[0:char_size]
         return bytes_[0:char_size].decode('utf-8')
+
+    def set_lang(self, lang: str) -> None:
+        buf = ctypes.create_string_buffer(lang.encode('utf-8'))
+        UnidriverError.raise_if_error(
+            self.__dll.set_lang(buf, len(lang)))
 
 
