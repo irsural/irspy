@@ -1,21 +1,21 @@
-from enum import IntEnum
-from typing import Dict, Any, NamedTuple, Generic, TypeVar
+from enum import IntEnum, StrEnum
+from typing import Dict, Any, NamedTuple, Generic, TypeVar, List, Iterable, Iterator
 import struct
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverIO, UnidriverDeviceFabric
 
 
-class NetVarCTypes(IntEnum):
-    U8 = 1
-    U16 = 2
-    U32 = 3
-    U64 = 4
-    I8 = 5
-    I16 = 6
-    I32 = 7
-    I64 = 8
-    F32 = 9
-    F64 = 10
-    BIT = 11
+class NetVarCTypes(StrEnum):
+    U8 = 'u8'
+    U16 = 'u16'
+    U32 = 'u32'
+    U64 = 'u64'
+    I8 = 'i8'
+    I16 = 'i16'
+    I32 = 'i32'
+    I64 = 'i64'
+    F32 = 'f32'
+    F64 = 'f64'
+    BIT = 'bit'
 
 
 class NetVarModes(IntEnum):
@@ -64,6 +64,9 @@ class NetVarIndex(NamedTuple):
     byte_index: int
     bit_index: int | None = None
 
+    def __repr__(self) -> str:
+        return f'{self.byte_index}' + (f'-{self.bit_index}' if self.bit_index is not None else '')
+
 
 class NetVar(Generic[T]):
     def __init__(self, unidriver: UnidriverIO, name: str, device_handle: int, type_: NetVarType[T],
@@ -106,60 +109,113 @@ class NetVar(Generic[T]):
     def index(self) -> NetVarIndex:
         return self.__index
 
+    @index.setter
+    def index(self, index: NetVarIndex) -> None:
+        self.__index = index
 
-class NetVarRepo(Dict[NetVarIndex, NetVar[Any]]):
-    def __init__(self) -> None:
-        super().__init__()
-        self.__last_index: NetVarIndex | None = None
+    @property
+    def name(self) -> str:
+        return self.__name
 
-    def __setitem__(self, key: NetVarIndex, value: NetVar[Any]) -> None:
-        assert key not in self.keys(), f'Duplicate indexes, {key}, {value.type}'
-        self.__last_index = key
-        super().__setitem__(key, value)
-
-    def next_index(self, type_: NetVarType[Any]) -> NetVarIndex:
-        if self.__last_index is None:
-            self.__last_index = NetVarIndex(0, 0 if type_.ctype == NetVarCTypes.BIT else None)
-            return self.__last_index
-
-        last_var = self[self.__last_index]
-        is_last_bit = last_var.type.ctype == NetVarCTypes.BIT
-        is_next_bit = type_.ctype == NetVarCTypes.BIT
-        next_byte_index, next_bit_index = last_var.index
-
-        if is_last_bit != is_next_bit:
-            next_byte_index += 1
-            next_bit_index = 0 if is_next_bit else None
-        elif type_.ctype == NetVarCTypes.BIT:
-            assert next_bit_index is not None
-            if next_bit_index >= 7:
-                next_bit_index = 0
-                next_byte_index += 1
-            else:
-                next_bit_index += 1
-        else:
-            assert next_bit_index is None
-            next_byte_index += last_var.type.size // 8
-
-        return NetVarIndex(next_byte_index, next_bit_index)
-
-    def append(self, net_var: NetVar[Any]) -> NetVarIndex:
-        self.__last_index = self.next_index(net_var.type)
-        super().__setitem__(self.__last_index, net_var)
-        return self.__last_index
+    @property
+    def mode(self) -> NetVarModes:
+        return self.__mode
 
 
 class NetVarFabric:
     def __init__(self, unidriver: UnidriverIO, device_handle: int) -> None:
         self.__unidriver = unidriver
         self.__device_handle = device_handle
-        self.__repo = NetVarRepo()
+        self.__last_var: NetVar[Any] | None = None
 
     def make(self, name: str, type_code_: NetVarCTypes, index: NetVarIndex | None = None,
              mode: NetVarModes = NetVarModes.R) -> NetVar[Any]:
         type_ = _types[type_code_]
         if index is None:
-            index = self.__repo.next_index(type_)
+            index = calc_next_netvar_index(type_, self.__last_var)
         net_var = NetVar(self.__unidriver, name, self.__device_handle, type_, index, mode)
-        self.__repo[index] = net_var
+        self.__last_var = net_var
         return net_var
+
+
+def calc_next_netvar_index(type_: NetVarType[Any], last_var: NetVar[Any] | None = None) -> NetVarIndex:
+    if last_var is None:
+        return NetVarIndex(byte_index=0, bit_index=0 if type_.ctype == NetVarCTypes.BIT else None)
+
+    is_last_bit = last_var.type.ctype == NetVarCTypes.BIT
+    is_next_bit = type_.ctype == NetVarCTypes.BIT
+    next_byte_index, next_bit_index = last_var.index
+
+    if is_last_bit and is_next_bit:
+        assert next_bit_index is not None
+        if next_bit_index >= 7:
+            next_bit_index = 0
+            next_byte_index += 1
+        else:
+            next_bit_index += 1
+    elif is_last_bit and not is_next_bit:
+        next_byte_index += 1
+        next_bit_index = None
+    elif not is_last_bit and is_next_bit:
+        next_byte_index += last_var.type.size // 8
+        next_bit_index = 0
+    elif not is_last_bit and not is_next_bit:
+        assert next_bit_index is None
+        next_byte_index += last_var.type.size // 8
+    else:
+        raise ValueError
+
+    return NetVarIndex(next_byte_index, next_bit_index)
+
+
+class NetVarRepo:
+    def __init__(self, unidriver: UnidriverIO, device_handle: int) -> None:
+        self.__netvars: List[NetVar[Any]] = []
+        self.__fabric = NetVarFabric(unidriver, device_handle)
+
+    def push_back(self, type_code_: NetVarCTypes) -> None:
+        last_var = None
+        try:
+            last_var = self.__netvars[-1]
+        except IndexError:
+            pass
+        type_ = _types[type_code_]
+        netvar = self.__fabric.make('', type_code_, index=calc_next_netvar_index(type_, last_var))
+        self.__netvars.append(netvar)
+
+    def replace(self, index: int, type_code_: NetVarCTypes) -> None:
+        assert 0 <= index < len(self.__netvars)
+        last_var = None
+        if index > 0:
+            last_var = self.__netvars[index-1]
+        type_ = _types[type_code_]
+        netvar = self.__fabric.make('', type_code_, index=calc_next_netvar_index(type_, last_var))
+
+        self.__netvars[index] = netvar
+        # for var in self.__netvars[index+1:]:
+        for i in range(index, len(self.__netvars) - 1):
+            prev = self.__netvars[i]
+            curr = self.__netvars[i+1]
+            curr.index = calc_next_netvar_index(curr.type, prev)
+
+    def clear(self) -> None:
+        self.__netvars.clear()
+
+    def pop_back(self, count: int = 1) -> None:
+        if not count:
+            return
+        self.__netvars = self.__netvars[0:-count]
+
+    def print(self) -> None:
+        for var in self.__netvars:
+            print(var.index, var.type.size)
+        print('-------------')
+
+    def __len__(self) -> int:
+        return self.__netvars.__len__()
+
+    def __getitem__(self, item: int) -> NetVar[Any]:
+        return self.__netvars.__getitem__(item)
+
+    def __iter__(self) -> Iterator[NetVar[Any]]:
+        return (var for var in self.__netvars)
