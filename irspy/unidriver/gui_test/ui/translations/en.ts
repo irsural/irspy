@@ -27,12 +27,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../__main__.py" line="347"/>
+        <location filename="../../widgets.py" line="343"/>
         <source>ПОДКЛЮЧЕН</source>
         <translation type="unfinished">CONNECTED</translation>
     </message>
     <message>
-        <location filename="../../__main__.py" line="348"/>
+        <location filename="../../widgets.py" line="344"/>
         <source>НЕ ПОДКЛЮЧЕН</source>
         <translation type="unfinished">NOT CONNECTED</translation>
     </message>

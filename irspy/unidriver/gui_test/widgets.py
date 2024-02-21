@@ -1,20 +1,15 @@
 import os
-import sys
-import traceback
-from typing import Protocol, Any, Callable, Dict, List
+from typing import Any, Callable, Dict
 
-from PyQt5.QtCore import pyqtSignal, QObject, QMetaObject, QTimer, QSettings, QTranslator, QEvent
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QSpinBox, QApplication, QTableWidgetItem, \
-    QMessageBox, QHeaderView, QPushButton, QLabel
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal, QEvent, QTimer, QTranslator
+from PyQt5.QtWidgets import QWidget, QLineEdit, QSpinBox, QComboBox, QHeaderView, QMessageBox, \
+    QApplication
 
-from irspy.qt.qt_settings_ini_parser import QtSettings
-from irspy.unidriver.netvar import NetVarFabric, NetVar, NetVarCTypes, NetVarIndex, NetVarModes, \
-    NetVarRepo
-from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, \
-    UnidriverIO, UnidriverDeviceFabric, ParamTypes, ParamScheme, BuilderScheme, GroupScheme
-from irspy.unidriver.gui_test.ui.py import (builder_widget, group_widget, scheme_widget,
-                                            device_io_widget, main_widget)
+from irspy.unidriver.gui_test.ui.py import builder_widget, group_widget, scheme_widget, \
+    device_io_widget, main_widget
+from irspy.unidriver.netvar import NetVarRepo, NetVarCTypes
+from irspy.unidriver.unidriver import ParamScheme, ParamTypes, BuilderScheme, UnidriverScheme, \
+    UnidriverDeviceBuilder, GroupScheme, UnidriverIO
 
 
 def make_param_widget(param: ParamScheme[Any], slot: Callable[[Any], None],
@@ -182,6 +177,7 @@ class GroupWidget(QWidget):
         self.ui.retranslateUi(self)  # type: ignore
         for i, builder in enumerate(self.__group_scheme.builders):
             self.ui.builders_combo.setItemText(i, self.__unidriver_scheme.string(builder.name))
+
 
 class SchemeWidget(QWidget):
     device_created = pyqtSignal(int)
@@ -394,29 +390,3 @@ class MainWidget(QWidget):
         if event.type() == QEvent.LanguageChange:
             self.ui.retranslateUi(self)  # type: ignore
         super().changeEvent(event)
-
-
-def excepthook(exc_type, exc_value, exc_tb) -> None:  # type: ignore
-    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
-    print(f"!!! UNHANDLED EXCEPTION !!!\n {tb}")
-    QApplication.quit()
-
-
-def main() -> int:
-    sys.excepthook = excepthook
-    dll_path = 'S:\\Data\\Users\\508\\Data\\Projects\\unidriver\\cmake-build-debug-cygwin\\unidriver\\cygunidriver.dll'
-    # unidriver_dll = UnidriverDLLWrapper(dll_path)
-    unidriver_dll = UnidriverDLLWrapper()
-    dev_builder = UnidriverDeviceBuilder(unidriver_dll)
-    dev_io = UnidriverIO(unidriver_dll)
-    scheme = UnidriverScheme(unidriver_dll)
-
-    qapp = QApplication(sys.argv)
-    qapp.setStyle("Fusion")
-    widget = MainWidget(dev_builder, dev_io, scheme)
-    widget.show()
-    return qapp.exec()
-
-
-if __name__ == '__main__':
-    main()
