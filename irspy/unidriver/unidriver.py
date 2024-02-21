@@ -4,8 +4,7 @@ from copy import deepcopy
 from enum import IntEnum, StrEnum
 from itertools import chain
 from typing import List, Any, Dict, Iterable, TypeVar, Generic, Optional
-from pydantic import TypeAdapter
-from pydantic import BaseModel
+from pydantic import TypeAdapter, BaseModel
 
 
 class ParamTypes(StrEnum):

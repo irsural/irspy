@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+SRC_FOLDER = Path(__file__).resolve().parent.parent
+load_dotenv(SRC_FOLDER / 'irspy' / '.env')
+sys.path.append(SRC_FOLDER.as_posix())
+
 from irspy.unidriver.netvar import NetVarFabric, NetVar, NetVarCTypes, NetVarIndex, NetVarRepo
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, \
     UnidriverIO, UnidriverDeviceFabric, ParamTypes
