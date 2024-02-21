@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any, Callable, Dict
 
 from PyQt5.QtCore import pyqtSignal, QEvent, QTimer, QTranslator
@@ -10,6 +11,9 @@ from irspy.unidriver.gui_test.ui.py import builder_widget, group_widget, scheme_
 from irspy.unidriver.netvar import NetVarRepo, NetVarCTypes
 from irspy.unidriver.unidriver import ParamScheme, ParamTypes, BuilderScheme, UnidriverScheme, \
     UnidriverDeviceBuilder, GroupScheme, UnidriverIO
+
+
+CURRENT_FOLDER = Path(__file__).resolve().parent
 
 
 def make_param_widget(param: ParamScheme[Any], slot: Callable[[Any], None],
@@ -253,7 +257,7 @@ class DeviceIOWidget(QWidget):
         assert self.__var_repo is not None
         self.__var_repo.clear()
         try:
-            with open(f'{os.getcwd()}/vars.txt', 'r') as file:
+            with open(f'{CURRENT_FOLDER}/vars.txt', 'r') as file:
                 for i, line in enumerate(file.readlines()):
                     type_ = NetVarCTypes(line.replace('\n', ''))
                     self.ui.table.setRowCount(self.ui.table.rowCount() + 1)
@@ -267,7 +271,7 @@ class DeviceIOWidget(QWidget):
             self.__var_repo.clear()
 
     def __save(self) -> None:
-        with open(f'{os.getcwd()}/vars.txt', 'w') as file:
+        with open(f'{CURRENT_FOLDER}/vars.txt', 'w') as file:
             for var in self.__var_repo:
                 file.write(var.type.ctype)
                 file.write('\n')
@@ -366,7 +370,7 @@ class MainWidget(QWidget):
         self.ui.hlayout.addWidget(self.__scheme_widget)
         self.ui.hlayout.addWidget(self.__device_io_widget)
         self.__scheme_widget.device_created.connect(self.__device_created)
-        tr_dir = f'{os.getcwd()}/ui/translations/'
+        tr_dir = f'{CURRENT_FOLDER}/ui/translations/'
         self.__qtranslator = QTranslator(self)
         self.__langs = {'ru': '',
                         'en': f'{tr_dir}en.qm'}
