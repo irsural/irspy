@@ -1,5 +1,5 @@
 import ctypes
-import os
+import pathlib
 from copy import deepcopy
 from enum import IntEnum, StrEnum
 from itertools import chain
@@ -45,7 +45,9 @@ class ErrorScheme(BaseModel):
 
 
 class UnidriverDLLWrapper:
-    def __init__(self, unidriver_dll_path: str = f'{os.getcwd()}/libunidriver.dll') -> None:
+    def __init__(self, unidriver_dll_path: str | None = None) -> None:
+        if unidriver_dll_path is None:
+            unidriver_dll_path = f'{pathlib.Path(__file__).parent.resolve()}/libunidriver.dll'
         self.__dll = self.__setup_dll(unidriver_dll_path)
 
     @property
