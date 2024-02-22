@@ -128,11 +128,13 @@ class NetVarFabric:
         self.__device_handle = device_handle
         self.__last_var: NetVar[Any] | None = None
 
-    def make(self, name: str, type_code_: NetVarCTypes, index: NetVarIndex | None = None,
+    def make(self, name: str, type_code_: NetVarCTypes, index: NetVarIndex | None | int = None,
              mode: NetVarModes = NetVarModes.R) -> NetVar[Any]:
         type_ = _types[type_code_]
         if index is None:
             index = calc_next_netvar_index(type_, self.__last_var)
+        elif isinstance(index, int):
+            index = NetVarIndex(index)
         net_var = NetVar(self.__unidriver, name, self.__device_handle, type_, index, mode)
         self.__last_var = net_var
         return net_var
