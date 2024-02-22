@@ -155,6 +155,10 @@ class UnidriverDLLWrapper:
         dll.create_mxnet_client.argtypes = [handle_t, counter_t, counter_t]
         dll.create_mxnet_server.restype = res_t
         dll.create_mxnet_server.argtypes = [handle_t, ctypes.c_size_t]
+        dll.create_mxnet_client.restype = res_t
+        dll.create_mxnet_client.argtypes = [handle_t, counter_t, counter_t]
+        dll.create_mxnet_server.restype = res_t
+        dll.create_mxnet_server.argtypes = [handle_t, ctypes.c_size_t]
 
         return dll
 
@@ -250,6 +254,15 @@ class UnidriverDeviceFabric:
                                             discr_inputs_size_byte,
                                             coils_size_byte, hold_regs_reg,
                                             input_regs_reg, update_time))
+        return device_handle
+
+    def create_mxnet_udp_client(self, ip: str, port: str, update_time: int, disconnect_time: int) -> int:
+        ip_buf = ctypes.create_string_buffer(ip.encode('utf-8'))
+        port_buf = ctypes.create_string_buffer(port.encode('utf-8'))
+        flow_handle = UnidriverError.raise_if_error(
+            self.__dll.create_udp_client_flow(ip_buf, port_buf))
+        device_handle = UnidriverError.raise_if_error(
+            self.__dll.create_mxnet_client(flow_handle, update_time, disconnect_time))
         return device_handle
 
 

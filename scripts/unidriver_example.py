@@ -35,8 +35,9 @@ def netvar_main() -> None:
     unidriver_dll = UnidriverDLLWrapper(dll_path)
     unidriver_io = UnidriverIO(unidriver_dll)
     dev_fabric = UnidriverDeviceFabric(unidriver_dll)
-    dev = dev_fabric.create_modbus_udp_client('192.168.0.81', '5006', discr_inputs_size_byte=0,
-                                              coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
+    # dev = dev_fabric.create_modbus_udp_client('192.168.0.81', '5006', discr_inputs_size_byte=0,
+    #                                           coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
+    dev = dev_fabric.create_mxnet_udp_client('192.168.0.81', '5006', 100, 10_000)
     var_fabric = NetVarFabric(unidriver_io, dev)
 
     repo = NetVarRepo(unidriver_io, 0)
@@ -50,11 +51,11 @@ def netvar_main() -> None:
     print('--')
     repo.replace(2, NetVarCTypes.U16)
     repo.print()
-    # var: NetVar[int] = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
-    # var.set(5)
-    # while True:
-    #     unidriver_io.tick()
-    #     print(var.get())
+    var: NetVar[int] = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
+    var.set(5)
+    while True:
+        unidriver_io.tick()
+        print(var.get())
 
 
 if __name__ == '__main__':
