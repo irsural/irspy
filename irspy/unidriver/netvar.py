@@ -1,7 +1,9 @@
+from abc import ABCMeta, abstractmethod
 from enum import IntEnum, StrEnum
 from typing import Dict, Any, NamedTuple, Generic, TypeVar, List, Iterable, Iterator
 import struct
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverIO, UnidriverDeviceFabric
+from irspy.utils import Timer
 
 
 class NetVarCTypes(StrEnum):
@@ -68,7 +70,37 @@ class NetVarIndex(NamedTuple):
         return f'{self.byte_index}' + (f'-{self.bit_index}' if self.bit_index is not None else '')
 
 
-class NetVar(Generic[T]):
+class NetVar(Generic[T], metaclass=ABCMeta):
+    @abstractmethod
+    def get(self) -> T:
+        pass
+
+    @abstractmethod
+    def set(self, value: T) -> None:
+        pass
+
+    @abstractmethod
+    def type(self) -> NetVarType[T]:
+        pass
+
+    @abstractmethod
+    def index(self) -> NetVarIndex:
+        pass
+
+    @abstractmethod
+    def set_index(self, index: NetVarIndex) -> None:
+        pass
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def mode(self) -> NetVarModes:
+        pass
+
+
+class SimpleNetVar(NetVar[T]):
     def __init__(self, unidriver: UnidriverIO, name: str, device_handle: int, type_: NetVarType[T],
                  index: NetVarIndex, mode: NetVarModes) -> None:
         assert type_.ctype != NetVarCTypes.BIT or index.bit_index is not None and 0 <= index.bit_index < 8, \
@@ -101,25 +133,52 @@ class NetVar(Generic[T]):
             _bytes = struct.pack(self.__type.format, value)
             self.__unidriver.write_bytes(self.__device_handle, self.__index.byte_index, _bytes)
 
-    @property
     def type(self) -> NetVarType[T]:
         return self.__type
 
-    @property
     def index(self) -> NetVarIndex:
         return self.__index
 
-    @index.setter
-    def index(self, index: NetVarIndex) -> None:
+    def set_index(self, index: NetVarIndex) -> None:
         self.__index = index
 
-    @property
     def name(self) -> str:
         return self.__name
 
-    @property
     def mode(self) -> NetVarModes:
         return self.__mode
+
+
+# TODO: Доделать, создать сетевые переменные с разделяемым буфером для tstLAN
+class BufferedNetVar(NetVar[T]):
+    def __init__(self, simple_net_var: SimpleNetVar[T], delay: int) -> None:
+        self.__delay = delay
+        self.__buffer: T | None = None
+        self.__timer = Timer(self.__delay)
+        self.__simple_net_var = simple_net_var
+
+    def get(self) -> T:
+        return self.__simple_net_var.get()
+
+    def set(self, value: T) -> None:
+        self.__simple_net_var.set(value)
+        self.__buffer = value
+        self.__timer.start()
+
+    def type(self) -> NetVarType[T]:
+        return self.__simple_net_var.type()
+
+    def index(self) -> NetVarIndex:
+        return self.__simple_net_var.index()
+
+    def set_index(self, index: NetVarIndex) -> None:
+        self.__simple_net_var.set_index(index)
+
+    def name(self) -> str:
+        return self.__simple_net_var.name()
+
+    def mode(self) -> NetVarModes:
+        return self.__simple_net_var.mode()
 
 
 class NetVarFabric:
@@ -129,13 +188,13 @@ class NetVarFabric:
         self.__last_var: NetVar[Any] | None = None
 
     def make(self, name: str, type_code_: NetVarCTypes, index: NetVarIndex | None | int = None,
-             mode: NetVarModes = NetVarModes.R) -> NetVar[Any]:
+             mode: NetVarModes = NetVarModes.R) -> SimpleNetVar[Any]:
         type_ = _types[type_code_]
         if index is None:
             index = calc_next_netvar_index(type_, self.__last_var)
         elif isinstance(index, int):
             index = NetVarIndex(index)
-        net_var = NetVar(self.__unidriver, name, self.__device_handle, type_, index, mode)
+        net_var = SimpleNetVar(self.__unidriver, name, self.__device_handle, type_, index, mode)
         self.__last_var = net_var
         return net_var
 
@@ -144,9 +203,9 @@ def calc_next_netvar_index(type_: NetVarType[Any], last_var: NetVar[Any] | None 
     if last_var is None:
         return NetVarIndex(byte_index=0, bit_index=0 if type_.ctype == NetVarCTypes.BIT else None)
 
-    is_last_bit = last_var.type.ctype == NetVarCTypes.BIT
+    is_last_bit = last_var.type().ctype == NetVarCTypes.BIT
     is_next_bit = type_.ctype == NetVarCTypes.BIT
-    next_byte_index, next_bit_index = last_var.index
+    next_byte_index, next_bit_index = last_var.index()
 
     if is_last_bit and is_next_bit:
         assert next_bit_index is not None
@@ -159,11 +218,11 @@ def calc_next_netvar_index(type_: NetVarType[Any], last_var: NetVar[Any] | None 
         next_byte_index += 1
         next_bit_index = None
     elif not is_last_bit and is_next_bit:
-        next_byte_index += last_var.type.size // 8
+        next_byte_index += last_var.type().size // 8
         next_bit_index = 0
     elif not is_last_bit and not is_next_bit:
         assert next_bit_index is None
-        next_byte_index += last_var.type.size // 8
+        next_byte_index += last_var.type().size // 8
     else:
         raise ValueError
 
@@ -198,7 +257,7 @@ class NetVarRepo:
         for i in range(index, len(self.__netvars) - 1):
             prev = self.__netvars[i]
             curr = self.__netvars[i+1]
-            curr.index = calc_next_netvar_index(curr.type, prev)
+            curr.set_index(calc_next_netvar_index(curr.type(), prev))
 
     def clear(self) -> None:
         self.__netvars.clear()
@@ -210,7 +269,7 @@ class NetVarRepo:
 
     def print(self) -> None:
         for var in self.__netvars:
-            print(var.index, var.type.size)
+            print(var.index, var.type().size)
         print('-------------')
 
     def __len__(self) -> int:
