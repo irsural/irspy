@@ -130,7 +130,7 @@ class BuilderWidget(QWidget):
         super().changeEvent(event)
 
     def retranslate_ui(self) -> None:
-        self.ui.retranslateUi(self)
+        self.ui.retranslateUi(self)  # type: ignore
         for i, param_id in enumerate(self.__builder_scheme.params):
             param = self.__unidriver_scheme.param(param_id)
             string = self.__unidriver_scheme.string(param.name)
@@ -286,7 +286,7 @@ class DeviceIOWidget(QWidget):
     def __update_var(self, index: int, value: str) -> None:
         assert self.__var_repo is not None
         print(f'Update var {index} by {value}')
-        value = self.__var_repo[index].type.pytype_fabric(value)
+        value = self.__var_repo[index].type().pytype_fabric(value)
         self.__var_repo[index].set(value)
 
     # TODO: Удалять комбобоксы
