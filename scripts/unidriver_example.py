@@ -6,7 +6,8 @@ SRC_FOLDER = Path(__file__).resolve().parent.parent
 load_dotenv(SRC_FOLDER / 'irspy' / '.env')
 sys.path.append(SRC_FOLDER.as_posix())
 
-from irspy.unidriver.netvar import NetVarFabric, NetVar, NetVarCTypes, NetVarIndex, NetVarRepo
+from irspy.unidriver.netvar import NetVarFabric, NetVar, NetVarCTypes, NetVarIndex, NetVarRepo, \
+    BufferedNetVar, NetVarModes
 from irspy.unidriver.unidriver import UnidriverDLLWrapper, UnidriverDeviceBuilder, UnidriverScheme, \
     UnidriverIO, UnidriverDeviceFabric, ParamTypes
 
@@ -31,27 +32,15 @@ def builder_main() -> None:
 
 
 def netvar_main() -> None:
-    dll_path = 'S:\\Data\\Users\\508\\Data\\Projects\\unidriver\\cmake-build-debug-cygwin\\unidriver\\cygunidriver.dll'
-    unidriver_dll = UnidriverDLLWrapper(dll_path)
+    unidriver_dll = UnidriverDLLWrapper()
     unidriver_io = UnidriverIO(unidriver_dll)
     dev_fabric = UnidriverDeviceFabric(unidriver_dll)
-    # dev = dev_fabric.create_modbus_udp_client('192.168.0.81', '5006', discr_inputs_size_byte=0,
-    #                                           coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
-    dev = dev_fabric.create_mxnet_udp_client('192.168.0.81', '5006', 100, 10_000)
+    dev = dev_fabric.create_modbus_udp_client('192.168.0.99', '5006', discr_inputs_size_byte=0,
+                                              coils_size_byte=0, hold_regs_reg=20, input_regs_reg=0)
+    # dev = dev_fabric.create_mxnet_udp_client('192.168.0.99', '5006', 100, 10_000)
     var_fabric = NetVarFabric(unidriver_io, dev)
 
-    repo = NetVarRepo(unidriver_io, 0)
-    repo.push_back(NetVarCTypes.U8)
-    repo.push_back(NetVarCTypes.U8)
-    repo.push_back(NetVarCTypes.BIT)
-    repo.push_back(NetVarCTypes.BIT)
-    repo.push_back(NetVarCTypes.U32)
-    repo.push_back(NetVarCTypes.U8)
-    repo.print()
-    print('--')
-    repo.replace(2, NetVarCTypes.U16)
-    repo.print()
-    var: NetVar[int] = var_fabric.make('', NetVarCTypes.U8, index=NetVarIndex(33))
+    var: NetVar[int] = BufferedNetVar(var_fabric.make('', NetVarCTypes.U32, index=NetVarIndex(4), mode=NetVarModes.RW), 2)
     var.set(5)
     while True:
         unidriver_io.tick()

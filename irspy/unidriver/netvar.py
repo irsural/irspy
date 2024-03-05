@@ -124,9 +124,11 @@ class SimpleNetVar(NetVar[T]):
         return self.__type.pytype_fabric(val)  # type: ignore
 
     def set(self, value: T) -> None:
+        assert self.__mode == NetVarModes.RW
         assert isinstance(value, self.__type.pytype_fabric)
         if self.__type.ctype == NetVarCTypes.BIT:
-            assert self.__index.bit_index
+            if not self.__index.bit_index:
+                return
             self.__unidriver.write_bit(self.__device_handle, self.__index.byte_index,
                                        self.__index.bit_index, bool(value))
         else:
@@ -149,7 +151,6 @@ class SimpleNetVar(NetVar[T]):
         return self.__mode
 
 
-# TODO: Доделать, создать сетевые переменные с разделяемым буфером для tstLAN
 class BufferedNetVar(NetVar[T]):
     def __init__(self, simple_net_var: SimpleNetVar[T], delay: int) -> None:
         self.__delay = delay
@@ -158,12 +159,16 @@ class BufferedNetVar(NetVar[T]):
         self.__simple_net_var = simple_net_var
 
     def get(self) -> T:
-        return self.__simple_net_var.get()
+        if self.__timer.check() or not self.__timer.started():  # type: ignore
+            return self.__simple_net_var.get()
+        else:
+            assert self.__buffer
+            return self.__buffer
 
     def set(self, value: T) -> None:
         self.__simple_net_var.set(value)
         self.__buffer = value
-        self.__timer.start()
+        self.__timer.start()  # type: ignore
 
     def type(self) -> NetVarType[T]:
         return self.__simple_net_var.type()
