@@ -162,7 +162,7 @@ class BufferedNetVar(NetVar[T]):
         if self.__timer.check() or not self.__timer.started():  # type: ignore
             return self.__simple_net_var.get()
         else:
-            assert self.__buffer
+            assert self.__buffer is not None
             return self.__buffer
 
     def set(self, value: T) -> None:
