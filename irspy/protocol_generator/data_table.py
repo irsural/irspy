@@ -62,10 +62,14 @@ class DataTable:
                 if (row, column) in used_cells:
                     raise ValueError('Ячейки таблицы перекрываются', cell)
                 used_cells.add((row, column))
+            if cell.value is None:
+                cell.value = ''
+            else:
+                cell.value = str(cell.value)
             self.__cells.append(cell)
-        self.__cells = sorted(self.__cells)
         self.__row_count = 1 + max((cell[0] for cell in used_cells))
         self.__column_count = 1 + max((cell[1] for cell in used_cells))
+        self.__cells = sorted(self.__cells)
 
     @property
     def xlsx_row_heights(self) -> List[int | None]:
