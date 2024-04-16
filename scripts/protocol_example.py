@@ -32,7 +32,6 @@ if __name__ == '__main__':
             DataCell(row=2, column=5, row_span=1, column_span=1, value='Отклонение., %'),
 
             DataCell(row=3, column=0, row_span=1, column_span=1, value='1'),
-            DataCell(row=3, column=1, row_span=1, column_span=1, value='2'),
             DataCell(row=3, column=2, row_span=1, column_span=1, value='3'),
             DataCell(row=3, column=3, row_span=1, column_span=1, value='4'),
             DataCell(row=3, column=4, row_span=1, column_span=1, value='5'),
