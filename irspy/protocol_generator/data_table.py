@@ -50,10 +50,12 @@ class DataTable:
                  cells: Iterable[DataCell],
                  xlsx_row_heights: List[int | None] | None = None,
                  xlsx_column_widths: List[int | None] | None = None,
-                 add_border: bool = False) -> None:
+                 add_border: bool = False,
+                 header_rows: int = 0) -> None:
         self.__xlsx_column_widths = xlsx_column_widths if xlsx_column_widths else []
         self.__xlsx_row_heights = xlsx_row_heights if xlsx_row_heights else []
         self.__add_border = add_border
+        self.__header_rows = header_rows
 
         self.__cells = []
         used_cells: Set[Tuple[int, int]] = set()
@@ -82,6 +84,10 @@ class DataTable:
     @property
     def add_border(self) -> bool:
         return self.__add_border
+
+    @property
+    def header_rows(self) -> int:
+        return self.__header_rows
 
     @property
     def rows(self) -> Iterable[Tuple[int, Iterable[DataCell]]]:
