@@ -55,15 +55,17 @@ class DataTable:
         self.__xlsx_row_heights = xlsx_row_heights if xlsx_row_heights else []
         self.__add_border = add_border
 
+        self.__cells = []
         used_cells: Set[Tuple[int, int]] = set()
         for cell in cells:
             for row, column in cell.positions:
                 if (row, column) in used_cells:
                     raise ValueError('Ячейки таблицы перекрываются', cell)
                 used_cells.add((row, column))
+            self.__cells.append(cell)
+        self.__cells = sorted(self.__cells)
         self.__row_count = 1 + max((cell[0] for cell in used_cells))
         self.__column_count = 1 + max((cell[1] for cell in used_cells))
-        self.__cells = sorted(cells)
 
     @property
     def xlsx_row_heights(self) -> List[int | None]:
@@ -91,5 +93,5 @@ class DataTable:
         return self.__column_count
 
     @property
-    def cells(self) -> Iterator[DataCell]:
-        return iter(self.__cells)
+    def cells(self) -> Iterable[DataCell]:
+        return self.__cells
