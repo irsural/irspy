@@ -33,7 +33,9 @@ class _OdfTableFabric:
 
     def __make_odf_cell(self, data_cell: DataCell | None = None) -> odfpy_table.TableCell:
         if data_cell is None:
-            odf_cell = odfpy_table.CoveredTableCell()
+            # odf_cell = odfpy_table.CoveredTableCell()
+            odf_cell = odfpy_table.TableCell(valuetype="string", numberrowsspanned=1,
+                                             numbercolumnsspanned=1)
         else:
             odf_cell = odfpy_table.TableCell(valuetype="string", numberrowsspanned=data_cell.row_span,
                                              numbercolumnsspanned=data_cell.column_span)
