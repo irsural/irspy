@@ -16,15 +16,11 @@ from irspy.protocol_generator.utils import handle_exceptions
 
 
 class XlsxProtocolGenerator(ProtocolGenerator):
-    def __init__(self) -> None:
-        self.__last_detected_cell = None
-
     @handle_exceptions(BadZipFile, PermissionError, InvalidFileException)
     def generate(self, file: Path, config: ProtocolConfig) -> None:
             work_book = load_workbook(file)
             work_sheet = work_book.active
 
-            self.__last_detected_cell = None
             while (ret := self.__find_cell(work_sheet, config.tag_map.keys())) is not None:
                 tag, cell = ret
                 value = config.tag_map[tag]
@@ -87,13 +83,9 @@ class XlsxProtocolGenerator(ProtocolGenerator):
                 work_sheet.cell(row=row, column=column).border = border
 
     def __find_cell(self, worksheet: Worksheet, texts: Iterable[str]) -> Tuple[str, Cell] | None:
-        last_row, last_column = None, None
-        if self.__last_detected_cell is not None:
-            last_row, last_column = self.__last_detected_cell.row, self.__last_detected_cell.column
-        for row in worksheet.iter_rows(min_row=last_row, min_col=last_column):
+        for row in worksheet.rows:
             for cell in row:
                 for text in texts:
                     if cell.value is not None and text in str(cell.value):
-                        self.__last_detected_cell = cell
                         return text, cell
         return None

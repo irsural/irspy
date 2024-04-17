@@ -5,6 +5,7 @@ from zipfile import BadZipFile
 from odf.element import Element
 from odf import text as odf_text, teletype, table as odfpy_table
 from odf.opendocument import load as odf_load, OpenDocument
+from odf.table import TableHeaderRows
 
 from irspy.protocol_generator.protocol_generator import ProtocolGenerator, ProtocolConfig
 from irspy.protocol_generator.data_table import DataTable
@@ -33,16 +34,25 @@ def _make_odf_rows(data_table: DataTable) -> Iterable[odfpy_table.Element]:
             text = odf_text.P(text=str(data_cell.value))
             odf_cell.addElement(text)
             odf_row.addElement(odf_cell)
-
         yield odf_row
+
+
+def _add_row(row: Element, row_index: int, header_rows: Element, header_row_count: int, odf_table: Element) -> None:
+    if row_index < header_row_count:
+        header_rows.addElement(row)
+        if row_index + 1 == header_row_count:
+            odf_table.addElement(header_rows)
+    else:
+        odf_table.addElement(row)
 
 
 def _make_odf_table(data_table: DataTable) -> odfpy_table.Table:
     odf_table = odfpy_table.Table()
     odf_column = odfpy_table.TableColumn(numbercolumnsrepeated=data_table.column_count)
     odf_table.addElement(odf_column)
-    for odf_row in _make_odf_rows(data_table):
-        odf_table.addElement(odf_row)
+    odf_header = TableHeaderRows()
+    for row_index, odf_row in enumerate(_make_odf_rows(data_table)):
+        _add_row(odf_row, row_index, odf_header, data_table.header_rows, odf_table)
     return odf_table
 
 
