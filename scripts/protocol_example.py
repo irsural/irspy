@@ -3,7 +3,8 @@ import shutil
 from irspy.protocol_generator.data_table import DataTable, DataCell
 from irspy.protocol_generator.protocol_generator import ProtocolConfig
 from irspy.protocol_generator.protocol_generator_docx import DocxProtocolGenerator
-from irspy.protocol_generator.protocol_generator_odt import OdtProtocolGenerator
+
+from irspy.protocol_generator.protocol_generator_odf import OdsProtocolGenerator, OdtProtocolGenerator
 from irspy.protocol_generator.protocol_generator_xlsx import XlsxProtocolGenerator
 
 
@@ -31,19 +32,17 @@ if __name__ == '__main__':
             DataCell(row=2, column=4, row_span=1, column_span=1, value='Отклонение., %'),
             DataCell(row=2, column=5, row_span=1, column_span=1, value='Отклонение., %'),
 
-            DataCell(row=3, column=0, row_span=1, column_span=1, value='1'),
-            DataCell(row=3, column=1, row_span=1, column_span=1, value='2'),
-            DataCell(row=3, column=2, row_span=1, column_span=1, value='3'),
-            DataCell(row=3, column=3, row_span=1, column_span=1, value='4'),
-            DataCell(row=3, column=4, row_span=1, column_span=1, value='5'),
-            DataCell(row=3, column=5, row_span=1, column_span=1, value='6'),
+            DataCell(row=5, column=0, row_span=1, column_span=1, value='1'),
+            DataCell(row=5, column=3, row_span=1, column_span=1, value='4'),
+            DataCell(row=5, column=4, row_span=1, column_span=1, value='5'),
+            DataCell(row=5, column=5, row_span=1, column_span=1, value='6'),
 
-            DataCell(row=4, column=0, row_span=1, column_span=1, value='7'),
-            DataCell(row=4, column=1, row_span=1, column_span=1, value='8'),
-            DataCell(row=4, column=2, row_span=1, column_span=1, value='9'),
-            DataCell(row=4, column=3, row_span=1, column_span=1, value='10'),
-            DataCell(row=4, column=4, row_span=1, column_span=1, value='11'),
-            DataCell(row=4, column=5, row_span=1, column_span=1, value='12'),
+            DataCell(row=7, column=0, row_span=1, column_span=1, value='7'),
+            DataCell(row=7, column=1, row_span=1, column_span=1, value='8'),
+            DataCell(row=7, column=2, row_span=1, column_span=1, value='9'),
+            DataCell(row=7, column=3, row_span=1, column_span=1, value='10'),
+            DataCell(row=7, column=4, row_span=1, column_span=1, value='11'),
+            DataCell(row=7, column=5, row_span=1, column_span=1, value='12'),
         ],
         add_border=True,
         xlsx_row_heights=[None, 50, 30],
@@ -61,6 +60,7 @@ if __name__ == '__main__':
 
     templates = {
         'protocols/template.xlsx': XlsxProtocolGenerator(),
+        'protocols/template.ods': OdsProtocolGenerator(),
         'protocols/template.odt': OdtProtocolGenerator(),
         'protocols/template.docx': DocxProtocolGenerator(),
     }

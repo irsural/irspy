@@ -50,20 +50,28 @@ class DataTable:
                  cells: Iterable[DataCell],
                  xlsx_row_heights: List[int | None] | None = None,
                  xlsx_column_widths: List[int | None] | None = None,
-                 add_border: bool = False) -> None:
+                 add_border: bool = False,
+                 header_rows: int = 0) -> None:
         self.__xlsx_column_widths = xlsx_column_widths if xlsx_column_widths else []
         self.__xlsx_row_heights = xlsx_row_heights if xlsx_row_heights else []
         self.__add_border = add_border
+        self.__header_rows = header_rows
 
+        self.__cells = []
         used_cells: Set[Tuple[int, int]] = set()
         for cell in cells:
             for row, column in cell.positions:
                 if (row, column) in used_cells:
                     raise ValueError('Ячейки таблицы перекрываются', cell)
                 used_cells.add((row, column))
+            if cell.value is None:
+                cell.value = ''
+            else:
+                cell.value = str(cell.value)
+            self.__cells.append(cell)
         self.__row_count = 1 + max((cell[0] for cell in used_cells))
         self.__column_count = 1 + max((cell[1] for cell in used_cells))
-        self.__cells = sorted(cells)
+        self.__cells = sorted(self.__cells)
 
     @property
     def xlsx_row_heights(self) -> List[int | None]:
@@ -76,6 +84,10 @@ class DataTable:
     @property
     def add_border(self) -> bool:
         return self.__add_border
+
+    @property
+    def header_rows(self) -> int:
+        return self.__header_rows
 
     @property
     def rows(self) -> Iterable[Tuple[int, Iterable[DataCell]]]:
@@ -91,5 +103,5 @@ class DataTable:
         return self.__column_count
 
     @property
-    def cells(self) -> Iterator[DataCell]:
-        return iter(self.__cells)
+    def cells(self) -> Iterable[DataCell]:
+        return self.__cells
