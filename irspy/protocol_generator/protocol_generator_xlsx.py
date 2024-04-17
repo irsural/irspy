@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 from typing import Iterable, Tuple, List
 from zipfile import BadZipFile
@@ -25,6 +24,7 @@ class XlsxProtocolGenerator(ProtocolGenerator):
             work_book = load_workbook(file)
             work_sheet = work_book.active
 
+            self.__last_detected_cell = None
             while (ret := self.__find_cell(work_sheet, config.tag_map.keys())) is not None:
                 tag, cell = ret
                 value = config.tag_map[tag]
