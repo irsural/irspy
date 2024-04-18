@@ -19,7 +19,7 @@ dynamic = ["dependencies"]
 
 [project.optional-dependencies]
 qt = [
-    "PyQt6"
+    "PyQt5"
 ]
 
 [project.urls]
