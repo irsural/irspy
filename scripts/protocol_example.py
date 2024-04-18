@@ -45,6 +45,7 @@ if __name__ == '__main__':
             DataCell(row=7, column=5, row_span=1, column_span=1, value='12'),
         ],
         add_border=True,
+        header_rows=3,
         xlsx_row_heights=[None, 50, 30],
         xlsx_column_widths=[25, 25, 25, 25, 25, 25, 25],
     )
