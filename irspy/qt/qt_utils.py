@@ -1,11 +1,10 @@
-from typing import Iterable, Union
+from typing import Iterable, Union, Set
 from math import isclose
 import logging
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import QTextCursor
 import irspy.constants as constants
-
 
 QSTYLE_COLOR_WHITE = "background-color: rgb(255, 255, 255);"
 QSTYLE_COLOR_YELLOW = "background-color: rgb(250, 250, 170);"
@@ -52,7 +51,8 @@ def qtablewidget_delete_selected(a_table: QtWidgets.QTableWidget):
             a_table.removeRow(idx_model.row())
 
 
-def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget) -> Union[None, QtCore.QModelIndex]:
+def qtablewidget_get_only_selected_cell(a_table_widget: QtWidgets.QTableWidget) -> Union[
+    None, QtCore.QModelIndex]:
     selected_indexes = a_table_widget.selectionModel().selectedIndexes()
     if len(selected_indexes) == 1:
         return selected_indexes[0]
@@ -93,7 +93,8 @@ def unwrap_from_layout(a_widget: QtWidgets.QWidget):
     return a_widget.layout().itemAt(0).widget()
 
 
-def open_or_activate_dialog(a_dialog_object_name: str, a_dialog_parent, a_dialog: QtWidgets.QDialog, *args, **kwargs):
+def open_or_activate_dialog(a_dialog_object_name: str, a_dialog_parent, a_dialog: QtWidgets.QDialog,
+                            *args, **kwargs):
     """
     Проверяет, открыт ли диалог с заданным именем, если не открыт, то открывает его, иначе просто активирует
     :param a_dialog_object_name: Имя диалога
@@ -118,16 +119,25 @@ class TableHeaderContextMenu:
     Перед закрытием виджета QTableView необходимо вызвать self.delete_connections(), иначе лямбда соединения могут
     помешать удалению ссылающихся на них объектов (по хорошему надо переписать на слабые ссылки)
     """
-    def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView, a_hide_first_column: bool = False):
+
+    def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView,
+                 a_hide_first_column: bool = False, ignored_columns: Set[int] | None = None):
         table_header = a_table.horizontalHeader()
         table_header.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         self.table = a_table
-        self.hide_first_col = a_hide_first_column
         self.menu = QtWidgets.QMenu(a_parent)
         self.lambda_connections = []
+
+        if ignored_columns is None:
+            self.__ignored_columns = set()
+        else:
+            self.__ignored_columns = ignored_columns
+        if a_hide_first_column:
+            self.__ignored_columns.add(0)
+
         for column in range(a_table.model().columnCount()):
-            if column == 0 and a_hide_first_column:
+            if column in self.__ignored_columns:
                 continue
             header_name = a_table.model().headerData(column, QtCore.Qt.Horizontal)
             menu_checkbox = QtWidgets.QAction(header_name, self.menu)
@@ -140,13 +150,16 @@ class TableHeaderContextMenu:
                 lambda state, col=column: a_table.setColumnHidden(col, not state))))
 
         self.lambda_connections.append((table_header.customContextMenuRequested,
-                                        table_header.customContextMenuRequested.connect(self.show_context_menu)))
+                                        table_header.customContextMenuRequested.connect(
+                                            self.show_context_menu)))
 
     def show_context_menu(self, a_position):
         self.menu.popup(self.table.horizontalHeader().viewport().mapToGlobal(a_position))
+        offset = 0
         for column, action in enumerate(self.menu.actions()):
-            col_idx = column + 1 if self.hide_first_col else column
-            action.setChecked(not self.table.isColumnHidden(col_idx))
+            if column in self.__ignored_columns:
+                offset += 1
+            action.setChecked(not self.table.isColumnHidden(column + offset))
 
     def delete_connections(self):
         # Нужно потому что лямбда соединения сами не удаляются
@@ -158,6 +171,7 @@ class QTextEditLogger(logging.Handler):
     """
     Связывает QTextEdit и logging. Выделяет разные уровни сообщений цветом.
     """
+
     def __init__(self, a_text_edit: QtWidgets.QTextEdit):
         super().__init__()
 
