@@ -155,10 +155,9 @@ class TableHeaderContextMenu:
 
     def show_context_menu(self, a_position):
         self.menu.popup(self.table.horizontalHeader().viewport().mapToGlobal(a_position))
-        offset = 0
         for column, action in enumerate(self.menu.actions()):
             if column in self.__ignored_columns:
-                offset += 1
+                continue
             action.setChecked(not self.table.isColumnHidden(column + offset))
 
     def delete_connections(self):
