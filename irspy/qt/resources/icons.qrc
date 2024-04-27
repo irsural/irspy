@@ -62,6 +62,8 @@
     <file>icons/warning.png</file>
     <file>icons/arrow_undo.png</file>
     <file>icons/fork.png</file>
+    <file>icons/new_comment.png</file>
+    <file>icons/existing_comment.png</file>
     <file>icons/arrow_redo.png</file>
     <file>icons/log_file.png</file>
     <file>icons/square_arrow_left.png</file>
