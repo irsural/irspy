@@ -109,13 +109,12 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
 
 
 def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "",
-                 a_noconsole=True, a_one_file=True, a_libs: List[Tuple[str, str]] = None):
+                 a_noconsole=True, a_one_file=True, a_admin=False, a_libs: List[Tuple[str, str]] = None):
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
       Параметры, как у build_app
     """
-
     tmp_filename = "{}.py".format(a_app_info.app_name)
 
     with open(a_main_filename, encoding='utf8') as main_py:
@@ -125,6 +124,6 @@ def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str
                     compile_main.write(line)
 
     try:
-        build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, a_libs)
+        build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, a_admin, a_libs)
     finally:
         os.remove(tmp_filename)
