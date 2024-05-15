@@ -79,6 +79,7 @@ def build_app(
         dist_path: str | os.PathLike | None = None,
         spec_path: str | os.PathLike | None = None,
         build_path: str | os.PathLike | None = None,
+        version_file_path: str | os.PathLike | None = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -107,6 +108,8 @@ def build_app(
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
         pyinstaller_args.append("--workpath={}".format(build_path))
+    if version_file_path:
+        pyinstaller_args.append("--version-file={}".format(version_file_path))
 
 
     version_filename = "version.txt"
@@ -137,6 +140,7 @@ def build_qt_app(
         dist_path: str | os.PathLike | None = None,
         spec_path: str | os.PathLike | None = None,
         build_path: str | os.PathLike | None = None,
+        version_file_path: str | os.PathLike | None = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
@@ -163,6 +167,7 @@ def build_qt_app(
             dist_path,
             spec_path,
             build_path,
+            version_file_path,
         )
     finally:
         os.remove(tmp_filename)
