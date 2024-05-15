@@ -100,7 +100,7 @@ def build_app(
     if a_admin:
         pyinstaller_args.append("--uac-admin")
     for src, dst in a_libs:
-        pyinstaller_args.append("--add-data={}".format(src, os.pathsep, dst))
+        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
     if dist_path:
         pyinstaller_args.append("--distpath{}".format(dist_path))
     if spec_path:
