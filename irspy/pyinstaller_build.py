@@ -1,3 +1,4 @@
+import typing
 from typing import List, Tuple
 import os
 
@@ -67,8 +68,17 @@ class AppInfo:
         self.product_name = a_product_name
 
 
-def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_admin = False, a_libs: List[Tuple[str, str]] = None):
+def build_app(
+        a_main_filename: str | os.PathLike,
+        a_app_info: AppInfo,
+        a_icon_filename: str = "",
+        a_noconsole=True,
+        a_one_file=True,
+        a_admin = False,
+        a_libs: List[Tuple[str, str]] = None,
+        dist_path: str | os.PathLike | None = None,
+        spec_path: str | os.PathLike | None = None,
+) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -89,7 +99,11 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
     if a_admin:
         pyinstaller_args.append("--uac-admin")
     for src, dst in a_libs:
-        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
+        pyinstaller_args.append("--add-data={}".format(src, os.pathsep, dst))
+    if dist_path:
+        pyinstaller_args.append("--distpath{}".format(dist_path))
+    if spec_path:
+        pyinstaller_args.append("--specpath={}".format(spec_path))
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
@@ -108,8 +122,17 @@ def build_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = 
         os.remove(version_filename)
 
 
-def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str = "",
-                 a_noconsole=True, a_one_file=True, a_admin=False, a_libs: List[Tuple[str, str]] = None):
+def build_qt_app(
+        a_main_filename: os.PathLike | str,
+        a_app_info: AppInfo,
+        a_icon_filename: str = "",
+        a_noconsole=True,
+        a_one_file=True,
+        a_admin=False,
+        a_libs: List[Tuple[str, str]] = None,
+        dist_path: str | os.PathLike | None = None,
+        spec_path: str | os.PathLike | None = None,
+) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
@@ -124,6 +147,16 @@ def build_qt_app(a_main_filename: str, a_app_info: AppInfo, a_icon_filename: str
                     compile_main.write(line)
 
     try:
-        build_app(tmp_filename, a_app_info, a_icon_filename, a_noconsole, a_one_file, a_admin, a_libs)
+        build_app(
+            tmp_filename,
+            a_app_info,
+            a_icon_filename,
+            a_noconsole,
+            a_one_file,
+            a_admin,
+            a_libs,
+            dist_path,
+            spec_path,
+        )
     finally:
         os.remove(tmp_filename)
