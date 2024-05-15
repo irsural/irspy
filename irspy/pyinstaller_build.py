@@ -75,11 +75,11 @@ def build_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
-        a_libs: List[Tuple[str, str]] = None,
+        a_libs: List[Tuple[str | os.PathLike, str]] = None,
         dist_path: str | os.PathLike | None = None,
         spec_path: str | os.PathLike | None = None,
         build_path: str | os.PathLike | None = None,
-        version_file_path: str | os.PathLike | None = None,
+        version_filename: str | os.PathLike = 'version.txt',
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -108,11 +108,6 @@ def build_app(
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
         pyinstaller_args.append("--workpath={}".format(build_path))
-    if version_file_path:
-        pyinstaller_args.append("--version-file={}".format(version_file_path))
-
-
-    version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
             company_name=a_app_info.company_name, file_description=a_app_info.file_description,
@@ -136,7 +131,7 @@ def build_qt_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[str, str]] = None,
+        a_libs: List[Tuple[str | os.PathLike, str]] = None,
         dist_path: str | os.PathLike | None = None,
         spec_path: str | os.PathLike | None = None,
         build_path: str | os.PathLike | None = None,
