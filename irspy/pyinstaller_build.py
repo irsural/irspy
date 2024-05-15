@@ -102,7 +102,7 @@ def build_app(
     for src, dst in a_libs:
         pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
     if dist_path:
-        pyinstaller_args.append("--distpath{}".format(dist_path))
+        pyinstaller_args.append("--distpath={}".format(dist_path))
     if spec_path:
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
