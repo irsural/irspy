@@ -159,8 +159,15 @@ class CheckBoxCellDelegate(QtWidgets.QStyledItemDelegate):
 
     def setEditorData(self, editor: QWidget, index: QtCore.QModelIndex) -> None:
         assert isinstance(editor, QtWidgets.QCheckBox)
-        assert isinstance(index.data(), bool)
-        editor.setChecked(index.data())
+        data = index.data()
+        if isinstance(index.data(), str):
+            match data:
+                case 'True':
+                    data = True
+                case 'False':
+                    data = False
+        assert isinstance(data, bool), f'Expected bool, but got {type(data)} - {data}'
+        editor.setChecked(data)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
         editor = QtWidgets.QCheckBox(parent)
