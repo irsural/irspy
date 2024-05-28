@@ -71,7 +71,7 @@ class AppInfo:
 def build_app(
         a_main_filename: str | os.PathLike,
         a_app_info: AppInfo,
-        a_icon_filename: str = "",
+        a_icon_filename: str | os.PathLike = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
@@ -127,7 +127,7 @@ def build_app(
 def build_qt_app(
         a_main_filename: os.PathLike | str,
         a_app_info: AppInfo,
-        a_icon_filename: str = "",
+        a_icon_filename: str | os.PathLike = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
