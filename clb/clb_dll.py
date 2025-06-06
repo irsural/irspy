@@ -54,7 +54,7 @@ def set_up_driver(a_full_path) -> ctypes.CDLL:
     return clb_driver_lib
 
 
-__path = "clb_driver_dll.dll" if sys.platform == "win32" else "libn4-25.so"
+__path = "n4-25.dll" if sys.platform == "win32" else "libn4-25.so"
 clb_dll = set_up_driver(dirname(__file__) + sep + __path)
 
 
