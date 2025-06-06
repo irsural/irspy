@@ -2,6 +2,7 @@ from os.path import dirname
 from os import sep
 import ctypes
 import enum
+import sys
 
 import irspy.clb.calibrator_constants as clb
 from irspy.revisions import Revisions
@@ -17,8 +18,9 @@ def set_up_driver(a_full_path) -> ctypes.CDLL:
         "Ревизия clb_dll не соответствует ожидаемой! " \
         "Текущая версия {}. Ожидаемая: {}".format(clb_driver_lib.revision(), Revisions.clb_dll)
 
-    # Возвращает список калибраторов, разделенных ';'
-    clb_driver_lib.get_usb_devices.restype = ctypes.c_char_p
+    # Записывает в аргумент список калибраторов, разделенных ';'
+    clb_driver_lib.get_usb_devices.argtypes = [ctypes.POINTER(ctypes.c_char_p)]
+    clb_driver_lib.free_usb_devices.argtypes = [ctypes.POINTER(ctypes.c_char_p)]
 
     clb_driver_lib.connect_usb.argtypes = [ctypes.c_char_p]
 
@@ -52,8 +54,8 @@ def set_up_driver(a_full_path) -> ctypes.CDLL:
     return clb_driver_lib
 
 
-__path = dirname(__file__) + sep + "clb_driver_dll.dll"
-clb_dll = set_up_driver(__path)
+__path = "n4-25.dll" if sys.platform == "win32" else "libn4-25.so"
+clb_dll = set_up_driver(dirname(__file__) + sep + __path)
 
 
 class UsbDrv:
@@ -80,8 +82,11 @@ class UsbDrv:
         if self.clb_dll.usb_devices_changed():
             self.clb_dev_list.clear()
 
-            clb_names_char = self.clb_dll.get_usb_devices()
-            clb_names_list = clb_names_char.decode("ascii")
+            clb_names_char = ctypes.c_char_p()
+            self.clb_dll.get_usb_devices(ctypes.byref(clb_names_char))
+            assert clb_names_char.value is not None
+            clb_names_list = clb_names_char.value.decode("ascii")
+            self.clb_dll.free_usb_devices(ctypes.byref(clb_names_char))
 
             for clb_name in clb_names_list.split(';'):
                 if clb_name:
