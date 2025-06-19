@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/lan.ico</file>
     <file>icons/update.png</file>
     <file>icons/medal.png</file>
     <file>icons/warning_2.png</file>
@@ -13,6 +14,7 @@
     <file>icons/robot_2.png</file>
     <file>icons/robot_1.png</file>
     <file>icons/tracker.png</file>
+    <file>icons/reset.png</file>
     <file>icons/add_file.png</file>
     <file>icons/graph_2.png</file>
     <file>icons/graph_3.png</file>
@@ -36,6 +38,10 @@
     <file>icons/save.png</file>
     <file>icons/tstlan.png</file>
     <file>icons/clear_table.png</file>
+    <file>icons/clock.png</file>
+    <file>gif/clock.gif</file>
+    <file>gif/loader4.gif</file>
+    <file>gif/loader3.gif</file>
     <file>gif/loader2.gif</file>
     <file>gif/loader.gif</file>
     <file>icons/excel.png</file>
@@ -52,10 +58,26 @@
     <file>icons/minus2.png</file>
     <file>icons/pause.png</file>
     <file>icons/play.png</file>
+    <file>icons/down.png</file>
+    <file>icons/up.png</file>
     <file>icons/plus.png</file>
     <file>icons/remove.svg</file>
     <file>icons/settings.png</file>
     <file>icons/warning.png</file>
+    <file>icons/arrow_undo.png</file>
+    <file>icons/fork.png</file>
+    <file>icons/new_comment.png</file>
+    <file>icons/existing_comment.png</file>
+    <file>icons/arrow_redo.png</file>
+    <file>icons/log_file.png</file>
+    <file>icons/square_arrow_left.png</file>
+    <file>icons/square_arrow_right.png</file>
+    <file>icons/triangle_left.png</file>
+    <file>icons/triangle_right.png</file>
+    <file>icons/search.png</file>
+    <file>icons/temperature.png</file>
+    <file>icons/instability_limit_formula.png</file>
+    <file>icons/nominal_limit_formula.png</file>
   </qresource>
   <qresource prefix="images">
     <file>images/just_for_fun.png</file>
