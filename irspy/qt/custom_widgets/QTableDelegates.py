@@ -1,12 +1,11 @@
 from typing import Tuple
-import logging
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import QWidget
 
 from irspy.qt.custom_widgets.CustomLineEdit import QEditDoubleClick
 
-from utils import exception_decorator_print
+from irspy.utils import exception_decorator_print
 
 
 class TransparentPainterForView(QtWidgets.QStyledItemDelegate):

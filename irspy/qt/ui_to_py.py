@@ -93,5 +93,5 @@ def __get_file_hash(a_filename):
 
 if __name__ == "__main__":
     convert_ui("../../ui", "../../ui/py")
-    convert_resources("../../resources", "../../")
+    convert_resources("../../resources", "../../../")
     # create_translate("../../upms_1v_pc/ui/py", "../../upms_1v_pc/ui/translates")
