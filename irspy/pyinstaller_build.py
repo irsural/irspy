@@ -61,7 +61,7 @@ def _create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str], a
     return pyinstaller_param_with_args
 
 
-def _create_collect_all_parameter(pyinstaller_parameter: str, args: List[str]) -> str:
+def _create_pyinstaller_parameter_without_sep(pyinstaller_parameter: str, args: List[str]) -> str:
     if args:
         hidden_import_parts = []
         for arg in args:
@@ -101,8 +101,8 @@ def build_app(
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
     libs = _create_pyinstaller_parameter('--add-data', a_libs, add_data_sep)
-    hidden_import = _create_pyinstaller_parameter('--hidden-import', a_hidden_import, add_data_sep)
-    collect_all = _create_collect_all_parameter('--collect-all', a_collect_all)
+    hidden_import = _create_pyinstaller_parameter_without_sep('--hidden-import', a_hidden_import)
+    collect_all = _create_pyinstaller_parameter_without_sep('--collect-all', a_collect_all)
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
