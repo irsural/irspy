@@ -110,7 +110,7 @@ def build_app(
         version = " --version-file={}".format(version_filename)
 
     os.system(
-        "pyinstaller{}{}{}{}{}{}{} {}".format(
+        "pyinstaller{}{}{}{}{}{}{}{} {}".format(
             name, onefile, noconsole, icon, version, libs, hidden_import, collect_all, a_main_filename
         )
     )
