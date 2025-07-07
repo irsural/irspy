@@ -50,8 +50,27 @@ VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
 """
 
 
-def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_filename: str = "", a_noconsole=True,
-              a_one_file=True, a_libs: List[str] = None):
+def _create_hidden_import_arg(a_hidden_import: List[str], add_data_sep: str) -> str:
+    if a_hidden_import:
+        hidden_import_parts = []
+        for h_import in a_hidden_import:
+            hidden_import_parts.append(f' --hidden-import "{h_import}"{add_data_sep}.')
+        hidden_import = "".join(hidden_import_parts)
+    else:
+        hidden_import = ""
+    return hidden_import
+
+
+def build_app(
+    a_main_filename: str,
+    a_app_name: str,
+    a_version: int,
+    a_icon_filename: str="",
+    a_noconsole=True,
+    a_one_file=True,
+    a_libs: List[str]=None,
+    a_hidden_import: List[str]=None,
+) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
@@ -61,6 +80,7 @@ def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_file
     :param a_noconsole: Параметр noconole в pyinstaller
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param a_hidden_import: параметр hidden_import в pyinstaller
     """
     name = " -n {}".format(a_app_name)
     onefile = " --onefile" if a_one_file else ""
@@ -68,19 +88,32 @@ def build_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_file
     icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
     add_data_sep = ";" if os.name == 'nt' else ":"
     libs = "".join((' --add-data "{}"{}.'.format(lib, add_data_sep) for lib in a_libs)) if a_libs is not None else ""
+    hidden_import = _create_hidden_import_arg(a_hidden_import, add_data_sep)
 
     version_filename = "version.txt"
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(version=a_version))
         version = " --version-file={}".format(version_filename)
 
-    os.system("pyinstaller{}{}{}{}{}{} {}".format(name, onefile, noconsole, icon, version, libs, a_main_filename))
+    os.system(
+        "pyinstaller{}{}{}{}{}{}{} {}".format(
+            name, onefile, noconsole, icon, version, libs, hidden_import, a_main_filename
+        )
+    )
 
     os.remove(version_filename)
 
 
-def build_qt_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_filename: str = "", a_noconsole=True,
-                 a_one_file=True, a_libs: List[str] = None):
+def build_qt_app(
+    a_main_filename: str,
+    a_app_name: str,
+    a_version: int,
+    a_icon_filename: str="",
+    a_noconsole=True,
+    a_one_file=True,
+    a_libs: List[str]=None,
+    a_hidden_import: List[str]=None,
+) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
@@ -95,6 +128,6 @@ def build_qt_app(a_main_filename: str, a_app_name: str, a_version: int, a_icon_f
                 if not ("ui_to_py" in line):
                     compile_main.write(line)
 
-    build_app(tmp_filename, a_app_name, a_version, a_icon_filename, a_noconsole, a_one_file, a_libs)
+    build_app(tmp_filename, a_app_name, a_version, a_icon_filename, a_noconsole, a_one_file, a_libs, a_hidden_import)
 
     os.remove(tmp_filename)
