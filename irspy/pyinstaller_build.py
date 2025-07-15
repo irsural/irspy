@@ -54,7 +54,7 @@ VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
 
 
 class AppInfo:
-    def __init__(self, a_app_name, a_company_name="", a_file_description="", a_version=0.0, a_internal_name="",
+    def __init__(self, a_app_name, a_company_name="", a_file_description="", a_version="", a_internal_name="",
                  a_copyright="", a_original_filename="", a_product_name=""):
 
         self.app_name = a_app_name
