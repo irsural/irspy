@@ -75,7 +75,7 @@ def create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str]) ->
     if args:
         hidden_import_parts = []
         for arg in args:
-            hidden_import_parts.append(f' {pyinstaller_parameter}={arg}')
+            hidden_import_parts.append(f'{pyinstaller_parameter}={arg} ')
         pyinstaller_param_with_args = "".join(hidden_import_parts)
     else:
         pyinstaller_param_with_args = ""
