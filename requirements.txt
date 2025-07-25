@@ -1,0 +1,10 @@
+colorama
+pydantic
+pyinstaller
+types-pyinstaller
+pyqtgraph
+logging
+configparser
+odfpy
+openpyxl
+python-docx
