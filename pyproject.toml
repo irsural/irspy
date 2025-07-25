@@ -18,8 +18,12 @@ classifiers = [
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]
+dev = ["mypy"]
 qt = [
-    "PyQt5"
+    "PyQt5",
+    "PyQt5-stubs",
+    "qt5-tools",
+    "qt5-applications",
 ]
 
 [project.urls]
