@@ -2,7 +2,8 @@ colorama
 pydantic
 pyinstaller
 PyQt5
-PyQt5-tools
+qt5-tools
+qt5-applications
 PyQt5-stubs
 mypy
 pyqtgraph
