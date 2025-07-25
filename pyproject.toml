@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irspy"
-version = "96"
+version = "97"
 authors = [
   { name="irs ural"},
 ]
@@ -18,8 +18,12 @@ classifiers = [
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]
+dev = ["mypy"]
 qt = [
-    "PyQt5"
+    "PyQt5",
+    "PyQt5-stubs",
+    "qt5-tools",
+    "qt5-applications",
 ]
 
 [project.urls]

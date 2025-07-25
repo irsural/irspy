@@ -1,5 +1,4 @@
-import typing
-from typing import List, Tuple
+from typing import List, Tuple, Union, Optional
 import os
 
 import PyInstaller.__main__ as pyinstaller
@@ -66,19 +65,36 @@ class AppInfo:
         self.original_filename = a_original_filename
         self.product_name = a_product_name
 
+def create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str]) -> str:
+    """
+    Формирует строку, в которой каждый аргумент добавляется к параметру.
+    :param pyinstaller_parameter: Параметр pyinstaller
+    :param args: Список аргументов
+    :return: Строка в формате "--param=arg1 --param=arg2"
+    """
+    if args:
+        hidden_import_parts = []
+        for arg in args:
+            hidden_import_parts.append(f' {pyinstaller_parameter}={arg}')
+        pyinstaller_param_with_args = "".join(hidden_import_parts)
+    else:
+        pyinstaller_param_with_args = ""
+    return pyinstaller_param_with_args
+
 
 def build_app(
-        a_main_filename: str | os.PathLike,
+        a_main_filename: Union[str, os.PathLike],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
-        a_noconsole=True,
-        a_one_file=True,
+        a_icon_filename: Union[str, os.PathLike] = "",
+        a_noconsole = True,
+        a_one_file = True,
         a_admin = False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_filename: str | os.PathLike = 'version.txt',
+        a_libs: Optional[List[Tuple[Union[str, os.PathLike], str]]] = None,
+        a_collect_all: Optional[List[str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_filename: Union[str, os.PathLike] = 'version.txt',
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -89,8 +105,9 @@ def build_app(
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_admin: Параметр --uac-admin в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param a_collect_all: параметр collect-all в pyinstaller
     """
-    pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
+    pyinstaller_args: list = [a_main_filename, "--name={}".format(a_app_info.app_name)]
     if a_one_file:
         pyinstaller_args.append("--onefile")
     if a_noconsole:
@@ -99,8 +116,11 @@ def build_app(
         pyinstaller_args.append("--icon={}".format(a_icon_filename))
     if a_admin:
         pyinstaller_args.append("--uac-admin")
+    assert a_libs is not None
     for src, dst in a_libs:
         pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
+    if a_collect_all:
+        pyinstaller_args.append(create_pyinstaller_parameter("--collect-all", a_collect_all))
     if dist_path:
         pyinstaller_args.append("--distpath={}".format(dist_path))
     if spec_path:
@@ -124,17 +144,18 @@ def build_app(
 
 
 def build_qt_app(
-        a_main_filename: os.PathLike | str,
+        a_main_filename: Union[str, os.PathLike],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
+        a_icon_filename: Union[str, os.PathLike] = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_file_path: str | os.PathLike | None = None,
+        a_libs: Optional[List[Tuple[Union[str, os.PathLike], str]]] = None,
+        a_collect_all: Optional[List[str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_file_path: Union[str, os.PathLike]  = 'version.txt',
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
@@ -158,6 +179,7 @@ def build_qt_app(
             a_one_file,
             a_admin,
             a_libs,
+            a_collect_all,
             dist_path,
             spec_path,
             build_path,
