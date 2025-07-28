@@ -65,21 +65,18 @@ class AppInfo:
         self.original_filename = a_original_filename
         self.product_name = a_product_name
 
-def create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str]) -> str:
+def create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str]) -> List[str]:
     """
-    Формирует строку, в которой каждый аргумент добавляется к параметру.
+    Формирует список параметров в формате ['--param=arg1', '--param=arg2'].
     :param pyinstaller_parameter: Параметр pyinstaller
     :param args: Список аргументов
-    :return: Строка в формате "--param=arg1 --param=arg2"
+    :return: Список параметров
     """
+    hidden_import_parts = []
     if args:
-        hidden_import_parts = []
         for arg in args:
-            hidden_import_parts.append(f'{pyinstaller_parameter}={arg} ')
-        pyinstaller_param_with_args = "".join(hidden_import_parts)
-    else:
-        pyinstaller_param_with_args = ""
-    return pyinstaller_param_with_args
+            hidden_import_parts.append(f'{pyinstaller_parameter}={arg}')
+    return hidden_import_parts
 
 
 def build_app(
@@ -120,7 +117,7 @@ def build_app(
     for src, dst in a_libs:
         pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
     if a_collect_all:
-        pyinstaller_args.append(create_pyinstaller_parameter("--collect-all", a_collect_all))
+        pyinstaller_args.extend(create_pyinstaller_parameter("--collect-all", a_collect_all))
     if dist_path:
         pyinstaller_args.append("--distpath={}".format(dist_path))
     if spec_path:
