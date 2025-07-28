@@ -1,0 +1,14 @@
+colorama
+pydantic
+pyinstaller
+PyQt5
+qt5-tools
+qt5-applications
+PyQt5-stubs
+mypy
+pyqtgraph
+PyInstaller
+configparser
+odfpy
+openpyxl
+python-docx
