@@ -20,7 +20,7 @@ dependencies = [
     "pydantic==2.5.3",
     "pyinstaller==5.13.2",
     "PyQt5==5.15.9",
-    "PyQt5-tools==2.15.9.3.3",
+    "PyQt5-tools==5.15.9.3.3",
     "PyQt5-stubs==5.15.6.0",
     "mypy==1.4.1",
     "pyqtgraph==0.12.4",
