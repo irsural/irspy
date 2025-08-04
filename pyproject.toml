@@ -22,12 +22,12 @@ dependencies = [
     "mypy>=1.4.1",
     "configparser>=5.3.0",
     "odfpy>=1.4.1",
-    "openpyxl<=3.0.10",
+    "openpyxl>=3.0.10",
     "python-docx>=1.1.0",
 ]
 
 [project.optional-dependencies]
-qt = [
+pyqt = [
     "PyQt5>=5.15.9",
     "PyQt5-tools>=5.15.9.3.3",
     "PyQt5-stubs>=5.15.6.0",
