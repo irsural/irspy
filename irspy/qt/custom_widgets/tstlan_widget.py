@@ -6,7 +6,7 @@ import time
 
 from PyQt5 import QtGui, QtWidgets, QtCore
 
-from irspy.qt.custom_widgets.ui_py.tstlan_dialog import Ui_tstlan_dialog as TstlanForm
+from irspy.qt.custom_widgets.ui_py.tstlan_widget import Ui_Form as TstlanForm
 from irspy.qt.custom_widgets.tstlan_graph_dialog import TstlanGraphDialog
 from irspy.qt.qt_settings_ini_parser import QtSettings
 from irspy.clb.clb_dll import ClbDrv
@@ -14,7 +14,7 @@ import irspy.clb.network_variables as nv
 import irspy.utils as utils
 
 
-class TstlanDialog(QtWidgets.QDialog):
+class TstlanWidget(QtWidgets.QWidget):
     class Column(IntEnum):
         NUMBER = 0
         INDEX = 1
@@ -156,9 +156,9 @@ class TstlanDialog(QtWidgets.QDialog):
             del self.graphs_data[variable_info.name]
 
     def get_variable_info_by_row(self, a_row):
-        name = self.ui.variables_table.item(a_row, TstlanDialog.Column.NAME).text()
-        _type = self.ui.variables_table.item(a_row, TstlanDialog.Column.TYPE).text()
-        float_index = float(self.ui.variables_table.item(a_row, TstlanDialog.Column.INDEX).text())
+        name = self.ui.variables_table.item(a_row, TstlanWidget.Column.NAME).text()
+        _type = self.ui.variables_table.item(a_row, TstlanWidget.Column.TYPE).text()
+        float_index = float(self.ui.variables_table.item(a_row, TstlanWidget.Column.INDEX).text())
         if _type == "bit":
             index = floor(float_index)
             bit_index = int(round((float_index - index) * 10, 2))

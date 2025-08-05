@@ -1,5 +1,7 @@
+import functools
 from linecache import checkcache, getline
-from configparser import ConfigParser
+from collections import defaultdict
+from typing import Iterable
 from enum import IntEnum
 from sys import exc_info
 import traceback
@@ -11,29 +13,12 @@ import re
 
 
 check_input_re = re.compile(
-    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?) *(?P<units>(?:мк|м|н)?[аАвВ]?) *$")
+    r"(?P<number>^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)?) *(?P<units>(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?) *$")
 
-check_input_no_python_re = re.compile(r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)? *(?:мк|м|н)?[аАвВ]?$")
+check_input_no_python_re = re.compile(
+    r"^[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)? *(?:мк|м|н|к|М|Г|Т)?(?:Ом|ом|В|в|а|А)?$")
 
-find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?")
-
-__units_to_factor = {
-    "": 1,
-    "в": 1,
-    "а": 1,
-
-    "м": 1e-3,
-    "мв": 1e-3,
-    "ма": 1e-3,
-
-    "мк": 1e-6,
-    "мкв": 1e-6,
-    "мка": 1e-6,
-
-    "н": 1e-9,
-    "нв": 1e-9,
-    "на": 1e-9,
-}
+find_number_re = re.compile(r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eEеЕ][-+]?\d+)?")
 
 
 class __UnitsPrefix(IntEnum):
@@ -43,29 +28,67 @@ class __UnitsPrefix(IntEnum):
     NO = 3
     KILO = 4
     MEGA = 5
-    GIGA = 6
+    GIGA = 6,
+    TERA = 7
 
+
+__units_to_factor = {
+    __UnitsPrefix.NANO: 1e-9,
+    __UnitsPrefix.MICRO: 1e-7,
+    __UnitsPrefix.MILLI: 1e-3,
+    __UnitsPrefix.NO: 1,
+    __UnitsPrefix.KILO: 1e+3,
+    __UnitsPrefix.MEGA: 1e+6,
+    __UnitsPrefix.GIGA: 1e+9,
+    __UnitsPrefix.TERA: 1e+12,
+}
 
 __enum_to_units = {
+    __UnitsPrefix.NO: "",
     __UnitsPrefix.NANO: "н",
     __UnitsPrefix.MICRO: "мк",
     __UnitsPrefix.MILLI: "м",
-    __UnitsPrefix.NO: "",
     __UnitsPrefix.KILO: "к",
     __UnitsPrefix.MEGA: "М",
     __UnitsPrefix.GIGA: "Г",
+    __UnitsPrefix.TERA: "Т",
+}
+
+
+class Units(IntEnum):
+    VOLT = 0
+    AMPER = 1
+    OM = 2
+
+
+__units_to_string = {
+    Units.VOLT: 'в',
+    Units.AMPER: 'а',
+    Units.OM: 'ом',
 }
 
 
 def parse_input(a_input: str, a_reverse_check=False, a_precision=9):
     if not a_input:
         return 0.
+    a_input = a_input.strip()
     input_re = check_input_re.match(a_input)
     if not input_re:
         raise ValueError("Wrong units input format: {0}".format(a_input))
+    number = float(input_re.group('number').replace(",", ".").
+                   replace("е", "e").replace("Е", "E"))
+    units = input_re.group("units")
 
-    number = float(input_re.group('number').replace(",", "."))
-    factor = __units_to_factor[input_re.group("units").lower()]
+    units_prefix = __UnitsPrefix.NO
+    for prefix, name in __enum_to_units.items():
+        if prefix == __UnitsPrefix.NO:
+            continue
+        if units.startswith(name):
+            units_prefix = prefix
+            units.replace(name, '')
+            break
+
+    factor = __units_to_factor[units_prefix]
     result = round(number * factor, a_precision)
 
     # print(f"S->V. Input: {a_input}. Parsed: {number} {input_re.group('units').lower()}. Result: {result}")
@@ -105,9 +128,12 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
         elif 1e6 <= abs_value < 1e9:
             a_value /= 1e6
             prefix_type = __UnitsPrefix.MEGA
-        elif 1e9 <= abs_value:
+        elif 1e9 <= abs_value < 1e12:
             a_value /= 1e9
             prefix_type = __UnitsPrefix.GIGA
+        elif 1e12 <= abs_value:
+            a_value /= 1e12
+            prefix_type = __UnitsPrefix.TERA
 
         result = round(a_value, 9)
         result_str = float_to_string(result)
@@ -120,16 +146,22 @@ def value_to_user_with_units(a_postfix: str, a_reverse_check=False):
                 print("V->S reverse check is failed: {0} != {1}".format(result, parsed))
 
         return result_with_units
+
     return value_to_user
 
 
-def float_to_string(a_number: float, a_precision=9):
+def float_to_string(a_number: float, a_precision=9) -> str:
     format_str = "{{0:.{}f}}".format(a_precision)
     return format_str.format(a_number).rstrip('0').rstrip('.').replace(".", ",")
 
 
 def absolute_error(a_reference: float, a_value: float):
     return a_reference - a_value
+
+
+def relative_error(a_reference: float, a_value: float, a_normalize: float):
+    assert a_normalize != 0, "Normalize value must not be zero"
+    return (a_reference - a_value) / a_normalize * 100
 
 
 def variation(a_lval: float, a_rval: float):
@@ -221,8 +253,7 @@ def calc_smooth_approach(a_from, a_to, a_count, a_dt, sigma=0.01):
 
     points = []
     for t in range(a_dt, dt_stop + a_dt, a_dt):
-
-        point = a_from + slope * (1 - math.e**(-a_k * t / 1000)) if a_from < a_to else \
+        point = a_from + slope * (1 - math.e ** (-a_k * t / 1000)) if a_from < a_to else \
             a_from + slope * (math.e ** (-a_k * t / 1000) - 1)
 
         points.append(round(point, 9))
@@ -237,12 +268,12 @@ def exception_handler(a_exception):
     filename = frame.f_code.co_filename
     checkcache(filename)
     line = getline(filename, lineno, frame.f_globals)
-    return "Exception{0} in {1}\n"\
-           "Line {2}: '{3}'\n"\
+    return "Exception{0} in {1}\n" \
+           "Line {2}: '{3}'\n" \
            "Message: {4}".format(type(a_exception), filename, lineno, line.strip(), a_exception)
 
 
-def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
+def get_decorator(errors=(Exception,), default_value=None, log_out_foo=print):
     def decorator(func):
         def new_func(*args, **kwargs):
             try:
@@ -250,17 +281,19 @@ def get_decorator(errors=(Exception, ), default_value=None, log_out_foo=print):
             except errors:
                 log_out_foo(traceback.format_exc())
                 return default_value
+
         return new_func
+
     return decorator
 
 
 exception_decorator = get_decorator(log_out_foo=logging.critical)
 exception_decorator_print = get_decorator(log_out_foo=print)
-assertion_decorator = get_decorator(errors=(AssertionError, ), log_out_foo=logging.critical)
+assertion_decorator = get_decorator(errors=(AssertionError,), log_out_foo=logging.critical)
 
 
 def get_array_min_diff(a_array: list):
-    unique_array = list(dict.fromkeys(a_array))
+    unique_array = sorted(list(set(a_array)))
     min_diff = unique_array[-1] - unique_array[0]
     for i in range(len(unique_array) - 1):
         diff = unique_array[i + 1] - unique_array[i]
@@ -274,6 +307,25 @@ def bytes_to_base64(a_bytes):
 
 def base64_to_bytes(a_string: str):
     return base64.b64decode(a_string)
+
+
+def get_allowable_name(a_existing_names: Iterable, a_new_name: str,
+                       a_format_str: str = "{new_name}_{number}") -> str:
+    """
+    Проверяет, есть ли a_new_name в a_existing_names, если есть, то возвращает имя с приставкой _number.
+    number = количество раз, которое встречается имя в a_existing_names, включая имена с приставками.
+    Иначе возвращает a_new_name
+    :param a_existing_names: Итерируемый объект, в котором происходит поиск имен
+    :param a_new_name: Имя, поиск которого происходит в a_existing_names
+    :param a_format_str: Строка, по которой происходит добавление числа к a_new_name
+    :return: Имя с приставкой _number
+    """
+    new_name = a_new_name
+    counter = 0
+    while new_name in a_existing_names:
+        counter += 1
+        new_name = a_format_str.format(new_name=a_new_name, number=counter)
+    return new_name
 
 
 class Timer:
@@ -311,3 +363,23 @@ class Timer:
         else:
             return time.perf_counter() - self.start_time
 
+
+class PerfTime:
+    def __init__(self, threshold_s):
+        self.threshold_s = threshold_s
+        self.start_time = 0
+        self.times = defaultdict(list)
+
+    def start(self):
+        self.start_time = time.perf_counter()
+
+    def trace(self, trace_name):
+        trace_time = time.perf_counter() - self.start_time
+        if trace_time > self.threshold_s:
+            self.times[trace_name].append(trace_time)
+            print(trace_name, trace_time)
+
+        self.start()
+
+    def get_times(self):
+        return self.times

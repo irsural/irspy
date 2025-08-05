@@ -1,5 +1,8 @@
-from typing import List
+import typing
+from typing import List, Tuple
 import os
+
+import PyInstaller.__main__ as pyinstaller
 
 
 version_file_content = \
@@ -35,14 +38,14 @@ StringFileInfo(
   [
   StringTable(
     u'040904B0',
-    [StringStruct(u'CompanyName', u'ООО "Радиоэлектронные системы"'),
-    StringStruct(u'FileDescription', u'Clb AutoCalibration'),
-    StringStruct(u'FileVersion', u'0.{version}.0.0'),
-    StringStruct(u'InternalName', u'CAC'),
-    StringStruct(u'LegalCopyright', u'Копирайт © ООО "РЭС"'),
-    StringStruct(u'OriginalFilename', u'Clb_AutoCalibration.exe'),
-    StringStruct(u'ProductName', u'Calibrator AutoCalibration'),
-    StringStruct(u'ProductVersion', u'0.{version}.0.0')])
+    [StringStruct(u'CompanyName', u'{company_name}'),
+    StringStruct(u'FileDescription', u'{file_description}'),
+    StringStruct(u'FileVersion', u'{version}'),
+    StringStruct(u'InternalName', u'{internal_name}'),
+    StringStruct(u'LegalCopyright', u'{copyright}'),
+    StringStruct(u'OriginalFilename', u'{original_filename}'),
+    StringStruct(u'ProductName', u'{product_name}'),
+    StringStruct(u'ProductVersion', u'{version}')])
   ]), 
 VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]
@@ -50,92 +53,95 @@ VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
 """
 
 
-def _create_pyinstaller_parameter(pyinstaller_parameter: str, args: List[str], add_data_sep: str) -> str:
-    if args:
-        hidden_import_parts = []
-        for arg in args:
-            hidden_import_parts.append(f' {pyinstaller_parameter} "{arg}"{add_data_sep}.')
-        pyinstaller_param_with_args = "".join(hidden_import_parts)
-    else:
-        pyinstaller_param_with_args = ""
-    return pyinstaller_param_with_args
+class AppInfo:
+    def __init__(self, a_app_name, a_company_name="", a_file_description="", a_version="0.0", a_internal_name="",
+                 a_copyright="", a_original_filename="", a_product_name=""):
 
-
-def _create_pyinstaller_parameter_without_sep(pyinstaller_parameter: str, args: List[str]) -> str:
-    if args:
-        hidden_import_parts = []
-        for arg in args:
-            hidden_import_parts.append(f' {pyinstaller_parameter} "{arg}"')
-        pyinstaller_param_with_args = "".join(hidden_import_parts)
-    else:
-        pyinstaller_param_with_args = ""
-    return pyinstaller_param_with_args
+        self.app_name = a_app_name
+        self.company_name = a_company_name
+        self.file_description = a_file_description
+        self.version = a_version
+        self.internal_name = a_internal_name
+        self.copyright = a_copyright
+        self.original_filename = a_original_filename
+        self.product_name = a_product_name
 
 
 def build_app(
-    a_main_filename: str,
-    a_app_name: str,
-    a_version: int,
-    a_icon_filename: str="",
-    a_noconsole=True,
-    a_one_file=True,
-    a_libs: List[str]=None,
-    a_hidden_import: List[str]=None,
-    a_collect_all: List[str]=None,
+        a_main_filename: str | os.PathLike,
+        a_app_info: AppInfo,
+        a_icon_filename: str | os.PathLike = "",
+        a_noconsole=True,
+        a_one_file=True,
+        a_admin = False,
+        a_libs: List[Tuple[str | os.PathLike, str]] = None,
+        dist_path: str | os.PathLike | None = None,
+        spec_path: str | os.PathLike | None = None,
+        build_path: str | os.PathLike | None = None,
+        version_filename: str | os.PathLike = 'version.txt',
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
     :param a_main_filename: Имя файла главного скрипта
-    :param a_app_name: Имя приложения
-    :param a_version: Версия приложения
+    :param a_app_info: Информация о приложении
     :param a_icon_filename: Путь к иконке приложения
     :param a_noconsole: Параметр noconole в pyinstaller
     :param a_one_file: Параметр onefile в pyinstaller
+    :param a_admin: Параметр --uac-admin в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
-    :param a_hidden_import: параметр hidden-import в pyinstaller
-    :param a_collect_all: параметр collect-all в pyinstaller
     """
-    name = " -n {}".format(a_app_name)
-    onefile = " --onefile" if a_one_file else ""
-    noconsole = " --noconsole" if a_noconsole else ""
-    icon = " --icon={}".format(a_icon_filename) if a_icon_filename else ""
-    add_data_sep = ";" if os.name == 'nt' else ":"
-    libs = _create_pyinstaller_parameter('--add-data', a_libs, add_data_sep)
-    hidden_import = _create_pyinstaller_parameter_without_sep('--hidden-import', a_hidden_import)
-    collect_all = _create_pyinstaller_parameter_without_sep('--collect-all', a_collect_all)
-
-    version_filename = "version.txt"
+    pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
+    if a_one_file:
+        pyinstaller_args.append("--onefile")
+    if a_noconsole:
+        pyinstaller_args.append("--noconsole")
+    if a_icon_filename:
+        pyinstaller_args.append("--icon={}".format(a_icon_filename))
+    if a_admin:
+        pyinstaller_args.append("--uac-admin")
+    for src, dst in a_libs:
+        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
+    if dist_path:
+        pyinstaller_args.append("--distpath={}".format(dist_path))
+    if spec_path:
+        pyinstaller_args.append("--specpath={}".format(spec_path))
+    if build_path:
+        pyinstaller_args.append("--workpath={}".format(build_path))
     with open(version_filename, 'w', encoding="utf8") as version_file:
-        version_file.write(version_file_content.format(version=a_version))
-        version = " --version-file={}".format(version_filename)
-
-    os.system(
-        "pyinstaller{}{}{}{}{}{}{}{} {}".format(
-            name, onefile, noconsole, icon, version, libs, hidden_import, collect_all, a_main_filename
+        version_file.write(version_file_content.format(
+            company_name=a_app_info.company_name, file_description=a_app_info.file_description,
+            version=a_app_info.version, internal_name=a_app_info.internal_name,
+            copyright=a_app_info.copyright, original_filename=a_app_info.original_filename,
+            product_name=a_app_info.product_name)
         )
-    )
 
-    os.remove(version_filename)
+    pyinstaller_args.append("--version-file={}".format(version_filename))
+
+    try:
+        pyinstaller.run(pyinstaller_args)
+    finally:
+        os.remove(version_filename)
 
 
 def build_qt_app(
-    a_main_filename: str,
-    a_app_name: str,
-    a_version: int,
-    a_icon_filename: str="",
-    a_noconsole=True,
-    a_one_file=True,
-    a_libs: List[str]=None,
-    a_hidden_import: List[str]=None,
-    a_collect_all: List[str]=None,
+        a_main_filename: os.PathLike | str,
+        a_app_info: AppInfo,
+        a_icon_filename: str | os.PathLike = "",
+        a_noconsole=True,
+        a_one_file=True,
+        a_admin=False,
+        a_libs: List[Tuple[str | os.PathLike, str]] = None,
+        dist_path: str | os.PathLike | None = None,
+        spec_path: str | os.PathLike | None = None,
+        build_path: str | os.PathLike | None = None,
+        version_file_path: str | os.PathLike | None = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
       которые конвертируют ресурсы qt в python.
       Параметры, как у build_app
     """
-
-    tmp_filename = "{}.py".format(a_app_name)
+    tmp_filename = "{}.py".format(a_app_info.app_name)
 
     with open(a_main_filename, encoding='utf8') as main_py:
         with open(tmp_filename, "w", encoding='utf8') as compile_main:
@@ -143,16 +149,19 @@ def build_qt_app(
                 if not ("ui_to_py" in line):
                     compile_main.write(line)
 
-    build_app(
-        tmp_filename,
-        a_app_name,
-        a_version,
-        a_icon_filename,
-        a_noconsole,
-        a_one_file,
-        a_libs,
-        a_hidden_import,
-        a_collect_all
-    )
-
-    os.remove(tmp_filename)
+    try:
+        build_app(
+            tmp_filename,
+            a_app_info,
+            a_icon_filename,
+            a_noconsole,
+            a_one_file,
+            a_admin,
+            a_libs,
+            dist_path,
+            spec_path,
+            build_path,
+            version_file_path,
+        )
+    finally:
+        os.remove(tmp_filename)

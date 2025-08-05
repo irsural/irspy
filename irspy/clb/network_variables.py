@@ -262,6 +262,10 @@ class NetworkVariables:
                                                             a_mode=BufferedVariable.Mode.RW,
                                                             a_buffer_delay_s=a_variables_read_delay)
 
+        self.source_ready = BufferedVariable(a_variable_info=VariableInfo(
+            a_index=220, a_bit_index=0, a_type="bit"), a_calibrator=self.__calibrator,
+            a_mode=BufferedVariable.Mode.R, a_buffer_delay_s=a_variables_read_delay)
+
         self.fast_adc_slow = BufferedVariable(a_variable_info=VariableInfo(a_index=229, a_type="double"),
                                               a_calibrator=self.__calibrator, a_mode=BufferedVariable.Mode.R,
                                               a_buffer_delay_s=a_variables_read_delay)
@@ -855,6 +859,9 @@ class BufferedVariable:
         self.__delay_timer = utils.Timer(self._buffer_delay)
 
     def get(self):
+        if self.__calibrator.state == clb.State.DISCONNECTED:
+            return 0
+
         if self.__delay_timer.check() or not self.__delay_timer.started():
             if self.__is_bit:
                 return self.__calibrator.read_bit(self.__variable_info.index, self.__variable_info.bit_index)

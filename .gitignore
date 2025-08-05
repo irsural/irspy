@@ -1,5 +1,6 @@
 __pycache__/
 irspy/qt/custom_widgets/ui_forms/hashes.json
 irspy/qt/resources/hashes.json
-irspy.egg-info/
-.idea/
+dist/*
+.idea/*
+irspy.egg-info/*

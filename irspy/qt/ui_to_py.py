@@ -1,97 +1,103 @@
-import hashlib
-import json
+from pathlib import Path
+from typing import Tuple
 import os
 
-HASHES_FILE = "hashes.json"
+from PyQt5 import uic
+from PyQt5 import pyrcc
+from distutils.sysconfig import get_python_lib
 
 
-def convert_ui(path_in=".", path_out="."):
+def __is_file_newer(fst_filename, snd_filename):
+    return os.path.getmtime(str(fst_filename)) > os.path.getmtime(str(snd_filename))
+
+
+def convert_ui(path_in: str = ".", path_out: str = ".", resources_path: str = ""):
     """
     Конвертирует .ui формы из path_in в .py файлы (в path_out)
     :param path_in: Каталог, содержащий .ui формы
     :param path_out: Каталог, в коротом будут создаваться .py файлы
+    :param resources_path: если не пустая строка, то код в py файлах сгенерируется со строкой
+    from resource_path import py_filename, иначе import py_filename
     """
-    __convert_gui("pyuic5 {_in} > {_out}", ".ui", ".py", path_in, path_out)
+    for ui_filename, py_filename in __old_files_with_extension(path_in, ".ui", path_out, ".py"):
+        print(ui_filename, "updated")
+        py_filename.parent.mkdir(exist_ok=True, parents=True)
+        with open(str(py_filename), 'w', encoding='utf8') as py_file:
+            uic.compileUi(ui_filename, py_file, resource_suffix="",
+                          from_imports=True if resources_path else False,
+                          import_from=resources_path)
 
 
-def convert_resources(path_in=".", path_out="."):
+def convert_resources(path_in: str = ".", path_out: str = "."):
     """
     Конвертирует .qrc ресурсы из path_in в .py файлы (в path_out)
     :param path_in: Каталог, содержащий .qrc формы
     :param path_out: Каталог, в коротом будут создаваться .py файлы
     """
-    __convert_gui("pyrcc5 {_in} > {_out}", ".qrc", "_rc.py", path_in, path_out)
+    for qrc_filename, py_filename in __old_files_with_extension(path_in, ".qrc", path_out, ".py"):
+        print(qrc_filename, "updated")
+        py_filename.parent.mkdir(exist_ok=True, parents=True)
+        __qrc_to_py([str(qrc_filename)], str(py_filename))
 
 
-def __convert_gui(convert_cmd: str, ext_in: str, ext_out: str, path_in=".", path_out="."):
-    """
-    Конвертирует специальные файлы qt в файлы python. При это вычисляет и сохраняет хэш конвртируемого файла.
-    Если хэш совпадает с прошлым и python файл уже существует, то не конвертирует файл
-    """
-    hashes_path = "{0}/{1}".format(path_in, HASHES_FILE)
-    try:
-        with open(hashes_path, 'r') as hashes_file:
-            hashes = json.load(hashes_file)
-    except FileNotFoundError:
-        hashes = {}
+def __old_files_with_extension(path_in, ext_in: str, path_out, ext_out: str, recursively: bool = False) -> Tuple[Path, Path]:
+    path_in = Path(path_in)
+    path_out = Path(path_out)
+    if recursively:
+        files = (os.path.join(root, f) for root, dirs, files in os.walk(str(path_in)) for f in files)
+    else:
+        files = os.listdir(str(path_in))
+    for file in files:
+        if file.endswith(ext_in):
+            file = Path(file)
+            ui_filename = path_in/file
+            py_filename = path_out/file.with_suffix(ext_out)
 
-    for file in os.listdir(path_in):
-        if ext_in in file:
-            ui_filename = "{0}/{1}".format(path_in, file)
-            ui_current_hash = __get_file_hash(ui_filename)
-            ui_prev_hash = "" if ui_filename not in hashes.keys() else hashes[ui_filename]
-
-            py_filename = "{0}/{1}".format(path_out, file.replace(ext_in, ext_out))
-
-            if ui_prev_hash != ui_current_hash or not os.path.isfile(py_filename):
-                hashes[ui_filename] = ui_current_hash
-                os.system(convert_cmd.format(_in=ui_filename, _out=py_filename))
-
-    with open(hashes_path, 'w') as hashes_file:
-        json.dump(hashes, hashes_file)
+            if not os.path.isfile(str(py_filename)) or __is_file_newer(ui_filename, py_filename):
+                yield ui_filename, py_filename
 
 
-def create_translate(a_py_files_folder: str, a_ts_file_path: str):
+def __qrc_to_py(qrc_filename, py_filename):
+    library = pyrcc.RCCResourceLibrary()
+    library.setInputFiles(qrc_filename)
+    library.setVerbose(False)
+    library.setCompressLevel(pyrcc.CONSTANT_COMPRESSLEVEL_DEFAULT)
+    library.setCompressThreshold(pyrcc.CONSTANT_COMPRESSTHRESHOLD_DEFAULT)
+    library.setResourceRoot('')
+
+    if not library.readFiles():
+        return False
+
+    return library.output(py_filename)
+
+
+def create_translate(a_py_files_folder: str, a_ts_file_path: str, recursively: bool = False):
     """
     Создает ts-файлы с помощью pylupdate5 из py-файлов qt-форм. Полученные файлы можно открыть в QtLinguist, чтобы
     сгенерировать qm-файл для QTranslator
     :param a_py_files_folder: Каталог с py-файлами
     :param a_ts_files_folder: Каталог, в который будут помещены ts-файлы
     """
-    hashes_path = "{0}/{1}".format(a_py_files_folder, HASHES_FILE)
-    try:
-        with open(hashes_path, 'r') as hashes_file:
-            hashes = json.load(hashes_file)
-    except FileNotFoundError:
-        hashes = {}
 
     py_files_list = []
-    py_files_changed = False
-    for file in os.listdir(a_py_files_folder):
-        if file.endswith(".py"):
-            py_filename = "{0}/{1}".format(a_py_files_folder, file)
-            py_files_list.append(py_filename)
-
-            py_current_hash = __get_file_hash(py_filename)
-            py_prev_hash = "" if py_filename not in hashes.keys() else hashes[py_filename]
-
-            if py_prev_hash != py_current_hash or not os.path.isfile(a_ts_file_path):
-                hashes[py_filename] = py_current_hash
-                py_files_changed = True
-
-    if py_files_changed:
-        os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
-
-        with open(hashes_path, 'w') as hashes_file:
-            json.dump(hashes, hashes_file)
+    for py_filename, ts_filename in __old_files_with_extension(a_py_files_folder, ".py", a_ts_file_path, ".ts", recursively):
+        py_files_list.append(str(py_filename))
+    os.system("pylupdate5 {} -ts {}".format(" ".join(py_files_list), a_ts_file_path))
 
 
-def __get_file_hash(a_filename):
-    with open(a_filename, 'rb') as file:
-        return hashlib.md5(file.read()).hexdigest()
+def compile_ts(ts_files_folder: str, qm_files_path: str):
+    """
+    Компилирует ts-файлы с помощью lrelease из ts-файлов
+    :param ts_files_folder: Каталог с ts-файлами
+    :param qm_files_path: Каталог, в который будen помещен qm-файлы
+    """
+
+    lrelease_path = f'{get_python_lib()}/qt5_applications/Qt/bin/lrelease'
+    for ts_filename, qm_filename in __old_files_with_extension(ts_files_folder, ".ts", qm_files_path, ".qm", False):
+        os.system(f'{lrelease_path} {ts_filename} -qm {qm_filename}')
 
 
 if __name__ == "__main__":
     convert_ui("../../ui", "../../ui/py")
-    convert_resources("../../resources", "../../../")
+    convert_resources("../../resources", "../../")
     # create_translate("../../upms_1v_pc/ui/py", "../../upms_1v_pc/ui/translates")
