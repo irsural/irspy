@@ -79,8 +79,8 @@ def build_app(
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_filename: Union[str, os.PathLike] = 'version.txt',
-        a_hidden_import: List[Tuple[Union[str, os.PathLike], str]] = None,
-        a_collect_all: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_hidden_import: List[Union[str, os.PathLike]] = None,
+        a_collect_all: List[Union[str, os.PathLike]] = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -115,6 +115,11 @@ def build_app(
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
         pyinstaller_args.append("--workpath={}".format(build_path))
+    for module_name in a_hidden_import:
+        pyinstaller_args.append("--hidden-import={}".format(module_name))
+    for module_name in a_collect_all:
+        pyinstaller_args.append("--collect-all={}".format(module_name))
+
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
             company_name=a_app_info.company_name, file_description=a_app_info.file_description,
@@ -143,8 +148,8 @@ def build_qt_app(
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_file_path: Union[str, os.PathLike, None] = None,
-        a_hidden_import: List[Tuple[Union[str, os.PathLike], str]] = None,
-        a_collect_all: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_hidden_import: List[Union[str, os.PathLike]] = None,
+        a_collect_all: List[Union[str, os.PathLike]] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
