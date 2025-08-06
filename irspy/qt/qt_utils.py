@@ -1,4 +1,4 @@
-from typing import Iterable, Union, Set
+from typing import Iterable, Union, Set, Optional
 from math import isclose
 import logging
 
@@ -121,7 +121,7 @@ class TableHeaderContextMenu:
     """
 
     def __init__(self, a_parent: QtWidgets.QWidget, a_table: QtWidgets.QTableView,
-                 a_hide_first_column: bool = False, ignored_columns: Set[int] | None = None):
+                 a_hide_first_column: bool = False, ignored_columns: Optional[Set[int]] = None):
         table_header = a_table.horizontalHeader()
         table_header.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
