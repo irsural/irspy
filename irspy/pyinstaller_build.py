@@ -74,13 +74,13 @@ def build_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
-        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_libs: Union[List[Tuple[Union[str, os.PathLike], str]], None] = None,
         dist_path: Union[str, os.PathLike, None] = None,
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_filename: Union[str, os.PathLike] = 'version.txt',
-        a_hidden_import: List[Union[str, os.PathLike]] = None,
-        a_collect_all: List[Union[str, os.PathLike]] = None,
+        a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -107,18 +107,21 @@ def build_app(
         pyinstaller_args.append("--icon={}".format(a_icon_filename))
     if a_admin:
         pyinstaller_args.append("--uac-admin")
-    for src, dst in a_libs:
-        pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
+    if a_libs:
+        for src, dst in a_libs:
+            pyinstaller_args.append("--add-data={}{}{}".format(src, os.pathsep, dst))
     if dist_path:
         pyinstaller_args.append("--distpath={}".format(dist_path))
     if spec_path:
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
         pyinstaller_args.append("--workpath={}".format(build_path))
-    for module_name in a_hidden_import:
-        pyinstaller_args.append("--hidden-import={}".format(module_name))
-    for module_name in a_collect_all:
-        pyinstaller_args.append("--collect-all={}".format(module_name))
+    if a_hidden_import:
+        for module_name in a_hidden_import:
+            pyinstaller_args.append("--hidden-import={}".format(module_name))
+    if a_collect_all:
+        for module_name in a_collect_all:
+            pyinstaller_args.append("--collect-all={}".format(module_name))
 
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
@@ -143,13 +146,13 @@ def build_qt_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_libs: Union[List[Tuple[Union[str, os.PathLike], str]], None] = None,
         dist_path: Union[str, os.PathLike, None] = None,
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
-        version_file_path: Union[str, os.PathLike, None] = None,
-        a_hidden_import: List[Union[str, os.PathLike]] = None,
-        a_collect_all: List[Union[str, os.PathLike]] = None,
+        version_file_path: Union[str, os.PathLike] = 'version.txt',
+        a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
