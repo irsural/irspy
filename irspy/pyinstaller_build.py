@@ -74,13 +74,13 @@ def build_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
-        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_libs: Union[List[Tuple[Union[str, os.PathLike], str]], None] = None,
         dist_path: Union[str, os.PathLike, None] = None,
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_filename: Union[str, os.PathLike] = 'version.txt',
-        a_hidden_import: List[Union[str, os.PathLike]] = None,
-        a_collect_all: List[Union[str, os.PathLike]] = None,
+        a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -146,13 +146,13 @@ def build_qt_app(
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_libs: Union[List[Tuple[Union[str, os.PathLike], str]], None] = None,
         dist_path: Union[str, os.PathLike, None] = None,
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
-        version_file_path: Union[str, os.PathLike, None] = None,
-        a_hidden_import: List[Union[str, os.PathLike]] = None,
-        a_collect_all: List[Union[str, os.PathLike]] = None,
+        version_file_path: Union[str, os.PathLike] = 'version.txt',
+        a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
