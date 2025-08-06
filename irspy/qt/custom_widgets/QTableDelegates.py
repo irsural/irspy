@@ -161,11 +161,10 @@ class CheckBoxCellDelegate(QtWidgets.QStyledItemDelegate):
         assert isinstance(editor, QtWidgets.QCheckBox)
         data = index.data()
         if isinstance(index.data(), str):
-            match data:
-                case 'True':
-                    data = True
-                case 'False':
-                    data = False
+            if data == 'True':
+                data = True
+            elif data == 'False':
+                data = False
         assert isinstance(data, bool), f'Expected bool, but got {type(data)} - {data}'
         editor.setChecked(data)
 
