@@ -79,6 +79,8 @@ def build_app(
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_filename: Union[str, os.PathLike] = 'version.txt',
+        a_hidden_import: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_collect_all: List[Tuple[Union[str, os.PathLike], str]] = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -89,6 +91,12 @@ def build_app(
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_admin: Параметр --uac-admin в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param dist_path: Параметр --distpath в pyinstaller
+    :param spec_path: Параметр --specpath в pyinstaller
+    :param build_path: Параметр --workpath в pyinstaller
+    :param version_filename: Параметр --version-file в pyinstaller
+    :param a_hidden_import: Параметр --hidden-import в pyinstaller
+    :param a_collect_all: Параметр --collect-all в pyinstaller
     """
     pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
     if a_one_file:
@@ -135,6 +143,8 @@ def build_qt_app(
         spec_path: Union[str, os.PathLike, None] = None,
         build_path: Union[str, os.PathLike, None] = None,
         version_file_path: Union[str, os.PathLike, None] = None,
+        a_hidden_import: List[Tuple[Union[str, os.PathLike], str]] = None,
+        a_collect_all: List[Tuple[Union[str, os.PathLike], str]] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
@@ -162,6 +172,8 @@ def build_qt_app(
             spec_path,
             build_path,
             version_file_path,
+            a_hidden_import,
+            a_collect_all,
         )
     finally:
         os.remove(tmp_filename)
