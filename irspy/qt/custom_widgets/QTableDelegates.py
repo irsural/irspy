@@ -116,8 +116,8 @@ class ButtonCellDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self,
                  parent: Optional[QWidget] = None,
-                 label: str | None = None,
-                 icon_path: str | None = None) -> None:
+                 label: Optional[str] = None,
+                 icon_path: Optional[str] = None) -> None:
         super().__init__(parent)
         self.__label = label
         self.__icon_path = icon_path

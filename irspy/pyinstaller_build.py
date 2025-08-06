@@ -1,5 +1,5 @@
 import typing
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import os
 
 import PyInstaller.__main__ as pyinstaller
@@ -68,17 +68,17 @@ class AppInfo:
 
 
 def build_app(
-        a_main_filename: str | os.PathLike,
+        a_main_filename: Union[str, os.PathLike],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
+        a_icon_filename: Union[str, os.PathLike] = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_filename: str | os.PathLike = 'version.txt',
+        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_filename: Union[str, os.PathLike] = 'version.txt',
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -124,17 +124,17 @@ def build_app(
 
 
 def build_qt_app(
-        a_main_filename: os.PathLike | str,
+        a_main_filename: Union[os.PathLike, str],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
+        a_icon_filename: Union[str, os.PathLike] = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_file_path: str | os.PathLike | None = None,
+        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_file_path: Union[str, os.PathLike, None] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
