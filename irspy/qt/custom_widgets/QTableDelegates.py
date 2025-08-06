@@ -116,8 +116,8 @@ class ButtonCellDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self,
                  parent: Optional[QWidget] = None,
-                 label: str | None = None,
-                 icon_path: str | None = None) -> None:
+                 label: Optional[str] = None,
+                 icon_path: Optional[str] = None) -> None:
         super().__init__(parent)
         self.__label = label
         self.__icon_path = icon_path
@@ -161,11 +161,10 @@ class CheckBoxCellDelegate(QtWidgets.QStyledItemDelegate):
         assert isinstance(editor, QtWidgets.QCheckBox)
         data = index.data()
         if isinstance(index.data(), str):
-            match data:
-                case 'True':
-                    data = True
-                case 'False':
-                    data = False
+            if data == 'True':
+                data = True
+            elif data == 'False':
+                data = False
         assert isinstance(data, bool), f'Expected bool, but got {type(data)} - {data}'
         editor.setChecked(data)
 

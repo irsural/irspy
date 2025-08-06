@@ -1,5 +1,5 @@
 import typing
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import os
 
 import PyInstaller.__main__ as pyinstaller
@@ -68,17 +68,19 @@ class AppInfo:
 
 
 def build_app(
-        a_main_filename: str | os.PathLike,
+        a_main_filename: Union[str, os.PathLike],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
+        a_icon_filename: Union[str, os.PathLike] = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin = False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_filename: str | os.PathLike = 'version.txt',
+        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_filename: Union[str, os.PathLike] = 'version.txt',
+        a_hidden_import: List[Union[str, os.PathLike]] = None,
+        a_collect_all: List[Union[str, os.PathLike]] = None,
 ) -> None:
     """
     Запускает сборку через pyinstaller с заданными параметрами.
@@ -89,6 +91,12 @@ def build_app(
     :param a_one_file: Параметр onefile в pyinstaller
     :param a_admin: Параметр --uac-admin в pyinstaller
     :param a_libs: Библиотеки (dll), которые нужно добавить в сборку
+    :param dist_path: Параметр --distpath в pyinstaller
+    :param spec_path: Параметр --specpath в pyinstaller
+    :param build_path: Параметр --workpath в pyinstaller
+    :param version_filename: Параметр --version-file в pyinstaller
+    :param a_hidden_import: Параметр --hidden-import в pyinstaller
+    :param a_collect_all: Параметр --collect-all в pyinstaller
     """
     pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
     if a_one_file:
@@ -107,6 +115,11 @@ def build_app(
         pyinstaller_args.append("--specpath={}".format(spec_path))
     if build_path:
         pyinstaller_args.append("--workpath={}".format(build_path))
+    for module_name in a_hidden_import:
+        pyinstaller_args.append("--hidden-import={}".format(module_name))
+    for module_name in a_collect_all:
+        pyinstaller_args.append("--collect-all={}".format(module_name))
+
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
             company_name=a_app_info.company_name, file_description=a_app_info.file_description,
@@ -124,17 +137,19 @@ def build_app(
 
 
 def build_qt_app(
-        a_main_filename: os.PathLike | str,
+        a_main_filename: Union[os.PathLike, str],
         a_app_info: AppInfo,
-        a_icon_filename: str | os.PathLike = "",
+        a_icon_filename: Union[str, os.PathLike] = "",
         a_noconsole=True,
         a_one_file=True,
         a_admin=False,
-        a_libs: List[Tuple[str | os.PathLike, str]] = None,
-        dist_path: str | os.PathLike | None = None,
-        spec_path: str | os.PathLike | None = None,
-        build_path: str | os.PathLike | None = None,
-        version_file_path: str | os.PathLike | None = None,
+        a_libs: List[Tuple[Union[str, os.PathLike], str]] = None,
+        dist_path: Union[str, os.PathLike, None] = None,
+        spec_path: Union[str, os.PathLike, None] = None,
+        build_path: Union[str, os.PathLike, None] = None,
+        version_file_path: Union[str, os.PathLike, None] = None,
+        a_hidden_import: List[Union[str, os.PathLike]] = None,
+        a_collect_all: List[Union[str, os.PathLike]] = None,
 ) -> None:
     """
       Запускает сборку через pyinstaller с заданными параметрами. Перед этим удаляет из главного скрипта строки,
@@ -162,6 +177,8 @@ def build_qt_app(
             spec_path,
             build_path,
             version_file_path,
+            a_hidden_import,
+            a_collect_all,
         )
     finally:
         os.remove(tmp_filename)
