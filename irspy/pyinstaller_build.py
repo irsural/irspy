@@ -138,7 +138,6 @@ def build_app(
 
     pyinstaller_args.append("--version-file={}".format(version_filename))
 
-    print(pyinstaller_args)
     try:
         pyinstaller.run(pyinstaller_args)
     finally:
