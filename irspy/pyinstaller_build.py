@@ -98,6 +98,7 @@ def build_app(
     :param version_filename: Параметр --version-file в pyinstaller
     :param a_hidden_import: Параметр --hidden-import в pyinstaller
     :param a_collect_all: Параметр --collect-all в pyinstaller
+    :param a_exclude_module: Параметр --exclude-module в pyinstaller
     """
     pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
     if a_one_file:
