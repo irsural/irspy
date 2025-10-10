@@ -1,4 +1,3 @@
-import typing
 from typing import List, Tuple, Union
 import os
 
@@ -15,7 +14,7 @@ VSVersionInfo(
   ffi=FixedFileInfo(
 # filevers and prodvers should be always a tuple with four items: (1, 2, 3, 4)
 # Set not needed items to zero 0.
-filevers=(0, {version}, 0, 0),
+filevers={filevers},
 prodvers=(0, 0, 0, 0),
 # Contains a bitmask that specifies the valid bits 'flags'r
 mask=0x0,
@@ -66,6 +65,23 @@ class AppInfo:
         self.original_filename = a_original_filename
         self.product_name = a_product_name
 
+def version_to_filevers(a_version: str) -> Tuple[int, int, int, int]:
+    """
+    Преобразует строковую версию приложения в кортеж чисел для формата filevers.
+    Формат filevers требует 4 элемента типа int. Если в исходной версии
+    меньше элементов, недостающие заполняются нулями.
+    :param a_version: Версия приложения
+    :return: Кортеж из 4 целых чисел
+    """
+    filevers = [int(element) for element in a_version.split(".")]
+    if len(filevers) > 4:
+        raise ValueError(
+            f"Некорректный формат версии: {a_version}. "
+            f"Формат filevers поддерживает максимум 4 элемента, получено {len(filevers)}"
+        )
+    while len(filevers) < 4:
+        filevers.append(0)
+    return tuple(filevers)
 
 def build_app(
         a_main_filename: Union[str, os.PathLike],
@@ -131,9 +147,9 @@ def build_app(
     with open(version_filename, 'w', encoding="utf8") as version_file:
         version_file.write(version_file_content.format(
             company_name=a_app_info.company_name, file_description=a_app_info.file_description,
-            version=a_app_info.version, internal_name=a_app_info.internal_name,
-            copyright=a_app_info.copyright, original_filename=a_app_info.original_filename,
-            product_name=a_app_info.product_name)
+            filevers=version_to_filevers(a_app_info.version), version=a_app_info.version,
+            internal_name=a_app_info.internal_name, copyright=a_app_info.copyright,
+            original_filename=a_app_info.original_filename, product_name=a_app_info.product_name)
         )
 
     pyinstaller_args.append("--version-file={}".format(version_filename))
