@@ -70,6 +70,7 @@ def version_to_filevers(a_version: str) -> Tuple[int, int, int, int]:
     Преобразует строковую версию приложения в кортеж чисел для формата filevers.
     Формат filevers требует 4 элемента типа int. Если в исходной версии
     меньше элементов, недостающие заполняются нулями.
+
     :param a_version: Версия приложения
     :return: Кортеж из 4 целых чисел
     """
@@ -81,7 +82,7 @@ def version_to_filevers(a_version: str) -> Tuple[int, int, int, int]:
         )
     while len(filevers) < 4:
         filevers.append(0)
-    return tuple(filevers)
+    return (filevers[0], filevers[1], filevers[2], filevers[3])
 
 def build_app(
         a_main_filename: Union[str, os.PathLike],
