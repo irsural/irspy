@@ -98,6 +98,7 @@ def build_app(
         version_filename: Union[str, os.PathLike] = 'version.txt',
         a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
         a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_binaries: Union[List[Union[str, os.PathLike]], None] = None,
         a_exclude_module: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
@@ -115,6 +116,7 @@ def build_app(
     :param version_filename: Параметр --version-file в pyinstaller
     :param a_hidden_import: Параметр --hidden-import в pyinstaller
     :param a_collect_all: Параметр --collect-all в pyinstaller
+    :param a_collect_binaries: Параметр --collect_binaries в pyinstaller
     :param a_exclude_module: Параметр --exclude-module в pyinstaller
     """
     pyinstaller_args = [a_main_filename, "--name={}".format(a_app_info.app_name)]
@@ -141,6 +143,9 @@ def build_app(
     if a_collect_all:
         for module_name in a_collect_all:
             pyinstaller_args.append("--collect-all={}".format(module_name))
+    if a_collect_binaries:
+        for module_name in a_collect_binaries:
+            pyinstaller_args.append("--collect-binaries={}".format(module_name))
     if a_exclude_module:
         for module_name in a_exclude_module:
             pyinstaller_args.append("--exclude-module={}".format(module_name))
@@ -175,6 +180,7 @@ def build_qt_app(
         version_file_path: Union[str, os.PathLike] = 'version.txt',
         a_hidden_import: Union[List[Union[str, os.PathLike]], None] = None,
         a_collect_all: Union[List[Union[str, os.PathLike]], None] = None,
+        a_collect_binaries: Union[List[Union[str, os.PathLike]], None] = None,
         a_exclude_module: Union[List[Union[str, os.PathLike]], None] = None,
 ) -> None:
     """
@@ -205,6 +211,7 @@ def build_qt_app(
             version_file_path,
             a_hidden_import,
             a_collect_all,
+            a_collect_binaries,
             a_exclude_module,
         )
     finally:
